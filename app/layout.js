@@ -15,7 +15,7 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en">
-      <body >
+      <body className='bg-light'>
         {/* Render the NavBar only if showNavbar is true */}
         {showNavbar && <NavBar />} {/* Correct casing */}
         {children}

@@ -5,17 +5,10 @@
 .list-group-item {
   padding: 0.3 0.5rem;
 }
-.custom-font,
-.small-placeholder::placeholder {
-  margin-bottom: 0.5rem;
-  font-size: 0.64rem;
-  /* font-weight: 700; */
-}
-.fw-700 {
-  font-weight: 700;
-}
+
 .vh-row {
-  height: 602px; /* Fixed height for the row */
+  /* height: 602px; */
+  /* Fixed height for the row */
 }
 
 .col-md-4 {
@@ -27,4 +20,6 @@
   flex-direction: column;
   justify-content: center; /* Vertically center content in .col-md-5 */
   height: 100%; /* Fill the row height */
+}
+.mt-10 {
 }

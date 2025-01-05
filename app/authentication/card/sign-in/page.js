@@ -3,12 +3,62 @@
 import { useState } from "react";
 import "../../../authentication/authentication.css";
 import Link from "next/link";
+import { login } from '../../../../utils/restClient'; // Adjust path accordingly
+import { useRouter } from 'next/navigation';
+import { setCookie } from 'cookies-next';
+
 export default function SignInPage() {
 
+
+
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePassword = () => {
     setShowPassword(!showPassword);
+  };
+
+
+  const router = useRouter();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const data = await login(username, password); // Ensure login sets the token
+
+      // Check if the token is stored in localStorage
+      const token = localStorage.getItem('token');
+      if (token) {
+        console.log('Login successful, redirecting to dashboard...');
+
+        // Store token in cookies (for server-side use) with 1-week expiry
+        // Store token in a cookie for middleware accessl̥
+        // setCookie('token', token, { maxAge: 60 * 60 * 24 * 7, path: '/' });
+
+        // Store token in cookies (for server-side use) with 1-hour expiry
+        setCookie('token', token, { maxAge: 60 * 60, path: '/' });
+
+
+
+
+
+
+
+        // Store the token in localStorage for client-side use
+        localStorage.setItem('token', token);  // This is client-side only
+
+        // Ensure redirection happens after token is set
+        setTimeout(() => {
+          router.push('/dashboard'); // Redirect to the dashboard
+        }, 100);  // Delay in milliseconds (100ms in this case)
+
+      } else {
+        setError('Failed to store token');
+      }
+    } catch (err) {
+      setError('Invalid credentials');
+    }
   };
 
   return (
@@ -23,32 +73,12 @@ export default function SignInPage() {
         />
       </div>
 
-      {/* <p className="text-center lh-sm mx-0 my-0">Sign In</p> */}
       <h5 className="text-center lh-sm mx-0 my-1 fw-700">Sign In</h5>
       <p className="text-center lh-sm mb-4"> Get access to your account</p>
 
-      {/* <button type="button" className="btn  btn-sm btn-light w-100 mb-3">
-        <span className="me-2">
-          <i className="bi bi-google text-warning"></i>
-        </span>
-        <span className="custom-font "> Sign in with Google</span>
-      </button>
 
-      <button type="button" className="btn  btn-sm btn-light w-100 mb-3">
-        <span className="me-2">
-          <i className="bi bi-facebook text-primary"></i>
-        </span>
-        <span className="custom-font "> Sign in with Facebook</span>
-      </button> */}
 
-      {/* <div className=" position-relative">
-        <p className="position-absolute top-50 start-50 translate-middle bg-body-tertiary">
-          or use email
-        </p>
-        <hr />
-      </div> */}
-
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label htmlFor="email" className=" form-label fw-700 opacity-50">
             Email address
@@ -56,10 +86,13 @@ export default function SignInPage() {
           <div className=" position-relative">
             <i className="bi bi-person-fill position-absolute top-50 start-0 translate-middle-y px-2"></i>
             <input
-              type="email"
+              type=""
               className="form-control form-control-sm ps-4 small-placeholder"
               id="email"
               placeholder="Enter email"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
             />
           </div>
         </div>
@@ -82,10 +115,15 @@ export default function SignInPage() {
               ></i>
             </button>
             <input
-              type="password"
+              // type="password"
+              type={showPassword ? 'text' : 'password'}
+
               className="form-control form-control-sm ps-4 small-placeholder"
               id="password"
               placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
         </div>
@@ -110,10 +148,12 @@ export default function SignInPage() {
 
         <div className="d-flex">
           <div className=" flex-fill text-center">
-            <Link className="text-decoration-none" href="/">Create an account</Link>
+            {/* <Link className="text-decoration-none" href="/">Create an account</Link> */}
           </div>
         </div>
       </form>
+      {error && <p>{error}</p>}
+
     </div>
   );
 }

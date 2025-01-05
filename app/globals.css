@@ -1,0 +1,21 @@
+.custom-font,
+.small-placeholder::placeholder {
+  margin-bottom: 0.5rem;
+  font-size: 0.64rem;
+  /* font-weight: 700; */
+}
+.fw-700 {
+  font-weight: 700;
+}
+body {
+  font-size: 0.64rem !important;
+}
+
+/* 
+.table-fixed td:first-child,
+.table-fixed th:first-child  */
+
+td:first-child {
+  width: 270px;
+  box-sizing: border-box;
+}
