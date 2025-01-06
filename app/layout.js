@@ -2,6 +2,8 @@
 import './globals.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Correct JS file to ensure Bootstrap works
+
 import NavBar from '@/components/NavBar';
 import { usePathname } from 'next/navigation';
 
@@ -20,6 +22,7 @@ export default function RootLayout({ children }) {
         {showNavbar && <NavBar />} {/* Correct casing */}
         {children}
       </body>
+      {/* <script src='https://getbootstrap.com/docs/5.0/examples/sidebars/sidebars.js'></script> */}
     </html>
   );
 }

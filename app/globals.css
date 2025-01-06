@@ -2,20 +2,26 @@
 .small-placeholder::placeholder {
   margin-bottom: 0.5rem;
   font-size: 0.64rem;
-  /* font-weight: 700; */
 }
 .fw-700 {
   font-weight: 700;
 }
+
+.fs-0-point-7 {
+  font-size: 0.7rem !important;
+}
 body {
-  font-size: 0.64rem !important;
+  /* font-size: 0.64rem !important; */
 }
 
-/* 
-.table-fixed td:first-child,
-.table-fixed th:first-child  */
+.navbar {
+  padding: 0 !important;
+}
 
-td:first-child {
-  width: 270px;
-  box-sizing: border-box;
+.btn {
+  /* padding: 2px 8px !important; */
+
+  --bs-btn-padding-y: 0.25rem !important;
+  --bs-btn-padding-x: 0.5rem !important;
+  --bs-btn-font-size: 0.7rem !important;
 }

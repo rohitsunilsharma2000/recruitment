@@ -40,11 +40,6 @@ export default function SignInPage() {
         setCookie('token', token, { maxAge: 60 * 60, path: '/' });
 
 
-
-
-
-
-
         // Store the token in localStorage for client-side use
         localStorage.setItem('token', token);  // This is client-side only
 

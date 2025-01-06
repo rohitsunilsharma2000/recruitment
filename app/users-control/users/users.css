@@ -1,0 +1,32 @@
+.profile-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+.user-list {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #ffffff;
+  padding: 15px;
+}
+.user-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+.user-item:last-child {
+  border-bottom: none;
+}
+.profile-details,
+.locale-info,
+.reporting-hierarchy,
+.signature-section {
+  margin-top: 20px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 5px;
+}

@@ -80,3 +80,12 @@
 .card-body {
   padding-top: 0px !important;
 }
+
+/* 
+.table-fixed td:first-child,
+.table-fixed th:first-child  */
+
+td:first-child {
+  width: 270px;
+  box-sizing: border-box;
+}

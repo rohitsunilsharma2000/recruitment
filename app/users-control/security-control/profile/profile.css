@@ -1,0 +1,7 @@
+/* td:first-child {
+  width: 270px;
+  box-sizing: border-box;
+}
+.table > :not(caption) > * > *:not(thead > tr > th) {
+  padding: 0rem 0rem !important;
+} */

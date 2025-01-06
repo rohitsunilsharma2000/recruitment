@@ -36,7 +36,7 @@ const Dashboard = () => {
   return (
 
     // <body className="bg-light">
-    <div className="container-fluid py-3">
+    <div className="container-fluid py-3  bg-light">
       {/* Row 1: Hiring Pipeline (1 card across entire row) --> */}
       <div className="row mb-4">
         <div className="col-12">
