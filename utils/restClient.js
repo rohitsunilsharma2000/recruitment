@@ -24,25 +24,34 @@ apiClient.interceptors.request.use((config) => {
 // Login function
 export const login = async (username, password) => {
   try {
+    // Send login request
     const response = await apiClient.post('/api/auth/login', {
       username,
       password,
     });
-    // Save token and other relevant info to localStorage
-    const { token } = response.data;
-    // localStorage.setItem('token', token);
-    // Ensure token is set in localStorage
-    if (token) {
-      localStorage.setItem('token', token);
-      // Store token in cookies for server-side access
 
-    } else {
-      console.error('Login error:', error.response?.data || error.message);
-      throw new Error('Token not received');
+    // Destructure the response to get token and user details
+    const { token, ...userData } = response.data;
+
+    // Ensure token exists in the response
+    if (!token) {
+      console.error('Login failed: Token not received');
+      throw new Error('Authentication failed: Token not received');
     }
+
+    // Save the token to localStorage for client-side access
+    localStorage.setItem('token', token);
+
+    // Save user data to localStorage for future use
+    localStorage.setItem('user', JSON.stringify(userData));
+
+    // Log success message for debugging
+    console.log('Login successful:', userData);
+
+    // Return full response for further processing if needed
     return response.data;
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Error during login:', error.response?.data || error.message);
     throw error;
   }
 };
@@ -130,6 +139,18 @@ export const fetchUsers = async () => {
     return response.data; // Return the all users 
   } catch (error) {
     console.error('Error fetching all users :', error);
+    throw error;
+  }
+};
+
+
+export const fetchProfile = async () => {
+  try {
+    const response = await apiClient.get('/api/profiles');
+
+    return response.data; // Return the all profiles 
+  } catch (error) {
+    console.error('Error fetching all profiles :', error);
     throw error;
   }
 };

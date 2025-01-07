@@ -1,9 +1,39 @@
 "use client"; // Add this directive at the top
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import "./profile.css"
 import AddProfileModal from '@/components/modal/add-profile/AddProfileModal';
+import { fetchProfiles } from '@/utils/restClient';
 export default function Profile() {
+
+
+  const [users, setUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(""); // State for the search term
+  const [filteredUsers, setFilteredUsers] = useState([]); // State for filtered users
+
+
+  useEffect(() => {
+    // Fetch all users from the backend and set them into allusers
+    async function fetchProfilesData() {
+      try {
+        const users = await fetchProfiles(); // Call to fetch all users
+        if (Array.isArray(users)) {
+          setUsers(users); // Set users if the response is an array
+          setFilteredUsers(users);
+        } else {
+          console.error("Invalid users response:", users);
+          setUsers([]); // Default to an empty array
+          setFilteredUsers([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+        setUsers([]); // Default to an empty array in case of error
+        setFilteredUsers([]);
+      }
+    }
+
+    fetchProfilesData();
+  }, []);
 
   return (
     <div className="container">
@@ -25,17 +55,21 @@ export default function Profile() {
           <div className="table-responsive">
             <table className="table table-sm align-middle ">
               <thead>
+
                 <tr>
                   <th>Profile Name</th>
                   <th>Profile Description</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Administrator</td>
-                  <td>This profile will have all the permissions</td>
-                </tr>
-                <tr>
+                {users.map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.name}</td>
+                    <td>{user.description}</td>
+                  </tr>
+                ))}
+
+                {/* <tr>
                   <td>Standard</td>
                   <td>This profile will not have administrative permissions.</td>
                 </tr>
@@ -46,7 +80,7 @@ export default function Profile() {
                 <tr>
                   <td>Employee</td>
                   <td>Can create referrals and give interview feedback submitted to them.</td>
-                </tr>
+                </tr> */}
               </tbody>
             </table>
           </div>

@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import { fetchUsers } from "@/utils/restClient";
 
 export default function UserList() {
+  
   const [users, setUsers] = useState([]);
-
   const [searchTerm, setSearchTerm] = useState(""); // State for the search term
   const [filteredUsers, setFilteredUsers] = useState([]); // State for filtered users
 
