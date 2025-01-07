@@ -6,10 +6,15 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Correct JS file to ensure
 
 import NavBar from '@/components/NavBar';
 import { usePathname } from 'next/navigation';
+import dynamic from 'next/dynamic';
 
 
+// Dynamically import Bootstrap JS with SSR disabled
+// const Bootstrap = dynamic(() => import('bootstrap/dist/js/bootstrap.bundle.min.js'), { ssr: false });
 
 export default function RootLayout({ children }) {
+
+  // Bootstrap(); // Ensure dynamic import is invoked
 
   const pathname = usePathname();
 

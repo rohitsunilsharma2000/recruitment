@@ -111,5 +111,27 @@ export const createRole = async (roleData) => {
   }
 };
 
+// Function to create a new user
+export const createUser = async (userData) => {
+  try {
+    const response = await apiClient.post('/api/users', userData);
+    return response.data; // Return the response data if the request is successful
+  } catch (error) {
+    console.error('Error creating user:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+};
+
+
+export const fetchUsers = async () => {
+  try {
+    const response = await apiClient.get('/api/users');
+
+    return response.data; // Return the all users 
+  } catch (error) {
+    console.error('Error fetching all users :', error);
+    throw error;
+  }
+};
 
 export default apiClient;

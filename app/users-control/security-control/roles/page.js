@@ -163,7 +163,9 @@ const RoleHierarchy = () => {
   //   return <p>{error}</p>;
   // }
   return (
-    <div className="">
+    <div className="card">
+
+      <div className="card-body">
       {error && (
         <div className="alert alert-danger d-flex align-items-center position-fixed bottom-0 start-0 m-3" role="alert">
           <span><i className="bi bi-exclamation-triangle-fill me-2"></i></span>
@@ -344,6 +346,8 @@ const RoleHierarchy = () => {
           </div>
         </>
       )}
+
+      </div>
     </div>
   );
 };
