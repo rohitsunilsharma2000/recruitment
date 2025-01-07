@@ -1,87 +1,88 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../../../authentication/authentication.css";
 import Link from "next/link";
-import { login } from '../../../../utils/restClient'; // Adjust path accordingly
-import { useRouter } from 'next/navigation';
-import { setCookie } from 'cookies-next';
+import { login } from "../../../../utils/restClient"; // Adjust path accordingly
+import { useRouter } from "next/navigation";
+import { setCookie } from "cookies-next";
 
 export default function SignInPage() {
-
-
-
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const router = useRouter();
+
+  // Pre-fill the username if saved in localStorage
+  useEffect(() => {
+    const savedUsername = localStorage.getItem("rememberedUsername");
+    if (savedUsername) {
+      setUsername(savedUsername);
+      setRememberMe(true); // Set checkbox to true if a username is found
+    }
+  }, []);
 
   const togglePassword = () => {
     setShowPassword(!showPassword);
   };
 
-
-  const router = useRouter();
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const data = await login(username, password); // Ensure login sets the token
 
-      // Check if the token is stored in localStorage
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (token) {
-        console.log('Login successful, redirecting to dashboard...');
-
-        // Store token in cookies (for server-side use) with 1-week expiry
-        // Store token in a cookie for middleware accessl̥
-        // setCookie('token', token, { maxAge: 60 * 60 * 24 * 7, path: '/' });
+        console.log("Login successful, redirecting to dashboard...");
 
         // Store token in cookies (for server-side use) with 1-hour expiry
-        setCookie('token', token, { maxAge: 60 * 60, path: '/' });
+        setCookie("token", token, { maxAge: 60 * 60, path: "/" });
 
+        // Remember username if "Remember Me" is checked
+        if (rememberMe) {
+          localStorage.setItem("rememberedUsername", username);
+        } else {
+          localStorage.removeItem("rememberedUsername");
+        }
 
-        // Store the token in localStorage for client-side use
-        localStorage.setItem('token', token);  // This is client-side only
-
-        // Ensure redirection happens after token is set
+        // Redirect to the dashboard
         setTimeout(() => {
-          router.push('/dashboard'); // Redirect to the dashboard
-        }, 100);  // Delay in milliseconds (100ms in this case)
-
+          router.push("/dashboard");
+        }, 100); // Delay in milliseconds
       } else {
-        setError('Failed to store token');
+        setError("Failed to store token");
       }
     } catch (err) {
-      setError('Invalid credentials');
+      setError("Invalid credentials");
     }
   };
 
   return (
-    //  Right Side
-    <div className="custom-font ">
+    <div className="custom-font">
       <div className="d-flex justify-content-center">
         <img
           src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQY9gZOyxWEo6BNSod3lRTsdQYkFFpFEDe7BQ&s"
           alt="Logo"
-          className="img-fluid mb-4 "
-          style={{ width: "50px" }} // Adjust the size as needed
+          className="img-fluid mb-4"
+          style={{ width: "50px" }}
         />
       </div>
 
       <h5 className="text-center lh-sm mx-0 my-1 fw-700">Sign In</h5>
-      <p className="text-center lh-sm mb-4"> Get access to your account</p>
-
-
+      <p className="text-center lh-sm mb-4">Get access to your account</p>
 
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label htmlFor="email" className=" form-label fw-700 opacity-50">
+          <label htmlFor="email" className="form-label fw-700 opacity-50">
             Email address
           </label>
-          <div className=" position-relative">
+          <div className="position-relative">
             <i className="bi bi-person-fill position-absolute top-50 start-0 translate-middle-y px-2"></i>
             <input
-              type=""
+              type="email"
               className="form-control form-control-sm ps-4 small-placeholder"
               id="email"
               placeholder="Enter email"
@@ -91,17 +92,15 @@ export default function SignInPage() {
             />
           </div>
         </div>
+
         <div>
-          <label htmlFor="password" className=" form-label fw-700 opacity-50">
+          <label htmlFor="password" className="form-label fw-700 opacity-50">
             Password
           </label>
-
-          <div className=" position-relative">
+          <div className="position-relative">
             <i className="bi bi-person-fill position-absolute top-50 start-0 translate-middle-y px-2"></i>
             <button
-              className="btn  btn-sm position-absolute top-50 end-0 translate-middle-y px-2
-              
-              "
+              className="btn btn-sm position-absolute top-50 end-0 translate-middle-y px-2"
               type="button"
               onClick={togglePassword}
             >
@@ -110,9 +109,7 @@ export default function SignInPage() {
               ></i>
             </button>
             <input
-              // type="password"
-              type={showPassword ? 'text' : 'password'}
-
+              type={showPassword ? "text" : "password"}
               className="form-control form-control-sm ps-4 small-placeholder"
               id="password"
               placeholder="Enter password"
@@ -122,33 +119,60 @@ export default function SignInPage() {
             />
           </div>
         </div>
+
         <div className="d-flex">
           <div className="py-1 flex-fill">
             <div className="mb-2 form-check">
-              <input type="checkbox" className="form-check-input" id="exampleCheck1" />
-              <label className="form-check-label opacity-50 fw-700" htmlFor="exampleCheck1">Remember me</label>
+              <input
+                type="checkbox"
+                className="form-check-input"
+                id="exampleCheck1"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              <label
+                className="form-check-label opacity-50 fw-700"
+                htmlFor="exampleCheck1"
+              >
+                Remember me
+              </label>
             </div>
           </div>
           <div className="py-1 flex-fill text-end">
-            <a className="text-decoration-none" href="/">Forgot Password?</a>
+            <a className="text-decoration-none" href="/authentication/card/change-password">
+              Forgot Password?
+            </a>
           </div>
         </div>
 
-
-
-        <button type="submit" className="btn  btn-sm btn-primary w-100 mb-3 ">
-          <span className="custom-font "> Sign In</span>
-
+        <button type="submit" className="btn btn-sm btn-primary w-100 mb-3">
+          <span className="custom-font">Sign In</span>
         </button>
 
         <div className="d-flex">
-          <div className=" flex-fill text-center">
-            {/* <Link className="text-decoration-none" href="/">Create an account</Link> */}
-          </div>
+          <div className="flex-fill text-center"></div>
         </div>
       </form>
-      {error && <p>{error}</p>}
-
+      {error && <p className="text-danger">{error}</p>}
     </div>
   );
 }
+// Here’s a simplified version of the **Key Changes** for a layman:
+
+// 1. **"Remember Me" Checkbox Added:**
+//    - A checkbox labeled "Remember Me" is added so the user can choose to save their email for future logins.
+
+// 2. **Save Email Locally:**
+//    - If "Remember Me" is checked, the email is saved on the user's device (local storage).
+//    - When the user comes back, the saved email is automatically filled in the email field.
+
+// 3. **Pre-filled Email:**
+//    - If the email was saved earlier, it shows up in the email box when the page loads, so the user doesn’t have to type it again.
+
+// 4. **Checkbox Behavior:**
+//    - The checkbox stays checked if the email was saved previously.
+//    - The user can uncheck it if they don’t want their email to be remembered anymore.
+
+// ---
+
+// This ensures the form becomes smarter and easier to use!

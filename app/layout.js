@@ -18,7 +18,7 @@ export default function RootLayout({ children }) {
 
   const pathname = usePathname();
 
-  const showNavbar = !['/authentication/card/sign-in', '/authentication/card/sign-up'].includes(pathname);
+  const showNavbar = !['/authentication/card/sign-in', '/authentication/card/change-password'].includes(pathname);
 
   return (
     <html lang="en">

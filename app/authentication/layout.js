@@ -3,7 +3,7 @@ export default function AuthLayout({ children }) {
     <div className="conatiner-fluid container-background custom-font ">
       <div className="contaier d-flex justify-content-center align-items-center vh-100">
 
-        <div className="row p-4 g-0  shadow rounded ">
+        <div className="row p-4 g-0  shadow rounded bg-white">
 
 
           {/* Left Side */}
