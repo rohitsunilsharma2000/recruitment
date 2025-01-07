@@ -1,7 +1,7 @@
 // utils/restClient.js
 import axios from 'axios';
 
-const apiClient = axios.create({
+const restClient = axios.create({
   baseURL: 'http://localhost:8080', // Change to your API base URL
   headers: {
     'Content-Type': 'application/json',
@@ -9,7 +9,7 @@ const apiClient = axios.create({
 });
 
 // Add interceptors to handle token authentication
-apiClient.interceptors.request.use((config) => {
+restClient.interceptors.request.use((config) => {
   // Get token from localStorage
   const token = localStorage.getItem('token');
   if (token) {
@@ -25,7 +25,7 @@ apiClient.interceptors.request.use((config) => {
 export const login = async (username, password) => {
   try {
     // Send login request
-    const response = await apiClient.post('/api/auth/login', {
+    const response = await restClient.post('/api/auth/login', {
       username,
       password,
     });
@@ -64,7 +64,7 @@ export const logout = () => {
 // Fetch user data (example of another API call)
 export const fetchUserData = async () => {
   try {
-    const response = await apiClient.get('/user');
+    const response = await restClient.get('/user');
     return response.data;
   } catch (error) {
     console.error('Error fetching user data:', error);
@@ -75,7 +75,7 @@ export const fetchUserData = async () => {
 
 export const fetchRolesHierarchy = async () => {
   try {
-    const response = await apiClient.get('/api/roles/hierarchy');
+    const response = await restClient.get('/api/roles/hierarchy');
     return response.data; // Return the roles hierarchy
   } catch (error) {
     console.error('Error fetching roles hierarchy:', error);
@@ -86,7 +86,7 @@ export const fetchRolesHierarchy = async () => {
 
 export const fetchRoles = async () => {
   try {
-    const response = await apiClient.get('/api/roles');
+    const response = await restClient.get('/api/roles');
 
     return response.data; // Return the all roles 
   } catch (error) {
@@ -97,7 +97,7 @@ export const fetchRoles = async () => {
 
 export const fetchProfiles = async () => {
   try {
-    const response = await apiClient.get('/api/profiles');
+    const response = await restClient.get('/api/profiles');
 
     return response.data; // Return the all profiles 
   } catch (error) {
@@ -112,7 +112,7 @@ export const fetchProfiles = async () => {
 // Function to create a new role
 export const createRole = async (roleData) => {
   try {
-    const response = await apiClient.post('/api/roles', roleData);
+    const response = await restClient.post('/api/roles', roleData);
     return response.data; // Return the response data if the request is successful
   } catch (error) {
     console.error('Error creating role:', error);
@@ -123,7 +123,7 @@ export const createRole = async (roleData) => {
 // Function to create a new user
 export const createUser = async (userData) => {
   try {
-    const response = await apiClient.post('/api/users', userData);
+    const response = await restClient.post('/api/users', userData);
     return response.data; // Return the response data if the request is successful
   } catch (error) {
     console.error('Error creating user:', error);
@@ -134,7 +134,7 @@ export const createUser = async (userData) => {
 
 export const fetchUsers = async () => {
   try {
-    const response = await apiClient.get('/api/users');
+    const response = await restClient.get('/api/users');
 
     return response.data; // Return the all users 
   } catch (error) {
@@ -146,7 +146,7 @@ export const fetchUsers = async () => {
 
 export const fetchProfile = async () => {
   try {
-    const response = await apiClient.get('/api/profiles');
+    const response = await restClient.get('/api/profiles');
 
     return response.data; // Return the all profiles 
   } catch (error) {
@@ -155,4 +155,4 @@ export const fetchProfile = async () => {
   }
 };
 
-export default apiClient;
+export default restClient;
