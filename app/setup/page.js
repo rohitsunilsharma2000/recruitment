@@ -63,7 +63,33 @@ const SetupPage = () => {
                     User
                   </Link>
                 </li>
-                <li>Security Control</li>
+
+                <li>
+                  <Link
+                    href="/users-control/security-control/roles"
+                    className="text-decoration-none"
+                  >
+                    Security Control
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/users-control/registration"
+                    className="text-decoration-none"
+                  >
+                    Registration
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/users-control/registration-single-state-object"
+                    className="text-decoration-none"
+                  >
+                    Registration as single state object
+                  </Link>
+                </li>
+
+
               </ul>
             </div>
           </div>

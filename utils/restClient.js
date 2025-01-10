@@ -155,4 +155,18 @@ export const fetchProfile = async () => {
   }
 };
 
+
+
+
+// Function to change password
+export const changePassword = async (payload) => {
+  try {
+    const response = await restClient.post('/api/auth/set-password', payload);
+    return response.data; // Return the response data if the request is successful
+  } catch (error) {
+    console.error('Error change password api call:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+};
+
 export default restClient;

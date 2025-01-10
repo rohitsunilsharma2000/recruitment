@@ -334,8 +334,6 @@ export default RegistrationForm;
 
 ### **Using single state object **
 
-
-
 To manage form fields dynamically without creating separate state variables for each field, you can use a **single state object** and update its properties dynamically based on the input field's `name` attribute.
 
 ---
@@ -423,7 +421,9 @@ const RegistrationForm = () => {
             onChange={handleChange}
           />
         </div>
-        <button type="submit" className="btn btn-primary">Submit</button>
+        <button type="submit" className="btn btn-primary">
+          Submit
+        </button>
       </form>
     </div>
   );
@@ -437,6 +437,7 @@ export default RegistrationForm;
 ### **How This Works**
 
 1. **Single State Object**:
+
    ```javascript
    const [formData, setFormData] = useState({
      firstName: "",
@@ -445,9 +446,11 @@ export default RegistrationForm;
      password: "",
    });
    ```
+
    - This single object holds all the form fields as key-value pairs.
 
 2. **Dynamic Input Handling**:
+
    ```javascript
    const handleChange = (e) => {
      const { name, value } = e.target;
@@ -457,6 +460,7 @@ export default RegistrationForm;
      });
    };
    ```
+
    - Each input field has a `name` attribute corresponding to the key in the `formData` state.
    - The `handleChange` function updates only the field being changed.
 
@@ -480,9 +484,7 @@ export default RegistrationForm;
 2. **Cleaner Code**: Reduces redundancy and simplifies the management of form fields.
 3. **Dynamic Handling**: Updates any input field based on the `name` attribute.
 
-
 ### **Using form validation and dynamic feedback**
-
 
 Let's go step-by-step to implement the necessary functions that will work with the form validation and dynamic feedback (`is-invalid` and `is-valid`), as well as handle form submission and manage state.
 

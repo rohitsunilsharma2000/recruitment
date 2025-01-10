@@ -3,6 +3,7 @@
 import { useState } from "react";
 import "../../../authentication/authentication.css";
 import Link from "next/link";
+import { changePassword } from "@/utils/restClient";
 
 export default function ChangePassword() {
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -12,6 +13,10 @@ export default function ChangePassword() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMatch, setPasswordMatch] = useState(null);
+  const [apiStatus, setApiStatus] = useState("");
+  const [errors, setErrors] = useState("");
+
+
 
   const toggleNewPassword = () => {
     setShowNewPassword(!showNewPassword);
@@ -50,12 +55,47 @@ export default function ChangePassword() {
     }
   };
 
+  // API request payload
+  const payload = {
+    username: email,
+    password: confirmPassword
+  };
+
+  async function changePasswordService(payload) {
+    try {
+      const createdUser = await changePassword(payload); // Call the API function
+
+      // Handle successful response
+      alert("User created successfully for :", email);
+      setApiStatus(` Password updated successfully for  : ${email}`);
+      // alert(`User created successfully for : ${createdUser.email}`);
+
+    } catch (error) {
+      console.error("Error creating user:", error);
+      setErrors("Failed to change  password. Please try again.");
+    } finally {
+      // Clear all form fields
+      setShowNewPassword("");
+      setShowConfirmPassword("");
+      setEmail("");
+      setEmailValid("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setPasswordMatch("");
+      setApiStatus("");
+      setErrors("");
+
+      // Reset any other state as necessary
+    }
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (emailValid && passwordMatch) {
       console.log("Form submitted:", { email, newPassword });
       // Proceed with your form submission logic
-      alert("Proceed with your form submission logic")
+      changePasswordService(payload);
+      // alert("Proceed with your form submission logic")
     } else {
       console.log("Fix errors before submitting.");
     }
@@ -74,6 +114,17 @@ export default function ChangePassword() {
 
       <h5 className="text-center lh-sm mx-0 my-1 fw-700">Change Password</h5>
       <p className="text-center lh-sm mb-4">Get access to your account</p>
+      {errors && (
+        <div id="emailFeedback" className="text-danger">
+          {errors}
+        </div>
+      )}
+      {apiStatus && (
+        <div id="emailFeedback" className="text-success">
+          {apiStatus}
+        </div>
+      )}
+
 
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
@@ -88,6 +139,7 @@ export default function ChangePassword() {
               placeholder="Enter email"
               value={email}
               onChange={handleEmailChange}
+              aria-describedby="emailFeedback"
             />
             {email && (
               <span

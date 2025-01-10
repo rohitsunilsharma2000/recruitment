@@ -20,6 +20,7 @@ export default function RootLayout({ children }) {
 
   const showNavbar = !['/authentication/card/sign-in', '/authentication/card/change-password'].includes(pathname);
 
+
   return (
     <html lang="en">
       <body className='bg-light'>

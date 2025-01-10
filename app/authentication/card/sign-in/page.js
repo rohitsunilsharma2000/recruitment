@@ -39,7 +39,7 @@ export default function SignInPage() {
         console.log("Login successful, redirecting to dashboard...");
 
         // Store token in cookies (for server-side use) with 1-hour expiry
-        setCookie("token", token, { maxAge: 60 * 60, path: "/" });
+        setCookie("token", token, { maxAge: 60 * 1, path: "/" });//5 sec
 
         // Remember username if "Remember Me" is checked
         if (rememberMe) {
@@ -48,10 +48,30 @@ export default function SignInPage() {
           localStorage.removeItem("rememberedUsername");
         }
 
+        {/* SessionExpiryHandler is invoked with a 5-second delay */ }
+        // <SessionExpiryHandler delay={5000} />
+
+        // Clear localStorage and cookie after 5 seconds  
+        setTimeout(() => {
+          localStorage.clear();
+          // Clears all items in localStorage    
+          setCookie("token", "", { maxAge: -1, path: "/" });
+          // Deletes the "token" cookie   
+          console.log("localStorage and cookie cleared after 5 minutes");
+          alert("Session Expired !! SignIn again");
+          router.push("/authentication/card/sign-in");
+          // }, 5000); // 5 seconds delay 
+        }, 300000); // 300000 milliseconds = 5 minutes
+
+
+
+
         // Redirect to the dashboard
         setTimeout(() => {
           router.push("/dashboard");
         }, 100); // Delay in milliseconds
+
+
       } else {
         setError("Failed to store token");
       }

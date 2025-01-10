@@ -24,10 +24,10 @@ export default function NavBar() {
           <div className="collapse navbar-collapse" id="navbarColor01">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
-                <a className="nav-link fs-0-point-7 fw-700 active" aria-current="page" href="/dashboard">Home</a>
+                <Link className="nav-link fs-0-point-7 fw-700 active" aria-current="page" href="/dashboard">Home</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link fs-0-point-7 fw-700" href="#">Features</a>
+                <Link className="nav-link fs-0-point-7 fw-700" href="/job-openings">Job Openings</Link>
               </li>
               <li className="nav-item">
                 <a className="nav-link fs-0-point-7 fw-700" href="#">Pricing</a>

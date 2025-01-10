@@ -166,186 +166,186 @@ const RoleHierarchy = () => {
     <div className="card">
 
       <div className="card-body">
-      {error && (
-        <div className="alert alert-danger d-flex align-items-center position-fixed bottom-0 start-0 m-3" role="alert">
-          <span><i className="bi bi-exclamation-triangle-fill me-2"></i></span>
-          <div>
-            {error}
+        {error && (
+          <div className="alert alert-danger d-flex align-items-center position-fixed bottom-0 start-0 m-3" role="alert">
+            <span><i className="bi bi-exclamation-triangle-fill me-2"></i></span>
+            <div>
+              {error}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {apiStatus && (
-        <div className="alert alert-success d-flex align-items-center position-fixed bottom-0 start-0 m-3" role="alert">
-          <span><i className="bi bi-check-circle-fill me-2"></i></span>
-          <div>
-            {apiStatus}
+        {apiStatus && (
+          <div className="alert alert-success d-flex align-items-center position-fixed bottom-0 start-0 m-3" role="alert">
+            <span><i className="bi bi-check-circle-fill me-2"></i></span>
+            <div>
+              {apiStatus}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
 
-      {showDiv1 && (
-        <div className="show-roles">
-          <b className="mb-0 fs-0-point-7">Roles</b>
-          <p className="mb-0 fs-0-point-7">
-            This page helps you to define sharing of Recruit data among users as
-            per your organization-wide role hierarchy.
-          </p>
-
-          {/* Expand/Collapse All */}
-          <div className="d-flex justify-content-start my-3">
-            {/* New Role Button */}
-            <button className="btn btn-sm btn-primary btn-recruitment me-3 ">
-              <span className="custom-font fw-700 " onClick={handleToggleDiv}>
-                {" "}
-                + New Role
-              </span>
-            </button>
-
-            <a
-              className="text-decoration-none text-primary nav-link fs-0-point-7  me-3"
-              onClick={handleExpandAll}
-            >
-              Expand All
-            </a>
-            <a
-              className="text-decoration-none text-primary nav-link fs-0-point-7"
-              onClick={handleCollapseAll}
-            >
-              Collapse All
-            </a>
-          </div>
-
-          {/* Render Role Hierarchy */}
-          <div className="hierarchy">
-            {roles.length > 0 ? (
-              renderHierarchy(roles)
-            ) : (
-              <p>Loading roles...</p>
-            )}
-          </div>
-        </div>
-      )}
-      {!showDiv1 && (
-        <>
-          <div className="create-role">
-            <b className="mb-0 fs-0-point-7">New Role
-            </b>
+        {showDiv1 && (
+          <div className="show-roles">
+            <b className="mb-0 fs-0-point-7">Roles</b>
             <p className="mb-0 fs-0-point-7">
-              This page helps you to create a new role as per your organization hierarchy. Before creating a new role, you must associate to the superior role.
+              This page helps you to define sharing of Recruit data among users as
+              per your organization-wide role hierarchy.
             </p>
-            <form onSubmit={handleSubmit}>
-              <table className="table">
-                <tbody>
-                  <tr>
-                    <td>
-                      <label
-                        htmlFor="roleName"
-                        className="form-label fw-700 fs-0-point-7 opacity-50"
-                      >
-                        Role Name
-                      </label>
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        className={`
-                          form-control form-control-sm ps-4  small-placeholder ${!roleName && error ? 'is-invalid' : ''}`}
-                        id="roleName"
-                        placeholder="Role Name"
-                        value={roleName}
-                        onChange={(e) => setRoleName(e.target.value)}
 
-                      />
-                    </td>
-                    <td className="text-danger">
-                      {!roleName && error && (
-                        <div className="form-text text-danger  fs-0-point-7  fs-0-point-7 ">Role Name cannot be empty</div>
-                      )}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label
-                        htmlFor="reportsTo"
-                        className="form-label fw-700 fs-0-point-7 opacity-50"
-                      >
-                        Reports To
-                      </label>
-                    </td>
-                    <td>
-                      <select
-                        className={`form-control form-control-sm small-placeholder ps-4 ${!reportsTo && error ? 'is-invalid' : ''}`}
-                        id="reportsTo"
-                        value={reportsTo}
-                        onChange={(e) => setReportsTo(e.target.value)}
-                      >
-                        <option value="">Select a Role</option>
-                        {allRoles.map((role) => (
-                          <option key={role.id} value={role.id}>
-                            {role.name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="text-danger">
-                      {reportsTo === "" && (
-                        <div className="form-text text-danger  fs-0-point-7">Reports To cannot be empty</div>
-                      )}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label
-                        htmlFor="description"
-                        className="form-label fw-700 fs-0-point-7 opacity-50"
-                      >
-                        Description
-                      </label>
-                    </td>
-                    <td>
-                      <textarea
-                        className={`form-control form-control-sm small-placeholder ps-4 ${!description && error ? 'is-invalid' : ''}`}
-                        id="description"
-                        placeholder="Enter Description"
-                        rows="3"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                      ></textarea>
-                    </td>
-                    <td className="text-danger">
-                      {!description && error && (
-                        <div className="form-text text-danger  fs-0-point-7">Description cannot be empty</div>
-                      )}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div className="d-grid gap-2 d-md-flex justify-content-md-start">
+            {/* Expand/Collapse All */}
+            <div className="d-flex justify-content-start my-3">
+              {/* New Role Button */}
+              <button className="btn btn-sm btn-primary btn-recruitment me-3 ">
+                <span className="custom-font fw-700 " onClick={handleToggleDiv}>
+                  {" "}
+                  + New Role
+                </span>
+              </button>
 
-                <button className="btn btn-sm btn btn-outline-danger   ">
-                  <span className="custom-font fw-700 " onClick={handleToggleDiv}>
-                    Cancel
-                  </span>
-                </button>
+              <a
+                className="text-decoration-none text-primary nav-link fs-0-point-7  me-3"
+                onClick={handleExpandAll}
+              >
+                Expand All
+              </a>
+              <a
+                className="text-decoration-none text-primary nav-link fs-0-point-7"
+                onClick={handleCollapseAll}
+              >
+                Collapse All
+              </a>
+            </div>
 
-
-
-                <button className="btn btn-sm btn-primary "
-                  disabled={isSubmitting}
-                >
-                  <span className="custom-font fw-700 " >
-                    {isSubmitting ? "Saving..." : "Save"}
-                  </span>
-                </button>
-              </div>
-            </form>
-
-
+            {/* Render Role Hierarchy */}
+            <div className="hierarchy">
+              {roles.length > 0 ? (
+                renderHierarchy(roles)
+              ) : (
+                <p>Loading roles...</p>
+              )}
+            </div>
           </div>
-        </>
-      )}
+        )}
+        {!showDiv1 && (
+          <>
+            <div className="create-role">
+              <b className="mb-0 fs-0-point-7">New Role
+              </b>
+              <p className="mb-0 fs-0-point-7">
+                This page helps you to create a new role as per your organization hierarchy. Before creating a new role, you must associate to the superior role.
+              </p>
+              <form onSubmit={handleSubmit}>
+                <table className="table">
+                  <tbody>
+                    <tr>
+                      <td>
+                        <label
+                          htmlFor="roleName"
+                          className="form-label fw-700 fs-0-point-7 opacity-50"
+                        >
+                          Role Name
+                        </label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          className={`
+                          form-control form-control-sm ps-4  small-placeholder ${!roleName && error ? 'is-invalid' : ''}`}
+                          id="roleName"
+                          placeholder="Role Name"
+                          value={roleName}
+                          onChange={(e) => setRoleName(e.target.value)}
+
+                        />
+                      </td>
+                      <td className="text-danger">
+                        {!roleName && error && (
+                          <div className="form-text text-danger  fs-0-point-7  fs-0-point-7 ">Role Name cannot be empty</div>
+                        )}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label
+                          htmlFor="reportsTo"
+                          className="form-label fw-700 fs-0-point-7 opacity-50"
+                        >
+                          Reports To
+                        </label>
+                      </td>
+                      <td>
+                        <select
+                          className={`form-control form-control-sm small-placeholder ps-4 ${!reportsTo && error ? 'is-invalid' : ''}`}
+                          id="reportsTo"
+                          value={reportsTo}
+                          onChange={(e) => setReportsTo(e.target.value)}
+                        >
+                          <option value="">Select a Role</option>
+                          {allRoles.map((role) => (
+                            <option key={role.id} value={role.id}>
+                              {role.name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="text-danger">
+                        {reportsTo === "" && (
+                          <div className="form-text text-danger  fs-0-point-7">Reports To cannot be empty</div>
+                        )}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label
+                          htmlFor="description"
+                          className="form-label fw-700 fs-0-point-7 opacity-50"
+                        >
+                          Description
+                        </label>
+                      </td>
+                      <td>
+                        <textarea
+                          className={`form-control form-control-sm small-placeholder ps-4 ${!description && error ? 'is-invalid' : ''}`}
+                          id="description"
+                          placeholder="Enter Description"
+                          rows="3"
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                        ></textarea>
+                      </td>
+                      <td className="text-danger">
+                        {!description && error && (
+                          <div className="form-text text-danger  fs-0-point-7">Description cannot be empty</div>
+                        )}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div className="d-grid gap-2 d-md-flex justify-content-md-start">
+
+                  <button className="btn btn-sm btn btn-outline-danger   ">
+                    <span className="custom-font fw-700 " onClick={handleToggleDiv}>
+                      Cancel
+                    </span>
+                  </button>
+
+
+
+                  <button className="btn btn-sm btn-primary "
+                    disabled={isSubmitting}
+                  >
+                    <span className="custom-font fw-700 " >
+                      {isSubmitting ? "Saving..." : "Save"}
+                    </span>
+                  </button>
+                </div>
+              </form>
+
+
+            </div>
+          </>
+        )}
 
       </div>
     </div>
