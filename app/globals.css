@@ -25,3 +25,23 @@ body {
   --bs-btn-padding-x: 0.5rem !important;
   --bs-btn-font-size: 0.7rem !important;
 }
+
+.form-label,
+label {
+  font-size: 0.7rem !important; /* equivalent to fs-0.7 */
+  margin-bottom: 0 !important; /* equivalent to mb-0 */
+  margin-right: 0.5rem !important; /* equivalent to me-2 */
+}
+
+.form-control,
+.form-select {
+  font-size: 0.875rem !important; /* equivalent to form-control-sm */
+  padding: 0.375rem 0.75rem !important; /* standard padding for .form-control-sm */
+}
+
+.form-control::placeholder,
+.form-select::placeholder,
+select::placeholder {
+  font-size: 0.75rem !important; /* Smaller placeholder text */
+  color: #6c757d !important; /* Optional: Adjust placeholder color */
+}

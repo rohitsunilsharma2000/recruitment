@@ -30,7 +30,7 @@ export default function NavBar() {
                 <Link className="nav-link fs-0-point-7 fw-700" href="/job-openings">Job Openings</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link fs-0-point-7 fw-700" href="#">Pricing</a>
+                <Link className="nav-link fs-0-point-7 fw-700" href="/candidate/create">Candidates</Link>
               </li>
               <li className="nav-item">
                 <a className="nav-link fs-0-point-7 fw-700" href="#">About</a>
