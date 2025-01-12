@@ -89,7 +89,14 @@ const SetupPage = () => {
                   </Link>
                 </li>
 
-
+                <li>
+                  <Link
+                    href="/candidate/others"
+                    className="text-decoration-none"
+                  >
+                    Dynamic Educational Form
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
