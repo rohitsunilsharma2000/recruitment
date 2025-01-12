@@ -27,13 +27,6 @@ const CreateCandidateForm = () => {
     facebook: "",
     candidateStatus: "",
     candidateOwner: "",
-    institute: "",
-    major: "", //Major / Department
-    degree: "",
-    startMonth: "",
-    startYear: "",
-    endMonth: "",
-    endYear: "",
     occupation: "",
     company: "",
     summary: "",
@@ -44,7 +37,6 @@ const CreateCandidateForm = () => {
     workEndYear: "",
     currentlyWorking: false,
     emailOptOut: false,
-    currentlyPursuing: false,
     resume: null,
     coverLetter: null,
     others: null,
@@ -52,158 +44,196 @@ const CreateCandidateForm = () => {
     contracts: null,
   };
 
-  // State to hold form data
+  // State to hold form data (values entered by the user)
   const [formData, setFormData] = useState(initialState);
 
-  // State to hold errors for each field
-  // If formErrors[fieldName] is an empty string, no error is present
+  // State to hold errors for each field (if any)
   const [formErrors, setFormErrors] = useState({});
 
   // Track which fields have been touched or edited by the user
-  // If touchedFields[fieldName] === true, it means the user has interacted with that field
   const [touchedFields, setTouchedFields] = useState({});
 
   // Submission state (you can use this to show a success message, etc.)
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  // Educational Details State (Array of education-related data)
+  const [educationalDetails, setEducationalDetails] = useState([
+    {
+      institute: "",
+      major: "",
+      degree: "",
+      startMonth: "",
+      startYear: "",
+      endMonth: "",
+      endYear: "",
+      currentlyPursuing: false,
+    },
+  ]);
+
   // 2) HELPER FUNCTIONS FOR DYNAMIC VALIDATION STYLES
 
-  // Returns "" (empty) if the field is not touched yet,
-  // "is-invalid" if there's an error, or "is-valid" if valid.
+  // This function adds dynamic classes for styling invalid or valid fields
   const getValidationClass = (fieldName) => {
     if (!touchedFields[fieldName]) {
-      return "";
+      return ""; // If the field hasn't been touched, no class is applied
     }
-    return formErrors[fieldName] ? "is-invalid" : "is-valid";
+    return formErrors[fieldName] ? "is-invalid" : "is-valid"; // If error exists, return invalid, otherwise valid
   };
 
-  // Returns "" if not touched, otherwise "invalid-feedback" or "valid-feedback".
+  // This function adds dynamic feedback classes to show validation messages
   const getFeedbackClass = (fieldName) => {
     if (!touchedFields[fieldName]) {
-      return "";
+      return ""; // If not touched, no feedback class
     }
-    return formErrors[fieldName] ? "invalid-feedback" : "valid-feedback";
+    return formErrors[fieldName] ? "invalid-feedback" : "valid-feedback"; // Invalid or valid feedback class based on error
   };
 
-  // Returns "" if not touched, otherwise the error message or "Looks good!".
+  // This function shows the validation message or "Looks good!" for valid fields
   const getFeedbackMessage = (fieldName) => {
     if (!touchedFields[fieldName]) {
-      return "";
+      return ""; // If field isn't touched, no message is shown
     }
-    return formErrors[fieldName] || "Looks good!";
+    return formErrors[fieldName] || "Looks good!"; // Show the error message or a success message
   };
 
   // 3) VALIDATION LOGIC
+  // This function validates individual form fields and updates the formErrors state
   const validateField = (fieldName, value, type) => {
-    let error = "";
+    let error = ""; // Start with no error for each field
 
-    // NOTE: Adjust these rules to match your requirements (which fields are optional, etc.)
-    switch (fieldName) {
-      // REQUIRED TEXT FIELDS
-      case "firstName":
-      case "lastName":
-      case "email":
-      case "mobile":
-      case "phone":
-      case "website":
-      case "secondaryEmail":
-      case "street":
-      case "province":
-      case "city":
-      case "postalCode":
-      case "country":
-      case "currentJobTitle":
-      case "skillSet":
-      case "skypeId":
-      case "linkedin":
-      case "twitter":
-      case "facebook":
-      case "candidateStatus":
-      case "candidateOwner":
-      case "institute":
-      case "major":
-      case "degree":
-      case "startMonth":
-      case "startYear":
-      case "endMonth":
-      case "endYear":
-      case "occupation":
-      case "company":
-      case "workDuration":
-      case "workStartMonth":
-      case "workStartYear":
-      case "workEndMonth":
-      case "workEndYear":
+    switch (true) {
+      // REQUIRED TEXT FIELDS (e.g., firstName, email, etc.)
+      case [
+        "firstName",
+        "lastName",
+        "email",
+        "mobile",
+        "phone",
+        "website",
+        "secondaryEmail",
+        "street",
+        "province",
+        "city",
+        "postalCode",
+        "country",
+        "currentJobTitle",
+        "skillSet",
+        "skypeId",
+        "linkedin",
+        "twitter",
+        "facebook",
+        "candidateStatus",
+        "candidateOwner",
+        "occupation",
+        "company",
+        "workStartMonth",
+        "workStartYear",
+        "workEndMonth",
+        "workEndYear",
+      ].includes(fieldName):
         if (!value || value.trim() === "") {
           error = `${fieldName} is required.`;
         }
         break;
 
-      // REQUIRED NUMERIC FIELDS
-      case "experience":
-      case "expectedSalary":
+      // EDUCATIONAL FIELDS (Handle both text and checkbox)
+      case fieldName.startsWith("edu-"): {
+        if (typeof value === "string" && value.trim() === "") {
+          error = `${fieldName} is required.`;
+        }
+        break;
+      }
+
+      // REQUIRED NUMERIC FIELDS (e.g., experience, salary)
+      case ["experience", "expectedSalary"].includes(fieldName):
         if (!value || isNaN(value) || value <= 0) {
           error = `${fieldName} must be a positive number.`;
         }
         break;
 
-      // REQUIRED DATE FIELDS
-      case "targetDate":
-      case "dateOpened":
-        if (!value) {
-          error = `${fieldName} is required.`;
+      // REQUIRED CHECKBOX FIELDS (currentlyPursuing, emailOptOut, etc.)
+      case ["emailOptOut", "currentlyPursuing", "currentlyWorking"].includes(
+        fieldName
+      ):
+        if (type === "checkbox" && value === false) {
+          error = `You must accept the ${fieldName
+            .replace(/([A-Z])/g, " $1")
+            .toLowerCase()}.`;
         }
         break;
 
-      // REQUIRED TEXTAREAS
-      case "summary":
+      // REQUIRED TEXTAREA (summary)
+      case fieldName === "summary":
         if (!value || value.trim().length < 10) {
           error = `${fieldName} must be at least 10 characters long.`;
         }
         break;
 
-      // FILE FIELDS
-      case "resume":
-      case "coverLetter":
-      case "others":
-      case "offer":
-      case "contracts":
-        // For file fields, value is a FileList
-        // Check if user actually selected at least one file
+      // FILE FIELDS (e.g., resume, coverLetter, others, offer, contracts)
+      case ["resume", "coverLetter", "others", "offer", "contracts"].includes(
+        fieldName
+      ):
         if (!value || value.length === 0) {
           error = `Please upload a valid file for ${fieldName}.`;
         }
         break;
-      // REQUIRED CHECKBOX FIELDS
 
-
-
-      case "emailOptOut":
-      case "currentlyPursuing":
-      case "currentlyWorking":
-        // For checkbox fields, the value should be boolean (true/false)
-        if (!value) {
-          error = `You must accept the ${fieldName.replace(/([A-Z])/g, ' $1').toLowerCase()}.`;
-        }
-        break;
       default:
         break;
     }
 
-    // Update formErrors state
+    // Update formErrors state to store the error message for this field
     setFormErrors((prevErrors) => ({
       ...prevErrors,
-      [fieldName]: error,
+      [fieldName]: error, // Store error message for the field
     }));
   };
+
+  // Educational Details Handlers
+  // Updates a specific educational field
+  const handleEducationChange = (index, field, value) => {
+    const updatedDetails = educationalDetails.map((detail, idx) =>
+      idx === index ? { ...detail, [field]: value } : detail
+    );
+    setEducationalDetails(updatedDetails);
+
+    // Mark field as touched
+    const fieldKey = `edu-${index}-${field}`;
+    setTouchedFields((prev) => ({ ...prev, [fieldKey]: true }));
+
+    // Immediately validate the field
+    validateField(fieldKey, value);
+  };
+
+  // Adds a new educational detail entry
+  const addEducationalDetail = () => {
+    setEducationalDetails([
+      ...educationalDetails,
+      {
+        institute: "",
+        major: "",
+        degree: "",
+        startMonth: "",
+        startYear: "",
+        endMonth: "",
+        endYear: "",
+        currentlyPursuing: false,
+      },
+    ]);
+  };
+
+  // Removes an educational detail entry
+  const removeEducationalDetail = (index) => {
+    setEducationalDetails(educationalDetails.filter((_, idx) => idx !== index));
+  };
+
   // 4) HANDLE INPUT CHANGES
+  // This function handles all form field changes (inputs, checkboxes, files)
   const handleInputChange = (e) => {
     const { name, value, type, checked, files } = e.target;
     let newValue;
 
-    // For file inputs, use files
-    // For checkbox, use checked
-    // Otherwise, use string value
+    // Handling different input types (text, checkbox, file)
     if (type === "file") {
       newValue = files;
     } else if (type === "checkbox") {
@@ -212,18 +242,12 @@ const CreateCandidateForm = () => {
       newValue = value;
     }
 
-    // Log the previous form data and touched fields before updating
-    console.log("Previous form data:", formData);
-    console.log("Previous touched fields:", touchedFields);
-
-    // Update form data
+    // Update form data with the new value
     setFormData((prevData) => {
       const updatedFormData = {
         ...prevData,
-        [name]: newValue,
+        [name]: newValue, // Update field with the new value
       };
-      // Log the updated form data
-      console.log("Updated form data:", updatedFormData);
       return updatedFormData;
     });
 
@@ -231,21 +255,22 @@ const CreateCandidateForm = () => {
     setTouchedFields((prev) => {
       const updatedTouchedFields = {
         ...prev,
-        [name]: true,
+        [name]: true, // Mark the field as touched
       };
-      // Log the updated touched fields
-      console.log("Updated touched fields:", updatedTouchedFields);
       return updatedTouchedFields;
     });
 
-    // Validate the field immediately
+    // Immediately validate the field
     validateField(name, newValue, type);
   };
 
   // 5) HANDLE FORM SUBMISSION
+  // Handles form submission, validates all fields, and shows success or failure
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent form from submitting
+
     let valid = true;
+    const missingFields = [];
 
     // Mark all fields as touched so feedback shows for all fields
     const allTouched = {};
@@ -259,7 +284,7 @@ const CreateCandidateForm = () => {
       const currentValue = formData[fieldName];
       let fieldType = "text";
 
-      // Derive the correct type (not strictly necessary, but can help with file/checkbox logic)
+      // Determine the type of the field (checkbox, file, text)
       if (typeof currentValue === "boolean") {
         fieldType = "checkbox";
       } else if (currentValue instanceof FileList) {
@@ -268,22 +293,31 @@ const CreateCandidateForm = () => {
 
       validateField(fieldName, currentValue, fieldType);
 
-      // If there's an existing error for this field, consider form invalid
+      // If there's an error for this field, consider the form invalid
       if (formErrors[fieldName]) {
         valid = false;
+        missingFields.push(fieldName); // Track missing fields
       }
     });
 
-    if (valid) {
-      setIsSubmitted(true);
-      alert("Form is valid and ready to submit!");
-      console.log("Form Data:", formData);
-      // ... proceed with API call or other final submission logic
-    } else {
+    // Show an alert with the list of missing or incorrect fields
+    if (!valid) {
+      const missingFieldsMessage = missingFields.length
+        ? `Please fix the following fields:\n\n${missingFields.join("\n")}`
+        : "Please fix the errors in the form before submitting.";
+      alert(missingFieldsMessage);
       setIsSubmitted(false);
-      alert("Please fix the errors in the form before submitting.");
+    } else {
+      // Combine formData and educationalDetails into finalData
+      const finalData = { ...formData, educationalDetails };
+      console.log("Form Submitted:", finalData); // Log the final submitted data
+      alert("Form submitted successfully!"); // Show success message
+      setIsSubmitted(true); // Update submission state
     }
   };
+
+  // Return JSX for rendering the form (not shown here for brevity)
+
   return (
     <div className="container mt-5">
       <h2>Create Candidate</h2>
@@ -459,7 +493,6 @@ const CreateCandidateForm = () => {
                 </div>
               </td>
               <td colSpan={2} className="border-0 "></td>
-
             </tr>
             <tr className="border">
               <th colSpan="4" className="border">
@@ -830,199 +863,328 @@ const CreateCandidateForm = () => {
               <td className="border-0">
                 <input
                   type="checkbox"
-                  className="form-check-input"
+                  className={`form-check-input ${getValidationClass(
+                    "emailOptOut"
+                  )}`}
                   id="emailOptOut"
                   name="emailOptOut"
+                  checked={formData.emailOptOut}
+                  onChange={handleInputChange}
                 />
+                <div className={getFeedbackClass("emailOptOut")}>
+                  {getFeedbackMessage("emailOptOut")}
+                </div>
               </td>
               <td className="border-0"></td>
               <td className="border-0"></td>
             </tr>
+
+            {/* EDUCATIONAL DETAILS */}
 
             <tr className="border">
               <th colSpan="4" className="border">
                 Educational Details
               </th>
             </tr>
-            <tr className="border-0">
-              <td className="border-0 text-end">
-                <label htmlFor="institute" className="form-label">
-                  Institute / School
-                </label>
-              </td>
-              <td className="border-0">
-                <input
-                  type="text"
-                  className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                    "institute"
-                  )}`}
-                  id="institute"
-                  name="institute"
-                  placeholder=" institute"
-                  value={formData.institute}
-                  onChange={handleInputChange}
-                />
-                <div className={getFeedbackClass("institute")}>
-                  {getFeedbackMessage("institute")}
-                </div>
-              </td>
-              <td className="border-0 text-end">
-                <label htmlFor="major" className="form-label">
-                  Major / Department
-                </label>
-              </td>
-              <td className="border-0">
-                <input
-                  type="text"
-                  className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                    "major"
-                  )}`}
-                  id="major"
-                  name="major"
-                  placeholder=" major"
-                  value={formData.major}
-                  onChange={handleInputChange}
-                />
-                <div className={getFeedbackClass("major")}>
-                  {getFeedbackMessage("major")}
-                </div>
-              </td>
-            </tr>
-            <tr className="border-0">
-              <td className="border-0 text-end">
-                <label htmlFor="degree" className="form-label">
-                  Degree
-                </label>
-              </td>
-              <td className="border-0">
-                <input
-                  type="text"
-                  className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                    "degree"
-                  )}`}
-                  id="degree"
-                  name="degree"
-                  placeholder=" degree"
-                  value={formData.degree}
-                  onChange={handleInputChange}
-                />
-                <div className={getFeedbackClass("degree")}>
-                  {getFeedbackMessage("degree")}
-                </div>
-              </td>
-              <td className="border-0 text-end">
-                <label htmlFor="duration" className="form-label">
-                  Duration
-                </label>
-              </td>
-              <td className="border-0">
+            {educationalDetails.map((detail, index) => (
+              <React.Fragment key={index}>
+                <tr className="border-0">
+                  <td className="border-0 text-end">
+                    <label
+                      htmlFor={`edu-${index}-institute`}
+                      className="form-label"
+                      style={{
+                        position: "relative",
+                      }}
+                    >
+                      Institute / School
+                      <span
+                        type="button"
+                        className="btn btn-sm  btn-outline-secondary  rounded-pill"
+                        style={{
+                          position: "absolute",
+                          top: 12,
+                          left: "-31%",
+                          transform: "translate(-50%, -50%)",
+                          width: "2rem",
+                          height: "2rem",
+                        }}
+                      >
+                        {index + 1}
+                      </span>
+                      <div
+                        className="d-flex"
+                        style={{
+                          position: "absolute",
+                          top: 62,
+                          left: "-14%",
+                          transform: "translate(-50%, -50%)",
+                          width: "2rem",
+                          height: "4rem",
+                        }}
+                      >
+                        <div className="vr"></div>
+                      </div>
 
+                      <span
+                        type="button"
+                        className="btn btn-sm   btn-outline-danger rounded-pill"
+                        style={{
+                          position: "absolute",
+                          top: 113,
+                          left: "-31%",
+                          transform: "translate(-50%, -50%)",
+                          width: "2rem",
+                          height: "2rem",
+                        }}
+                        onClick={() => removeEducationalDetail(index)}
+                      >
+                        <i className="bi bi-trash  fs-6"></i>
 
-                <div className="d-flex">
-                  <select
-                    className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                      "startMonth"
-                    )}`}
-                    id="startMonth"
-                    name="startMonth"
-                    placeholder=" startMonth"
-                    value={formData.startMonth}
-                    onChange={handleInputChange}
-                  >
+                      </span>
 
-                    <option>Month</option>
-
-
-                    <option>January</option>
-                    <option>February</option>
-                    <option>March</option>
-                  </select>
-
-                  {/*
-    : "",*/}
-                  <select
-                    className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                      "startYear"
-                    )}`}
-                    id="startYear"
-                    name="startYear"
-                    placeholder="startYear"
-                    value={formData.startYear}
-                    onChange={handleInputChange}
-                  >
-                    <option>Year</option>
-                    <option>2020</option>
-                    <option>2021</option>
-                    <option>2022</option>
-                  </select>
-                  <span className="mx-2">To</span>
-                  <select
-
-                    className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                      "endMonth"
-                    )}`}
-                    id="endMonth"
-                    name="endMonth"
-                    placeholder="endMonth"
-                    value={formData.endMonth}
-                    onChange={handleInputChange}>
-                    <option>Month</option>
-                    <option>January</option>
-                    <option>February</option>
-                    <option>March</option>
-                  </select>
-                  <select
-
-                    className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                      "endYear"
-                    )}`}
-                    id="endYear"
-                    name="endYear"
-                    placeholder="endYear"
-                    value={formData.endMonth}
-                    onChange={handleInputChange}
-                  >
-                    <option>Year</option>
-                    <option>2020</option>
-                    <option>2021</option>
-                    <option>2022</option>
-                  </select>
-
-
-
-                </div>
-              </td>
-            </tr>
-
-            <tr className="border-0">
-              <td className="border-0 text-end">
-                <label htmlFor="currentlyPursuing" className="form-label">
-                  Currently Pursuing
-                </label>
-              </td>
-              <td className="border-0">
-                <input
-                  type="checkbox"
-                  className={` form-check-input  small-placeholder ${getValidationClass(
-                    "currentlyPursuing"
-                  )}`}
-                  id="currentlyPursuing"
-                  name="currentlyPursuing"
-                  placeholder="currentlyPursuing"
-                  value={formData.currentlyPursuing}
-                  onChange={handleInputChange}
-                />
-                <div className={getFeedbackClass("currentlyPursuing")}>
-                  {getFeedbackMessage("currentlyPursuing")}
-                </div>
-              </td>
-              <td className="border-0"></td>
-              <td className="border-0"></td>
-            </tr>
+                    </label>
+                  </td>
+                  <td className="border-0">
+                    <input
+                      type="text"
+                      className={`form-control form-control-sm small-placeholder ${getValidationClass(
+                        `edu-${index}-institute`
+                      )}`}
+                      id={`edu-${index}-institute`}
+                      name="institute"
+                      placeholder="Institute"
+                      value={detail.institute}
+                      onChange={(e) =>
+                        handleEducationChange(
+                          index,
+                          "institute",
+                          e.target.value
+                        )
+                      }
+                    />
+                    <div className={getFeedbackClass(`edu-${index}-institute`)}>
+                      {getFeedbackMessage(`edu-${index}-institute`)}
+                    </div>
+                  </td>
+                  <td className="border-0 text-end">
+                    <label
+                      htmlFor={`edu-${index}-major`}
+                      className="form-label"
+                    >
+                      Major / Department
+                    </label>
+                  </td>
+                  <td className="border-0">
+                    <input
+                      type="text"
+                      className={`form-control form-control-sm small-placeholder ${getValidationClass(
+                        `edu-${index}-major`
+                      )}`}
+                      id={`edu-${index}-major`}
+                      name="major"
+                      placeholder="Major"
+                      value={detail.major}
+                      onChange={(e) =>
+                        handleEducationChange(index, "major", e.target.value)
+                      }
+                    />
+                    <div className={getFeedbackClass(`edu-${index}-major`)}>
+                      {getFeedbackMessage(`edu-${index}-major`)}
+                    </div>
+                  </td>
+                </tr>
+                <tr className="border-0">
+                  <td className="border-0 text-end">
+                    <label
+                      htmlFor={`edu-${index}-degree`}
+                      className="form-label"
+                    >
+                      Degree
+                    </label>
+                  </td>
+                  <td className="border-0">
+                    <input
+                      type="text"
+                      className={`form-control form-control-sm small-placeholder ${getValidationClass(
+                        `edu-${index}-degree`
+                      )}`}
+                      id={`edu-${index}-degree`}
+                      name="degree"
+                      placeholder="Degree"
+                      value={detail.degree}
+                      onChange={(e) =>
+                        handleEducationChange(index, "degree", e.target.value)
+                      }
+                    />
+                    <div className={getFeedbackClass(`edu-${index}-degree`)}>
+                      {getFeedbackMessage(`edu-${index}-degree`)}
+                    </div>
+                  </td>
+                  <td className="border-0 text-end">
+                    <label
+                      htmlFor={`edu-${index}-duration`}
+                      className="form-label"
+                    >
+                      Duration
+                    </label>
+                  </td>
+                  <td className="border-0">
+                    <div className="d-flex">
+                      <select
+                        className={`form-control form-control-sm ${getValidationClass(
+                          `edu-${index}-startMonth`
+                        )}`}
+                        id={`edu-${index}-startMonth`}
+                        name="startMonth"
+                        value={detail.startMonth}
+                        onChange={(e) =>
+                          handleEducationChange(
+                            index,
+                            "startMonth",
+                            e.target.value
+                          )
+                        }
+                      >
+                        <option value="">Month</option>
+                        <option>January</option>
+                        <option>February</option>
+                        <option>March</option>
+                      </select>
+                      <div
+                        className={getFeedbackClass(`edu-${index}-startMonth`)}
+                      >
+                        {getFeedbackMessage(`edu-${index}-startMonth`)}
+                      </div>
+                      <select
+                        className={`form-control form-control-sm ${getValidationClass(
+                          `edu-${index}-startYear`
+                        )}`}
+                        id={`edu-${index}-startYear`}
+                        name="startYear"
+                        value={detail.startYear}
+                        onChange={(e) =>
+                          handleEducationChange(
+                            index,
+                            "startYear",
+                            e.target.value
+                          )
+                        }
+                      >
+                        <option value="">Year</option>
+                        <option>2020</option>
+                        <option>2021</option>
+                        <option>2022</option>
+                      </select>
+                      <div
+                        className={getFeedbackClass(`edu-${index}-startYear`)}
+                      >
+                        {getFeedbackMessage(`edu-${index}-startYear`)}
+                      </div>
+                      <span className="mx-2">To</span>
+                      <select
+                        className={`form-control form-control-sm ${getValidationClass(
+                          `edu-${index}-endMonth`
+                        )}`}
+                        id={`edu-${index}-endMonth`}
+                        name="endMonth"
+                        value={detail.endMonth}
+                        onChange={(e) =>
+                          handleEducationChange(
+                            index,
+                            "endMonth",
+                            e.target.value
+                          )
+                        }
+                      >
+                        <option value="">Month</option>
+                        <option>January</option>
+                        <option>February</option>
+                        <option>March</option>
+                      </select>
+                      <div
+                        className={getFeedbackClass(`edu-${index}-endMonth`)}
+                      >
+                        {getFeedbackMessage(`edu-${index}-endMonth`)}
+                      </div>
+                      <select
+                        className={`form-control form-control-sm ${getValidationClass(
+                          `edu-${index}-endYear`
+                        )}`}
+                        id={`edu-${index}-endYear`}
+                        name="endYear"
+                        value={detail.endYear}
+                        onChange={(e) =>
+                          handleEducationChange(
+                            index,
+                            "endYear",
+                            e.target.value
+                          )
+                        }
+                      >
+                        <option value="">Year</option>
+                        <option>2020</option>
+                        <option>2021</option>
+                        <option>2022</option>
+                      </select>
+                      <div className={getFeedbackClass(`edu-${index}-endYear`)}>
+                        {getFeedbackMessage(`edu-${index}-endYear`)}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr className="border-0">
+                  <td className="border-0 text-end">
+                    <label
+                      htmlFor={`edu-${index}-currentlyPursuing`}
+                      className="form-label"
+                    >
+                      Currently Pursuing
+                    </label>
+                  </td>
+                  <td className="border-0">
+                    <input
+                      type="checkbox"
+                      id={`edu-${index}-currentlyPursuing`}
+                      name={`edu-${index}-currentlyPursuing`}
+                      checked={detail.currentlyPursuing}
+                      onChange={(e) =>
+                        handleEducationChange(
+                          index,
+                          "currentlyPursuing",
+                          e.target.checked
+                        )
+                      }
+                    />
+                    <div
+                      className={getFeedbackClass(
+                        `edu-${index}-currentlyPursuing`
+                      )}
+                    >
+                      {getFeedbackMessage(`edu-${index}-currentlyPursuing`)}
+                    </div>
+                  </td>
+                  <td className="border-0"></td>
+                  <td className="border-0">
+                    {/* <button
+                      type="button"
+                      className="btn btn-danger btn-sm"
+                      onClick={() => removeEducationalDetail(index)}
+                    >
+                      Remove
+                    </button> */}
+                  </td>
+                </tr>
+              </React.Fragment>
+            ))}
 
             <tr className="border">
               <th colSpan="4" className="border">
-                <button className="btn btn-link text-primary" type="button">
+                <button
+                  className="btn btn-link text-primary"
+                  type="button"
+                  onClick={addEducationalDetail}
+                >
                   + Add Educational Details
                 </button>
               </th>
@@ -1111,49 +1273,86 @@ const CreateCandidateForm = () => {
               <td className="border-0">
                 <div className="d-flex">
                   <select
-                    className="form-select"
+                    className={`form-select ${getValidationClass(
+                      "workStartMonth"
+                    )}`}
                     id="workStartMonth"
                     name="workStartMonth"
+                    value={formData.workStartMonth}
+                    onChange={handleInputChange}
                   >
-                    <option>Month</option>
-                    <option>January</option>
-                    <option>February</option>
-                    <option>March</option>
+                    <option value="">Month</option>
+                    <option value="January">January</option>
+                    <option value="February">February</option>
+                    <option value="March">March</option>
+                    {/* Add other months if necessary */}
                   </select>
+                  <div className={getFeedbackClass("workStartMonth")}>
+                    {getFeedbackMessage("workStartMonth")}
+                  </div>
+
                   <select
-                    className="form-select"
+                    className={`form-select ${getValidationClass(
+                      "workStartYear"
+                    )}`}
                     id="workStartYear"
                     name="workStartYear"
+                    value={formData.workStartYear}
+                    onChange={handleInputChange}
                   >
-                    <option>Year</option>
-                    <option>2020</option>
-                    <option>2021</option>
-                    <option>2022</option>
+                    <option value="">Year</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    {/* Add other years if necessary */}
                   </select>
+                  <div className={getFeedbackClass("workStartYear")}>
+                    {getFeedbackMessage("workStartYear")}
+                  </div>
+
                   <span className="mx-2">To</span>
+
                   <select
-                    className="form-select"
+                    className={`form-select ${getValidationClass(
+                      "workEndMonth"
+                    )}`}
                     id="workEndMonth"
                     name="workEndMonth"
+                    value={formData.workEndMonth}
+                    onChange={handleInputChange}
                   >
-                    <option>Month</option>
-                    <option>January</option>
-                    <option>February</option>
-                    <option>March</option>
+                    <option value="">Month</option>
+                    <option value="January">January</option>
+                    <option value="February">February</option>
+                    <option value="March">March</option>
+                    {/* Add other months if necessary */}
                   </select>
+                  <div className={getFeedbackClass("workEndMonth")}>
+                    {getFeedbackMessage("workEndMonth")}
+                  </div>
+
                   <select
-                    className="form-select"
+                    className={`form-select ${getValidationClass(
+                      "workEndYear"
+                    )}`}
                     id="workEndYear"
                     name="workEndYear"
+                    value={formData.workEndYear}
+                    onChange={handleInputChange}
                   >
-                    <option>Year</option>
-                    <option>2020</option>
-                    <option>2021</option>
-                    <option>2022</option>
+                    <option value="">Year</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    {/* Add other years if necessary */}
                   </select>
+                  <div className={getFeedbackClass("workEndYear")}>
+                    {getFeedbackMessage("workEndYear")}
+                  </div>
                 </div>
               </td>
             </tr>
+
             <tr className="border-0">
               <td className="text-end border-0">
                 <label htmlFor="currentlyWorking" className="form-label">
@@ -1162,11 +1361,18 @@ const CreateCandidateForm = () => {
               </td>
               <td className="border-0" colSpan="3">
                 <input
-                  className="form-check-input"
+                  className={`form-check-input ${getValidationClass(
+                    "currentlyWorking"
+                  )}`}
                   type="checkbox"
                   id="currentlyWorking"
                   name="currentlyWorking"
+                  checked={formData.currentlyWorking}
+                  onChange={handleInputChange}
                 />
+                <div className={getFeedbackClass("currentlyWorking")}>
+                  {getFeedbackMessage("currentlyWorking")}
+                </div>
               </td>
             </tr>
 
@@ -1177,7 +1383,7 @@ const CreateCandidateForm = () => {
                 </button>
               </th>
             </tr>
-            {/* <tr className="border">
+            <tr className="border">
               <th colSpan="4" className="border">
                 Attachment Information
               </th>
@@ -1193,7 +1399,7 @@ const CreateCandidateForm = () => {
                   id="resume"
                   name="resume"
                   placeholder=" resume"
-                  value={formData.resume}
+                  defaultValue={formData.resume || ""} // Use defaultValue instead of value
                   onChange={handleInputChange}
                 />
                 <div className={getFeedbackClass("resume")}>
@@ -1212,7 +1418,7 @@ const CreateCandidateForm = () => {
                   id="coverLetter"
                   name="coverLetter"
                   placeholder=" coverLetter"
-                  value={formData.coverLetter}
+                  defaultValue={formData.coverLetter || ""} // Use defaultValue instead of value
                   onChange={handleInputChange}
                 />
                 <div className={getFeedbackClass("coverLetter")}>
@@ -1223,7 +1429,6 @@ const CreateCandidateForm = () => {
             <tr className="border-0">
               <td className="text-end border-0">Others</td>
               <td className="border-0">
-
                 <input
                   type="file"
                   className={`form-control form-control-sm small-placeholder ${getValidationClass(
@@ -1232,7 +1437,7 @@ const CreateCandidateForm = () => {
                   id="others"
                   name="others"
                   placeholder=" others"
-                  value={formData.others}
+                  defaultValue={formData.others || ""} // Use defaultValue instead of value
                   onChange={handleInputChange}
                 />
                 <div className={getFeedbackClass("others")}>
@@ -1243,7 +1448,6 @@ const CreateCandidateForm = () => {
             <tr className="border-0">
               <td className="text-end border-0">Offer</td>
               <td className="border-0">
-
                 <input
                   type="file"
                   className={`form-control form-control-sm small-placeholder ${getValidationClass(
@@ -1252,7 +1456,7 @@ const CreateCandidateForm = () => {
                   id="offer"
                   name="offer"
                   placeholder=" offer"
-                  value={formData.offer}
+                  defaultValue={formData.offer || ""} // Use defaultValue instead of value
                   onChange={handleInputChange}
                 />
                 <div className={getFeedbackClass("offer")}>
@@ -1271,14 +1475,14 @@ const CreateCandidateForm = () => {
                   id="contracts"
                   name="contracts"
                   placeholder=" contracts"
-                  value={formData.contracts}
+                  defaultValue={formData.contracts || ""} // Use defaultValue instead of value
                   onChange={handleInputChange}
                 />
                 <div className={getFeedbackClass("contracts")}>
                   {getFeedbackMessage("contracts")}
                 </div>
               </td>
-            </tr> */}
+            </tr>
           </tbody>
         </table>
       </form>
