@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useState } from "react";
-
+import "../candidate.css";
 const CreateCandidateForm = () => {
   // 1) INITIAL STATES
   const initialState = {
@@ -27,15 +27,16 @@ const CreateCandidateForm = () => {
     facebook: "",
     candidateStatus: "",
     candidateOwner: "",
-    occupation: "",
-    company: "",
-    summary: "",
-    workDuration: "",
-    workStartMonth: "",
-    workStartYear: "",
-    workEndMonth: "",
-    workEndYear: "",
-    currentlyWorking: false,
+    // occupation: "",
+    // company: "",
+    // summary: "",
+    // workDuration: "",
+    // workStartMonth: "",
+    // workStartYear: "",
+    // workEndMonth: "",
+    // workEndYear: "",
+    // currentlyWorking: false,
+
     emailOptOut: false,
     resume: null,
     coverLetter: null,
@@ -67,6 +68,20 @@ const CreateCandidateForm = () => {
       endMonth: "",
       endYear: "",
       currentlyPursuing: false,
+    },
+  ]);
+
+  const [experienceDetails, setExperienceDetails] = useState([
+    {
+      occupation: "",
+      company: "",
+      summary: "",
+      workDuration: "",
+      workStartMonth: "",
+      workStartYear: "",
+      workEndMonth: "",
+      workEndYear: "",
+      currentlyWorking: false,
     },
   ]);
 
@@ -124,12 +139,6 @@ const CreateCandidateForm = () => {
         "facebook",
         "candidateStatus",
         "candidateOwner",
-        "occupation",
-        "company",
-        "workStartMonth",
-        "workStartYear",
-        "workEndMonth",
-        "workEndYear",
       ].includes(fieldName):
         if (!value || value.trim() === "") {
           error = `${fieldName} is required.`;
@@ -138,6 +147,13 @@ const CreateCandidateForm = () => {
 
       // EDUCATIONAL FIELDS (Handle both text and checkbox)
       case fieldName.startsWith("edu-"): {
+        if (typeof value === "string" && value.trim() === "") {
+          error = `${fieldName} is required.`;
+        }
+        break;
+      }
+      // EDUCATIONAL FIELDS (Handle both text and checkbox)
+      case fieldName.startsWith("exp-"): {
         if (typeof value === "string" && value.trim() === "") {
           error = `${fieldName} is required.`;
         }
@@ -152,9 +168,7 @@ const CreateCandidateForm = () => {
         break;
 
       // REQUIRED CHECKBOX FIELDS (currentlyPursuing, emailOptOut, etc.)
-      case ["emailOptOut", "currentlyPursuing", "currentlyWorking"].includes(
-        fieldName
-      ):
+      case ["emailOptOut"].includes(fieldName):
         if (type === "checkbox" && value === false) {
           error = `You must accept the ${fieldName
             .replace(/([A-Z])/g, " $1")
@@ -205,6 +219,20 @@ const CreateCandidateForm = () => {
     validateField(fieldKey, value);
   };
 
+  const handleExperienceDetailsChange = (index, field, value) => {
+    const updatedDetails = experienceDetails.map((detail, idx) =>
+      idx === index ? { ...detail, [field]: value } : detail
+    );
+    setExperienceDetails(updatedDetails);
+
+    // Mark field as touched
+    const fieldKey = `exp-${index}-${field}`;
+    setTouchedFields((prev) => ({ ...prev, [fieldKey]: true }));
+
+    // Immediately validate the field
+    validateField(fieldKey, value);
+  };
+
   // Adds a new educational detail entry
   const addEducationalDetail = () => {
     setEducationalDetails([
@@ -222,10 +250,40 @@ const CreateCandidateForm = () => {
     ]);
   };
 
+
+  // Adds a new educational detail entry
+  const addExperienceDetail = () => {
+    console.log("Before adding new experience detail:", experienceDetails);
+
+    setExperienceDetails([
+      ...experienceDetails,
+      {
+        occupation: "",
+        company: "",
+        summary: "",
+        workDuration: "",
+        workStartMonth: "",
+        workStartYear: "",
+        workEndMonth: "",
+        workEndYear: "",
+        currentlyWorking: false,
+      },
+    ]);
+
+    console.log("After adding new experience detail:", experienceDetails);
+  };
+
   // Removes an educational detail entry
   const removeEducationalDetail = (index) => {
     setEducationalDetails(educationalDetails.filter((_, idx) => idx !== index));
   };
+  // Removes an experience detail entry
+  const removeExperienceDetail = (index) => {
+    setExperienceDetails(experienceDetails.filter((_, idx) => idx !== index));
+  };
+
+
+
 
   // 4) HANDLE INPUT CHANGES
   // This function handles all form field changes (inputs, checkboxes, files)
@@ -309,7 +367,7 @@ const CreateCandidateForm = () => {
       setIsSubmitted(false);
     } else {
       // Combine formData and educationalDetails into finalData
-      const finalData = { ...formData, educationalDetails };
+      const finalData = { ...formData, educationalDetails, experienceDetails };
       console.log("Form Submitted:", finalData); // Log the final submitted data
       alert("Form submitted successfully!"); // Show success message
       setIsSubmitted(true); // Update submission state
@@ -612,11 +670,12 @@ const CreateCandidateForm = () => {
               <td className="border-0"></td>
               <td className="border-0"></td>
             </tr>
-            <tr className="border">
-              <th colSpan="4" className="border">
+            <tr className="border-0">
+              <th colSpan="4" className="border-bottom">
                 Professional Details
               </th>
             </tr>
+
             <tr className="border-0">
               <td className="border-0 text-end">
                 <label htmlFor="experience" className="form-label">
@@ -731,8 +790,9 @@ const CreateCandidateForm = () => {
               <td className="border-0"></td>
               <td className="border-0"></td>
             </tr>
-            <tr className="border">
-              <th colSpan="4" className="border">
+
+            <tr className="border-0">
+              <th colSpan="4" className="border-bottom">
                 Social Links
               </th>
             </tr>
@@ -805,8 +865,9 @@ const CreateCandidateForm = () => {
               <td className="border-0"></td>
               <td className="border-0"></td>
             </tr>
-            <tr className="border">
-              <th colSpan="4" className="border">
+
+            <tr className="border-0">
+              <th colSpan="4" className="border-bottom">
                 Other Info
               </th>
             </tr>
@@ -889,6 +950,25 @@ const CreateCandidateForm = () => {
             {educationalDetails.map((detail, index) => (
               <React.Fragment key={index}>
                 <tr className="border-0">
+                  <td colSpan="4" className="border-0  text-center">
+                    <p>
+                      {
+                        index === 0
+                          ? "10th"
+                          : index === 1
+                            ? "12th or Diploma"
+                            : index === 2
+                              ? "Graduation"
+                              : index === 3
+                                ? "Postgraduation"
+                                : index === 4
+                                  ? "PhD"
+                                  : `Others - ${index - 4}` // Dynamically calculate "Others - {index-4}" for index > 4
+                      }
+                    </p>
+                  </td>
+                </tr>
+                <tr className="border-0">
                   <td className="border-0 text-end">
                     <label
                       htmlFor={`edu-${index}-institute`}
@@ -925,7 +1005,6 @@ const CreateCandidateForm = () => {
                       >
                         <div className="vr"></div>
                       </div>
-
                       <span
                         type="button"
                         className="btn btn-sm   btn-outline-danger rounded-pill"
@@ -940,12 +1019,11 @@ const CreateCandidateForm = () => {
                         onClick={() => removeEducationalDetail(index)}
                       >
                         <i className="bi bi-trash  fs-6"></i>
-
                       </span>
-
                     </label>
                   </td>
                   <td className="border-0">
+
                     <input
                       type="text"
                       className={`form-control form-control-sm small-placeholder ${getValidationClass(
@@ -953,19 +1031,17 @@ const CreateCandidateForm = () => {
                       )}`}
                       id={`edu-${index}-institute`}
                       name="institute"
-                      placeholder="Institute"
+                      placeholder="institute"
                       value={detail.institute}
                       onChange={(e) =>
-                        handleEducationChange(
-                          index,
-                          "institute",
-                          e.target.value
-                        )
+                        handleEducationChange(index, "institute", e.target.value)
                       }
                     />
                     <div className={getFeedbackClass(`edu-${index}-institute`)}>
                       {getFeedbackMessage(`edu-${index}-institute`)}
                     </div>
+
+
                   </td>
                   <td className="border-0 text-end">
                     <label
@@ -990,8 +1066,7 @@ const CreateCandidateForm = () => {
                       }
                     />
                     <div className={getFeedbackClass(`edu-${index}-major`)}>
-                      {getFeedbackMessage(`edu-${index}-major`)}
-                    </div>
+                      {getFeedbackMessage(`edu-${index}-major`)}</div>
                   </td>
                 </tr>
                 <tr className="border-0">
@@ -1000,7 +1075,17 @@ const CreateCandidateForm = () => {
                       htmlFor={`edu-${index}-degree`}
                       className="form-label"
                     >
-                      Degree
+                      {index === 0
+                        ? "10th"
+                        : index === 1
+                          ? "12th or Diploma"
+                          : index === 2
+                            ? "Graduation"
+                            : index === 3
+                              ? "Postgraduation"
+                              : index === 4
+                                ? "PhD"
+                                : "Others"}
                     </label>
                   </td>
                   <td className="border-0">
@@ -1020,115 +1105,133 @@ const CreateCandidateForm = () => {
                     <div className={getFeedbackClass(`edu-${index}-degree`)}>
                       {getFeedbackMessage(`edu-${index}-degree`)}
                     </div>
+
+
                   </td>
+
+
+                </tr>
+                <tr className="border-0 ">
                   <td className="border-0 text-end">
                     <label
-                      htmlFor={`edu-${index}-duration`}
+                      htmlFor={`edu-${index}-currentlyPursuing`}
                       className="form-label"
                     >
-                      Duration
+                      Need to change
                     </label>
                   </td>
-                  <td className="border-0">
+                  <td className="border-0" >
                     <div className="d-flex">
-                      <select
-                        className={`form-control form-control-sm ${getValidationClass(
-                          `edu-${index}-startMonth`
-                        )}`}
-                        id={`edu-${index}-startMonth`}
-                        name="startMonth"
-                        value={detail.startMonth}
-                        onChange={(e) =>
-                          handleEducationChange(
-                            index,
-                            "startMonth",
-                            e.target.value
-                          )
-                        }
-                      >
-                        <option value="">Month</option>
-                        <option>January</option>
-                        <option>February</option>
-                        <option>March</option>
-                      </select>
-                      <div
-                        className={getFeedbackClass(`edu-${index}-startMonth`)}
-                      >
-                        {getFeedbackMessage(`edu-${index}-startMonth`)}
+                      <div className="d-flex flex-column me-2 flex-fill">
+                        <select
+                          className={`form-control form-control-sm ${getValidationClass(
+                            `edu-${index}-startMonth`
+                          )}`}
+                          id={`edu-${index}-startMonth`}
+                          name="startMonth"
+                          value={detail.startMonth}
+                          onChange={(e) =>
+                            handleEducationChange(
+                              index,
+                              "startMonth",
+                              e.target.value
+                            )
+                          }
+                        >
+                          <option value="">Month</option>
+                          <option>January</option>
+                          <option>February</option>
+                          <option>March</option>
+                        </select>
+                        <div
+                          className={getFeedbackClass(
+                            `edu-${index}-startMonth`
+                          )}
+                        >
+                          {getFeedbackMessage(`edu-${index}-startMonth`)}
+                        </div>
                       </div>
-                      <select
-                        className={`form-control form-control-sm ${getValidationClass(
-                          `edu-${index}-startYear`
-                        )}`}
-                        id={`edu-${index}-startYear`}
-                        name="startYear"
-                        value={detail.startYear}
-                        onChange={(e) =>
-                          handleEducationChange(
-                            index,
-                            "startYear",
-                            e.target.value
-                          )
-                        }
-                      >
-                        <option value="">Year</option>
-                        <option>2020</option>
-                        <option>2021</option>
-                        <option>2022</option>
-                      </select>
-                      <div
-                        className={getFeedbackClass(`edu-${index}-startYear`)}
-                      >
-                        {getFeedbackMessage(`edu-${index}-startYear`)}
+                      <div className="d-flex flex-column me-2 flex-fill">
+                        <select
+                          className={`form-control form-control-sm ${getValidationClass(
+                            `edu-${index}-startYear`
+                          )}`}
+                          id={`edu-${index}-startYear`}
+                          name="startYear"
+                          value={detail.startYear}
+                          onChange={(e) =>
+                            handleEducationChange(
+                              index,
+                              "startYear",
+                              e.target.value
+                            )
+                          }
+                        >
+                          <option value="">Year</option>
+                          <option>2020</option>
+                          <option>2021</option>
+                          <option>2022</option>
+                        </select>
+                        <div
+                          className={getFeedbackClass(`edu-${index}-startYear`)}
+                        >
+                          {getFeedbackMessage(`edu-${index}-startYear`)}
+                        </div>
                       </div>
                       <span className="mx-2">To</span>
-                      <select
-                        className={`form-control form-control-sm ${getValidationClass(
-                          `edu-${index}-endMonth`
-                        )}`}
-                        id={`edu-${index}-endMonth`}
-                        name="endMonth"
-                        value={detail.endMonth}
-                        onChange={(e) =>
-                          handleEducationChange(
-                            index,
-                            "endMonth",
-                            e.target.value
-                          )
-                        }
-                      >
-                        <option value="">Month</option>
-                        <option>January</option>
-                        <option>February</option>
-                        <option>March</option>
-                      </select>
-                      <div
-                        className={getFeedbackClass(`edu-${index}-endMonth`)}
-                      >
-                        {getFeedbackMessage(`edu-${index}-endMonth`)}
+                      <div className="d-flex flex-column me-2 flex-fill">
+                        <select
+                          className={`form-control form-control-sm ${getValidationClass(
+                            `edu-${index}-endMonth`
+                          )}`}
+                          id={`edu-${index}-endMonth`}
+                          name="endMonth"
+                          value={detail.endMonth}
+                          onChange={(e) =>
+                            handleEducationChange(
+                              index,
+                              "endMonth",
+                              e.target.value
+                            )
+                          }
+                        >
+                          <option value="">Month</option>
+                          <option>January</option>
+                          <option>February</option>
+                          <option>March</option>
+                        </select>
+                        <div
+                          className={getFeedbackClass(`edu-${index}-endMonth`)}
+                        >
+                          {getFeedbackMessage(`edu-${index}-endMonth`)}
+                        </div>
                       </div>
-                      <select
-                        className={`form-control form-control-sm ${getValidationClass(
-                          `edu-${index}-endYear`
-                        )}`}
-                        id={`edu-${index}-endYear`}
-                        name="endYear"
-                        value={detail.endYear}
-                        onChange={(e) =>
-                          handleEducationChange(
-                            index,
-                            "endYear",
-                            e.target.value
-                          )
-                        }
-                      >
-                        <option value="">Year</option>
-                        <option>2020</option>
-                        <option>2021</option>
-                        <option>2022</option>
-                      </select>
-                      <div className={getFeedbackClass(`edu-${index}-endYear`)}>
-                        {getFeedbackMessage(`edu-${index}-endYear`)}
+                      <div className="d-flex flex-column flex-fill">
+                        <select
+                          className={`form-control form-control-sm ${getValidationClass(
+                            `edu-${index}-endYear`
+                          )}`}
+                          id={`edu-${index}-endYear`}
+                          name="endYear"
+                          value={detail.endYear}
+                          onChange={(e) =>
+                            handleEducationChange(
+                              index,
+                              "endYear",
+                              e.target.value
+                            )
+                          }
+                        >
+                          <option value="">Year</option>
+                          <option>2020</option>
+                          <option>2021</option>
+                          <option>2022</option>
+                        </select>
+                        <div
+                          className={getFeedbackClass(`edu-${index}-endYear`)}
+                        >
+                          {getFeedbackMessage(`edu-${index}-endYear`)}
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -1145,34 +1248,17 @@ const CreateCandidateForm = () => {
                   <td className="border-0">
                     <input
                       type="checkbox"
+                      className={`form-check-input ${getValidationClass(
+                        `edu-${index}-currentlyPursuing`
+                      )}`}
                       id={`edu-${index}-currentlyPursuing`}
                       name={`edu-${index}-currentlyPursuing`}
-                      checked={detail.currentlyPursuing}
-                      onChange={(e) =>
-                        handleEducationChange(
-                          index,
-                          "currentlyPursuing",
-                          e.target.checked
-                        )
-                      }
+                      checked={formData.currentlyPursuing}
+                      onChange={handleInputChange}
                     />
-                    <div
-                      className={getFeedbackClass(
-                        `edu-${index}-currentlyPursuing`
-                      )}
-                    >
+                    <div className={getFeedbackClass(`edu-${index}-currentlyPursuing`)}>
                       {getFeedbackMessage(`edu-${index}-currentlyPursuing`)}
                     </div>
-                  </td>
-                  <td className="border-0"></td>
-                  <td className="border-0">
-                    {/* <button
-                      type="button"
-                      className="btn btn-danger btn-sm"
-                      onClick={() => removeEducationalDetail(index)}
-                    >
-                      Remove
-                    </button> */}
                   </td>
                 </tr>
               </React.Fragment>
@@ -1195,190 +1281,252 @@ const CreateCandidateForm = () => {
                 Experience Details
               </th>
             </tr>
-            <tr className="border-0">
-              <td className="text-end border-0">
-                <label htmlFor="occupation" className="form-label">
-                  Occupation / Title
-                </label>
-              </td>
-              <td className="border-0" colSpan="3">
-                <input
-                  type="text"
-                  className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                    "occupation"
-                  )}`}
-                  id="occupation"
-                  name="occupation"
-                  placeholder=" occupation"
-                  value={formData.occupation}
-                  onChange={handleInputChange}
-                />
-                <div className={getFeedbackClass("occupation")}>
-                  {getFeedbackMessage("occupation")}
-                </div>
-              </td>
-            </tr>
-            <tr className="border-0">
-              <td className="text-end border-0">
-                <label htmlFor="company" className="form-label">
-                  Company
-                </label>
-              </td>
-              <td className="border-0" colSpan="3">
-                <input
-                  type="text"
-                  className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                    "company"
-                  )}`}
-                  id="company"
-                  name="company"
-                  placeholder=" company"
-                  value={formData.company}
-                  onChange={handleInputChange}
-                />
-                <div className={getFeedbackClass("company")}>
-                  {getFeedbackMessage("company")}
-                </div>
-              </td>
-            </tr>
-            <tr className="border-0">
-              <td className="text-end border-0">
-                <label htmlFor="summary" className="form-label">
-                  Summary
-                </label>
-              </td>
-              <td className="border-0" colSpan="3">
-                <input
-                  type="text"
-                  className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                    "summary"
-                  )}`}
-                  id="summary"
-                  name="summary"
-                  placeholder=" summary"
-                  value={formData.summary}
-                  onChange={handleInputChange}
-                />
-                <div className={getFeedbackClass("summary")}>
-                  {getFeedbackMessage("summary")}
-                </div>
-              </td>
-            </tr>
-            <tr className="border-0">
-              <td className="text-end border-0">
-                <label htmlFor="workDuration" className="form-label">
-                  Work Duration
-                </label>
-              </td>
-              <td className="border-0">
-                <div className="d-flex">
-                  <select
-                    className={`form-select ${getValidationClass(
-                      "workStartMonth"
-                    )}`}
-                    id="workStartMonth"
-                    name="workStartMonth"
-                    value={formData.workStartMonth}
-                    onChange={handleInputChange}
-                  >
-                    <option value="">Month</option>
-                    <option value="January">January</option>
-                    <option value="February">February</option>
-                    <option value="March">March</option>
-                    {/* Add other months if necessary */}
-                  </select>
-                  <div className={getFeedbackClass("workStartMonth")}>
-                    {getFeedbackMessage("workStartMonth")}
-                  </div>
+            {experienceDetails.map((expDetail, index) => (
+              <React.Fragment key={index}>
+                <tr className="border-0">
+                  <td className="text-end border-0">
+                    <label
+                      htmlFor={`exp-${index}-occupation`}
+                      className="form-label"
+                      style={{
+                        position: "relative",
+                      }}
+                    >
+                      Occupation / Title
+                      <span
+                        type="button"
+                        className="btn btn-sm  btn-outline-secondary  rounded-pill"
+                        style={{
+                          position: "absolute",
+                          top: 12,
+                          left: "-31%",
+                          transform: "translate(-50%, -50%)",
+                          width: "2rem",
+                          height: "2rem",
+                        }}
+                      >
+                        {index + 1}
+                      </span>
+                      <div
+                        className="d-flex"
+                        style={{
+                          position: "absolute",
+                          top: 62,
+                          left: "-14%",
+                          transform: "translate(-50%, -50%)",
+                          width: "2rem",
+                          height: "4rem",
+                        }}
+                      >
+                        <div className="vr"></div>
+                      </div>
+                      <span
+                        type="button"
+                        className="btn btn-sm   btn-outline-danger rounded-pill"
+                        style={{
+                          position: "absolute",
+                          top: 113,
+                          left: "-31%",
+                          transform: "translate(-50%, -50%)",
+                          width: "2rem",
+                          height: "2rem",
+                        }}
+                        onClick={() => removeExperienceDetail(index)}
+                      >
+                        <i className="bi bi-trash  fs-6"></i>
+                      </span>
+                    </label>
+                  </td>
+                  <td className="border-0" colSpan="3">
+                    <input
+                      type="text"
+                      className={`form-control form-control-sm small-placeholder ${getValidationClass(
+                        `exp-${index}-occupation`
+                      )}`}
+                      id={`exp-${index}-occupation`}
+                      name="occupation"
+                      placeholder="occupation"
+                      value={expDetail.occupation}
+                      onChange={(e) =>
+                        handleExperienceDetailsChange(index, "occupation", e.target.value)
+                      }
+                    />
+                    <div className={getFeedbackClass(`exp-${index}-occupation`)}>
+                      {getFeedbackMessage(`exp-${index}-occupation`)}
+                    </div>
+                  </td>
+                </tr>
+                <tr className="border-0">
+                  <td className="text-end border-0">
+                    <label htmlFor="company" className="form-label">
+                      Company
+                    </label>
+                  </td>
+                  <td className="border-0" colSpan="3">
+                    <input
+                      type="text"
+                      className={`form-control form-control-sm small-placeholder ${getValidationClass(
+                        `edu-${index}-company`
+                      )}`}
+                      id={`edu-${index}-company`}
+                      name="company"
+                      placeholder="company"
+                      value={expDetail.company}
+                      onChange={(e) =>
+                        handleExperienceDetailsChange(index, "company", e.target.value)
+                      }
+                    />
+                    <div className={getFeedbackClass(`edu-${index}-company`)}>
+                      {getFeedbackMessage(`edu-${index}-company`)}
+                    </div>
+                  </td>
+                </tr>
+                <tr className="border-0">
+                  <td className="text-end border-0">
+                    <label htmlFor="summary" className="form-label">
+                      Summary
+                    </label>
+                  </td>
+                  <td className="border-0" colSpan="3">
+                    <input
+                      type="text"
+                      className={`form-control form-control-sm small-placeholder ${getValidationClass(
+                        `edu-${index}-summary`
+                      )}`}
+                      id={`edu-${index}-summary`}
+                      name="summary"
+                      placeholder="summary"
+                      value={expDetail.summary}
+                      onChange={(e) =>
+                        handleExperienceDetailsChange(index, "summary", e.target.value)
+                      }
+                    />
+                    <div className={getFeedbackClass(`edu-${index}-summary`)}>
+                      {getFeedbackMessage(`edu-${index}-summary`)}
+                    </div>
+                  </td>
+                </tr>
+                <tr className="border-0">
+                  <td className="text-end border-0">
+                    <label htmlFor="workDuration" className="form-label">
+                      Work Duration
+                    </label>
+                  </td>
+                  <td className="border-0">
+                    <div className="d-flex">
+                      <select
+                        className={`form-select ${getValidationClass(
+                          "workStartMonth"
+                        )}`}
+                        id="workStartMonth"
+                        name="workStartMonth"
+                        value={formData.workStartMonth}
+                        onChange={handleExperienceDetailsChange}
+                      >
+                        <option value="">Month</option>
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        {/* Add other months if necessary */}
+                      </select>
+                      <div className={getFeedbackClass("workStartMonth")}>
+                        {getFeedbackMessage("workStartMonth")}
+                      </div>
 
-                  <select
-                    className={`form-select ${getValidationClass(
-                      "workStartYear"
-                    )}`}
-                    id="workStartYear"
-                    name="workStartYear"
-                    value={formData.workStartYear}
-                    onChange={handleInputChange}
-                  >
-                    <option value="">Year</option>
-                    <option value="2020">2020</option>
-                    <option value="2021">2021</option>
-                    <option value="2022">2022</option>
-                    {/* Add other years if necessary */}
-                  </select>
-                  <div className={getFeedbackClass("workStartYear")}>
-                    {getFeedbackMessage("workStartYear")}
-                  </div>
+                      <select
+                        className={`form-select ${getValidationClass(
+                          "workStartYear"
+                        )}`}
+                        id="workStartYear"
+                        name="workStartYear"
+                        value={formData.workStartYear}
+                        onChange={handleExperienceDetailsChange}
+                      >
+                        <option value="">Year</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        {/* Add other years if necessary */}
+                      </select>
+                      <div className={getFeedbackClass("workStartYear")}>
+                        {getFeedbackMessage("workStartYear")}
+                      </div>
 
-                  <span className="mx-2">To</span>
+                      <span className="mx-2">To</span>
 
-                  <select
-                    className={`form-select ${getValidationClass(
-                      "workEndMonth"
-                    )}`}
-                    id="workEndMonth"
-                    name="workEndMonth"
-                    value={formData.workEndMonth}
-                    onChange={handleInputChange}
-                  >
-                    <option value="">Month</option>
-                    <option value="January">January</option>
-                    <option value="February">February</option>
-                    <option value="March">March</option>
-                    {/* Add other months if necessary */}
-                  </select>
-                  <div className={getFeedbackClass("workEndMonth")}>
-                    {getFeedbackMessage("workEndMonth")}
-                  </div>
+                      <select
+                        className={`form-select ${getValidationClass(
+                          "workEndMonth"
+                        )}`}
+                        id="workEndMonth"
+                        name="workEndMonth"
+                        value={formData.workEndMonth}
+                        onChange={handleExperienceDetailsChange}
+                      >
+                        <option value="">Month</option>
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        {/* Add other months if necessary */}
+                      </select>
+                      <div className={getFeedbackClass("workEndMonth")}>
+                        {getFeedbackMessage("workEndMonth")}
+                      </div>
 
-                  <select
-                    className={`form-select ${getValidationClass(
-                      "workEndYear"
-                    )}`}
-                    id="workEndYear"
-                    name="workEndYear"
-                    value={formData.workEndYear}
-                    onChange={handleInputChange}
-                  >
-                    <option value="">Year</option>
-                    <option value="2020">2020</option>
-                    <option value="2021">2021</option>
-                    <option value="2022">2022</option>
-                    {/* Add other years if necessary */}
-                  </select>
-                  <div className={getFeedbackClass("workEndYear")}>
-                    {getFeedbackMessage("workEndYear")}
-                  </div>
-                </div>
-              </td>
-            </tr>
+                      <select
+                        className={`form-select ${getValidationClass(
+                          "workEndYear"
+                        )}`}
+                        id="workEndYear"
+                        name="workEndYear"
+                        value={formData.workEndYear}
+                        onChange={handleExperienceDetailsChange}
+                      >
+                        <option value="">Year</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        {/* Add other years if necessary */}
+                      </select>
+                      <div className={getFeedbackClass("workEndYear")}>
+                        {getFeedbackMessage("workEndYear")}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
 
-            <tr className="border-0">
-              <td className="text-end border-0">
-                <label htmlFor="currentlyWorking" className="form-label">
-                  I currently work here
-                </label>
-              </td>
-              <td className="border-0" colSpan="3">
-                <input
-                  className={`form-check-input ${getValidationClass(
-                    "currentlyWorking"
-                  )}`}
-                  type="checkbox"
-                  id="currentlyWorking"
-                  name="currentlyWorking"
-                  checked={formData.currentlyWorking}
-                  onChange={handleInputChange}
-                />
-                <div className={getFeedbackClass("currentlyWorking")}>
-                  {getFeedbackMessage("currentlyWorking")}
-                </div>
-              </td>
-            </tr>
+                <tr className="border-0">
+                  <td className="text-end border-0">
+                    <label htmlFor="currentlyWorking" className="form-label">
+                      I currently work here
+                    </label>
+                  </td>
+                  <td className="border-0" colSpan="3">
+                    <input
+                      className={`form-check-input ${getValidationClass(
+                        "currentlyWorking"
+                      )}`}
+                      type="checkbox"
+                      id="currentlyWorking"
+                      name="currentlyWorking"
+                      checked={formData.currentlyWorking}
+                      onChange={handleExperienceDetailsChange}
+                    />
+                    <div className={getFeedbackClass("currentlyWorking")}>
+                      {getFeedbackMessage("currentlyWorking")}
+                    </div>
+                  </td>
+                </tr>
+              </React.Fragment>
+            ))}
 
             <tr className="border">
               <th colSpan="4" className="border">
-                <button className="btn btn-link text-primary" type="button">
+                <button
+                  className="btn btn-link text-primary"
+                  type="button"
+                  onClick={addExperienceDetail}
+                >
                   + Add Experience
                 </button>
               </th>

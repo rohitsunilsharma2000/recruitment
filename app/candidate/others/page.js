@@ -1,219 +1,135 @@
-
-
 "use client";
+
+
 import React, { useState } from 'react';
+import "./TokenizedTagInput.css"
 
-const CreateCandidateDynamicForm = () => {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    mobile: '',
-    phone: '',
-    website: '',
-    secondaryEmail: '',
-    street: '',
-    province: '',
-    city: '',
-    postalCode: '',
-    country: '',
-    experience: '',
-    currentJobTitle: '',
-    expectedSalary: '',
-    skillSet: '',
-    skypeID: '',
-    linkedin: '',
-    twitter: '',
-    facebook: '',
-    candidateStatus: '',
-    candidateOwner: '',
-    emailOptOut: false,
-    institute: '',
-    major: '',
-    degree: '',
-    durationStartMonth: '',
-    durationStartYear: '',
-    durationEndMonth: '',
-    durationEndYear: '',
-    currentlyPursuing: false,
-    occupationTitle: '',
-    company: '',
-    summary: '',
-    workStartMonth: '',
-    workStartYear: '',
-    workEndMonth: '',
-    workEndYear: '',
-    currentlyWorking: false,
-    resume: null,
-    coverLetter: null,
-    others: null,
-    offer: null,
-    contracts: null,
-  });
+const TokenizedTagInput = () => {
+  // Predefined list of suggestions for demonstration
+  const suggestionList = [
+    "java", "javacard", "javascript", "javascriptmvc", "javaandj2ee", "javafx",
+    "javase", "javabeans", "javamail", "javaapplets", "python", "reactjs", "angular",
+    "nodejs", "html", "css", "csharp", "ruby", "go", "typescript", "swift"
+  ];
 
-  // New state for educational details
-  const [educationalDetails, setEducationalDetails] = useState([
-    {
-      institute: '',
-      major: '',
-      degree: '',
-      durationStartMonth: '',
-      durationStartYear: '',
-      durationEndMonth: '',
-      durationEndYear: '',
-      currentlyPursuing: false,
-    },
-  ]);
+  const [tags, setTags] = useState([]); // Store the tags
+  const [inputValue, setInputValue] = useState(''); // Store the current input value
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]); // Suggestions filtered based on input
+  const [isOpen, setIsOpen] = useState(false); // Track if suggestions are open
+  const [highlightedIndex, setHighlightedIndex] = useState(-1); // Track highlighted suggestion
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    const oldData = { ...formData };  // Copy the old data before the change
+  // Define the separators that trigger tag creation
+  const tokenSeparators = [' ', ','];
 
-    if (type === 'checkbox') {
-      setFormData({
-        ...formData,
-        [name]: checked,
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
+  // Function to handle the input change
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+    filterSuggestions(e.target.value);
+  };
+
+  // Function to filter suggestions based on input
+  const filterSuggestions = (input) => {
+    if (!input) {
+      setFilteredSuggestions([]);
+      setIsOpen(false);
+      return;
     }
-
-    const newData = { ...formData };  // Copy the updated form data
-    console.log('Old Form Data:', oldData);
-    console.log('New Form Data:', newData);
+    const filtered = suggestionList.filter((item) =>
+      item.toLowerCase().includes(input.toLowerCase())
+    );
+    setFilteredSuggestions(filtered);
+    setIsOpen(filtered.length > 0); // Open the suggestion list if there are filtered suggestions
   };
 
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    const oldData = { ...formData };  // Copy the old data before the change
-
-    setFormData({
-      ...formData,
-      [name]: files[0],
-    });
-
-    const newData = { ...formData };  // Copy the updated form data
-    console.log('Old Form Data:', oldData);
-    console.log('New Form Data:', newData);
-  };
-
-  // Function to handle the addition of new educational details
-  const addEducationalDetail = () => {
-    setEducationalDetails([
-      ...educationalDetails,
-      {
-        institute: '',
-        major: '',
-        degree: '',
-        durationStartMonth: '',
-        durationStartYear: '',
-        durationEndMonth: '',
-        durationEndYear: '',
-        currentlyPursuing: false,
-      },
-    ]);
-  };
-
-  // Function to handle changes in educational details input fields
-  const handleEducationalDetailChange = (index, e) => {
-    const { name, value, type, checked } = e.target;
-    const oldEducationalDetails = [...educationalDetails]; // Copy the old educational details
-
-    const updatedEducationalDetails = [...educationalDetails];
-    if (type === 'checkbox') {
-      updatedEducationalDetails[index][name] = checked;
-    } else {
-      updatedEducationalDetails[index][name] = value;
+  // Function to handle key press (for space or comma)
+  const handleKeyDown = (e) => {
+    if (tokenSeparators.includes(e.key)) {
+      e.preventDefault();
+      addTag(inputValue.trim());
+    } else if (e.key === 'ArrowDown' && highlightedIndex < filteredSuggestions.length - 1) {
+      setHighlightedIndex(highlightedIndex + 1);
+    } else if (e.key === 'ArrowUp' && highlightedIndex > 0) {
+      setHighlightedIndex(highlightedIndex - 1);
+    } else if (e.key === 'Enter' && highlightedIndex >= 0) {
+      e.preventDefault();
+      addTag(filteredSuggestions[highlightedIndex]);
     }
-    setEducationalDetails(updatedEducationalDetails);
+  };
 
-    const newEducationalDetails = [...updatedEducationalDetails];  // Copy the updated educational details
-    console.log('Old Educational Details:', oldEducationalDetails);
-    console.log('New Educational Details:', newEducationalDetails);
+  // Function to add a tag
+  const addTag = (tag) => {
+    if (tag && !tags.includes(tag)) { // Only add non-empty and unique tags
+      setTags((prevTags) => [...prevTags, tag]);
+      setInputValue(''); // Clear the input field
+      setIsOpen(false); // Close the suggestions
+      setHighlightedIndex(-1); // Reset highlighted suggestion index
+    }
+  };
+
+  // Function to remove a tag
+  const removeTag = (index) => {
+    setTags((prevTags) => prevTags.filter((_, i) => i !== index));
+  };
+
+  // Function to clear all tags
+  const clearAllTags = () => {
+    setTags([]); // Clear all tags
   };
 
   return (
-    <div className="container mt-5">
-      <h2>Create Candidate</h2>
-      <form>
-        <table className="table table-bordered">
-          <tbody>
-            <tr className="border">
-              <th colSpan="4" className="border">Basic Info</th>
-            </tr>
-            {/* Basic Info fields */}
-            {/* Address, Professional, Social, Other Info fields */}
+    <><h1>
+      <b>Tokenized Tag Input</b>  gives you a customizable select box with support for searching, tagging, remote data sets, infinite scrolling, and many other highly used options.
+    </h1><div className="container mt-4 container-wrapper">
+        <div className="tag-input">
+          <div className="tag-input-field">
 
-            <tr className="border">
-              <th colSpan="4" className="border">Educational Details</th>
-            </tr>
-            {educationalDetails.map((detail, index) => (
-              <React.Fragment key={index}>
-                <tr className="border-0">
-                  <td className="border-0 text-end">Institute / School</td>
-                  <td className="border-0"><input type="text" className="form-control" placeholder="Institute / School" name="institute" value={detail.institute} onChange={(e) => handleEducationalDetailChange(index, e)} /></td>
-                  <td className="border-0 text-end">Major / Department</td>
-                  <td className="border-0"><input type="text" className="form-control" placeholder="Major / Department" name="major" value={detail.major} onChange={(e) => handleEducationalDetailChange(index, e)} /></td>
-                </tr>
-                <tr className="border-0">
-                  <td className="border-0 text-end">Degree</td>
-                  <td className="border-0"><input type="text" className="form-control" placeholder="Degree" name="degree" value={detail.degree} onChange={(e) => handleEducationalDetailChange(index, e)} /></td>
-                  <td className="border-0 text-end">Duration</td>
-                  <td className="border-0">
-                    <div className="d-flex">
-                      <select className="form-select" name="durationStartMonth" value={detail.durationStartMonth} onChange={(e) => handleEducationalDetailChange(index, e)}>
-                        <option>Month</option>
-                        <option>January</option>
-                        <option>February</option>
-                        <option>March</option>
-                      </select>
-                      <select className="form-select" name="durationStartYear" value={detail.durationStartYear} onChange={(e) => handleEducationalDetailChange(index, e)}>
-                        <option>Year</option>
-                        <option>2020</option>
-                        <option>2021</option>
-                        <option>2022</option>
-                      </select>
-                      <span className="mx-2">To</span>
-                      <select className="form-select" name="durationEndMonth" value={detail.durationEndMonth} onChange={(e) => handleEducationalDetailChange(index, e)}>
-                        <option>Month</option>
-                        <option>January</option>
-                        <option>February</option>
-                        <option>March</option>
-                      </select>
-                      <select className="form-select" name="durationEndYear" value={detail.durationEndYear} onChange={(e) => handleEducationalDetailChange(index, e)}>
-                        <option>Year</option>
-                        <option>2020</option>
-                        <option>2021</option>
-                        <option>2022</option>
-                      </select>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="border-0">
-                  <td className="border-0 text-end">Currently Pursuing</td>
-                  <td className="border-0">
-                    <input className="form-check-input" type="checkbox" name="currentlyPursuing" checked={detail.currentlyPursuing} onChange={(e) => handleEducationalDetailChange(index, e)} />
-                  </td>
-                  <td className="border-0"></td>
-                  <td className="border-0"></td>
-                </tr>
-              </React.Fragment>
+            {/* Tags are displayed as clickable items */}
+            {tags.map((tag, index) => (
+              <span
+                key={index}
+                className="badge bg-primary me-2 mb-2 tag"
+                onClick={() => removeTag(index)}
+              >
+                {tag} <span className="ms-1" style={{ cursor: 'pointer' }}>x</span>
+              </span>
             ))}
-            <tr className="border">
-              <th colSpan="4" className="border">
-                <button type="button" className="btn btn-link text-primary" onClick={addEducationalDetail}>+ Add Educational Details</button>
-              </th>
-            </tr>
+            {/* The input field to type in */}
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              className="form-control border-0"
+              placeholder="Type a tag (space or comma to add)" />
+          </div>
 
-            {/* Experience, Attachment, etc. */}
-          </tbody>
-        </table>
-      </form>
-    </div>
+          {/* Suggestion dropdown */}
+          {isOpen && (
+            <ul className="list-group mt-2" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+              {filteredSuggestions.map((suggestion, index) => (
+                <li
+                  key={index}
+                  className={`list-group-item ${highlightedIndex === index ? 'active' : ''}`}
+                  onClick={() => addTag(suggestion)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {suggestion}
+                </li>
+              ))}
+            </ul>
+          )}
+          {/* Clear All Tags Button */}
+          {tags.length > 0 && (
+            <button
+              className="btn btn-danger mt-2"
+              onClick={clearAllTags}
+            >
+              Clear All Tags
+            </button>
+          )}
+        </div>
+      </div></>
   );
 };
 
-export default CreateCandidateDynamicForm;
+export default TokenizedTagInput;
