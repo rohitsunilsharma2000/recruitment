@@ -125,19 +125,6 @@ Modify the field change handler to include validation.
 Example:
 ```javascript
 
-const handleEducationChange = (index, field, value) => {
-    const updatedDetails = educationalDetails.map((detail, idx) =>
-      idx === index ? { ...detail, [field]: value } : detail
-    );
-    setEducationalDetails(updatedDetails);
-
-    // Mark field as touched
-    const fieldKey = `edu-${index}-${field}`;
-    setTouchedFields((prev) => ({ ...prev, [fieldKey]: true }));
-
-    // Immediately validate the field
-    validateField(fieldKey, value);
-  };
 
 ```
 
