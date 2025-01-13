@@ -3,12 +3,84 @@
 This document provides a step-by-step guide to adding validation for dynamic fields in forms. It focuses on ensuring the correct implementation of validation for existing dynamic fields like educational and experience details.
 
 ---
+### 1. **Add state variable **
+
+```javascript
+const [experienceDetails, setExperienceDetails] = useState([
+    {
+      occupation: "",
+      company: "",
+      summary: "",
+      workDuration: "",
+      workStartMonth: "",
+      workStartYear: "",
+      workEndMonth: "",
+      workEndYear: "",
+      currentlyWorking: false,
+    },
+  ]);
+`````
+````
+
+
+### 1. **Add Validation Logic**
+Define a validation function to check field values based on requirements.
+
+Example for educational details validation:
+
+````
+```javascript
+
+  const handleExperienceDetailsChange = (index, field, value) => {
+    const updatedDetails = experienceDetails.map((detail, idx) =>
+      idx === index ? { ...detail, [field]: value } : detail
+    );
+    setExperienceDetails(updatedDetails);
+
+    // Mark field as touched
+    const fieldKey = `exp-${index}-${field}`;
+    setTouchedFields((prev) => ({ ...prev, [fieldKey]: true }));
+
+    // Immediately validate the field
+    validateField(fieldKey, value);
+  };
+```
+
+---
+
 
 ### 1. **Add Validation Logic**
 Define a validation function to check field values based on requirements.
 
 Example for educational details validation:
 ```javascript
+
+
+  // Adds a new educational detail entry
+  const addExperienceDetail = () => {
+    console.log("Before adding new experience detail:", experienceDetails);
+
+    setExperienceDetails([
+      ...experienceDetails,
+      {
+        occupation: "",
+        company: "",
+        summary: "",
+        workDuration: "",
+        workStartMonth: "",
+        workStartYear: "",
+        workEndMonth: "",
+        workEndYear: "",
+        currentlyWorking: false,
+      },
+    ]);
+
+    console.log("After adding new experience detail:", experienceDetails);
+  };
+ // Removes an experience detail entry
+ const removeExperienceDetail = (index) => {
+  setExperienceDetails(experienceDetails.filter((_, idx) => idx !== index));
+};
 const validateField = (fieldName, value, type) => {
     let error = ""; // Start with no error for each field
 
@@ -52,6 +124,7 @@ Modify the field change handler to include validation.
 
 Example:
 ```javascript
+
 const handleEducationChange = (index, field, value) => {
     const updatedDetails = educationalDetails.map((detail, idx) =>
       idx === index ? { ...detail, [field]: value } : detail

@@ -272,15 +272,15 @@ const CreateCandidateForm = () => {
 
     console.log("After adding new experience detail:", experienceDetails);
   };
-
+ // Removes an experience detail entry
+ const removeExperienceDetail = (index) => {
+  setExperienceDetails(experienceDetails.filter((_, idx) => idx !== index));
+};
   // Removes an educational detail entry
   const removeEducationalDetail = (index) => {
     setEducationalDetails(educationalDetails.filter((_, idx) => idx !== index));
   };
-  // Removes an experience detail entry
-  const removeExperienceDetail = (index) => {
-    setExperienceDetails(experienceDetails.filter((_, idx) => idx !== index));
-  };
+ 
 
 
 
