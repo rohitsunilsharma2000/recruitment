@@ -272,15 +272,15 @@ const CreateCandidateForm = () => {
 
     console.log("After adding new experience detail:", experienceDetails);
   };
- // Removes an experience detail entry
- const removeExperienceDetail = (index) => {
-  setExperienceDetails(experienceDetails.filter((_, idx) => idx !== index));
-};
+  // Removes an experience detail entry
+  const removeExperienceDetail = (index) => {
+    setExperienceDetails(experienceDetails.filter((_, idx) => idx !== index));
+  };
   // Removes an educational detail entry
   const removeEducationalDetail = (index) => {
     setEducationalDetails(educationalDetails.filter((_, idx) => idx !== index));
   };
- 
+
 
 
 
@@ -1366,9 +1366,9 @@ const CreateCandidateForm = () => {
                     <input
                       type="text"
                       className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                        `edu-${index}-company`
+                        `exp-${index}-company`
                       )}`}
-                      id={`edu-${index}-company`}
+                      id={`exp-${index}-company`}
                       name="company"
                       placeholder="company"
                       value={expDetail.company}
@@ -1376,8 +1376,8 @@ const CreateCandidateForm = () => {
                         handleExperienceDetailsChange(index, "company", e.target.value)
                       }
                     />
-                    <div className={getFeedbackClass(`edu-${index}-company`)}>
-                      {getFeedbackMessage(`edu-${index}-company`)}
+                    <div className={getFeedbackClass(`exp-${index}-company`)}>
+                      {getFeedbackMessage(`exp-${index}-company`)}
                     </div>
                   </td>
                 </tr>
@@ -1391,9 +1391,9 @@ const CreateCandidateForm = () => {
                     <input
                       type="text"
                       className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                        `edu-${index}-summary`
+                        `exp-${index}-summary`
                       )}`}
-                      id={`edu-${index}-summary`}
+                      id={`exp-${index}-summary`}
                       name="summary"
                       placeholder="summary"
                       value={expDetail.summary}
@@ -1401,8 +1401,8 @@ const CreateCandidateForm = () => {
                         handleExperienceDetailsChange(index, "summary", e.target.value)
                       }
                     />
-                    <div className={getFeedbackClass(`edu-${index}-summary`)}>
-                      {getFeedbackMessage(`edu-${index}-summary`)}
+                    <div className={getFeedbackClass(`exp-${index}-summary`)}>
+                      {getFeedbackMessage(`exp-${index}-summary`)}
                     </div>
                   </td>
                 </tr>
@@ -1415,72 +1415,96 @@ const CreateCandidateForm = () => {
                   <td className="border-0">
                     <div className="d-flex">
                       <select
-                        className={`form-select ${getValidationClass(
-                          "workStartMonth"
+                        className={`form-control form-control-sm ${getValidationClass(
+                          `exp-${index}-startMonth`
                         )}`}
-                        id="workStartMonth"
-                        name="workStartMonth"
-                        value={formData.workStartMonth}
-                        onChange={handleExperienceDetailsChange}
+                        id={`exp-${index}-startMonth`}
+                        name="startMonth"
+                        value={formData.startMonth}
+                        onChange={(e) =>
+                          handleExperienceDetailsChange(
+                            index,
+                            "startMonth",
+                            e.target.value
+                          )
+                        }
                       >
                         <option value="">Month</option>
-                        <option value="January">January</option>
-                        <option value="February">February</option>
-                        <option value="March">March</option>
-                        {/* Add other months if necessary */}
+                        <option>January</option>
+                        <option>February</option>
+                        <option>March</option>
                       </select>
                       <div className={getFeedbackClass("workStartMonth")}>
                         {getFeedbackMessage("workStartMonth")}
                       </div>
 
                       <select
-                        className={`form-select ${getValidationClass(
-                          "workStartYear"
+                        className={`form-control form-control-sm ${getValidationClass(
+                          `exp-${index}-workStartYear`
                         )}`}
-                        id="workStartYear"
+                        id={`exp-${index}-workStartYear`}
                         name="workStartYear"
                         value={formData.workStartYear}
-                        onChange={handleExperienceDetailsChange}
+                        onChange={(e) =>
+                          handleExperienceDetailsChange(
+                            index,
+                            "workStartYear",
+                            e.target.value
+                          )
+                        }
                       >
                         <option value="">Year</option>
                         <option value="2020">2020</option>
                         <option value="2021">2021</option>
                         <option value="2022">2022</option>
-                        {/* Add other years if necessary */}
+
                       </select>
-                      <div className={getFeedbackClass("workStartYear")}>
-                        {getFeedbackMessage("workStartYear")}
-                      </div>
+
+
 
                       <span className="mx-2">To</span>
 
                       <select
-                        className={`form-select ${getValidationClass(
-                          "workEndMonth"
+                        className={`form-control form-control-sm ${getValidationClass(
+                          `exp-${index}-workEndMonth`
                         )}`}
-                        id="workEndMonth"
-                        name="workEndMonth"
+                        id={`exp-${index}-workEndMonth`}
+                        name="endMonth"
                         value={formData.workEndMonth}
-                        onChange={handleExperienceDetailsChange}
+                        onChange={(e) =>
+                          handleExperienceDetailsChange(
+                            index,
+                            "workEndMonth",
+                            e.target.value
+                          )
+                        }
                       >
                         <option value="">Month</option>
-                        <option value="January">January</option>
-                        <option value="February">February</option>
-                        <option value="March">March</option>
-                        {/* Add other months if necessary */}
+                        <option>January</option>
+                        <option>February</option>
+                        <option>March</option>
                       </select>
-                      <div className={getFeedbackClass("workEndMonth")}>
-                        {getFeedbackMessage("workEndMonth")}
-                      </div>
 
+
+                      <div
+                        className={getFeedbackClass(`edu-${index}-endMonth`)}
+                      >
+                        {getFeedbackMessage(`edu-${index}-endMonth`)}
+                      </div>
                       <select
-                        className={`form-select ${getValidationClass(
-                          "workEndYear"
+                        className={`form-control form-control-sm ${getValidationClass(
+                          `exp-${index}-workEndYear`
                         )}`}
-                        id="workEndYear"
-                        name="workEndYear"
-                        value={formData.workEndYear}
-                        onChange={handleExperienceDetailsChange}
+                        id={`exp-${index}-workEndYear`}
+                        name="endMonth"
+                        value={formData.workEndMonth}
+                        onChange={(e) =>
+                          handleExperienceDetailsChange(
+                            index,
+                            "workEndYear",
+                            e.target.value
+                          )
+                        }
                       >
                         <option value="">Year</option>
                         <option value="2020">2020</option>
@@ -1488,6 +1512,8 @@ const CreateCandidateForm = () => {
                         <option value="2022">2022</option>
                         {/* Add other years if necessary */}
                       </select>
+
+
                       <div className={getFeedbackClass("workEndYear")}>
                         {getFeedbackMessage("workEndYear")}
                       </div>
