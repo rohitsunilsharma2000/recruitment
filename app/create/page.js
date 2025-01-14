@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import "./create-job.css";
 import SearchableDropdown from "@/components/searchable-dropdown/SearchableDropdown";
+import TokenizedTagInputForm from "@/components/tokenized-tag-input/TokenizedTagInputForm";
 
 export default function JobOpening() {
   // 1) INITIAL STATES
@@ -21,7 +22,8 @@ export default function JobOpening() {
     industry: "",
     workExperience: "",
     salary: "",
-    skills: "",
+    // skills: "",
+    skills: [], // Initialize with an empty array or desired default value
     remoteJob: false,
     city: "",
     province: "",
@@ -280,6 +282,16 @@ export default function JobOpening() {
 
 
   };
+
+  // Log changes when `TokenizedTagInput` updates the `skills`
+  //Parent (JobOpening ) toified from TokenizedTagInput
+  const handleSkillsChange = (newTags) => {
+    console.log("Previous form data:", formData);
+    const updatedFormData = { ...formData, skills: newTags };
+    console.log("Updated form data:", updatedFormData);
+    setFormData(updatedFormData);
+  };
+
 
   return (
     <div className="container">
@@ -638,7 +650,7 @@ export default function JobOpening() {
                     </label>
                   </td>
                   <td>
-                    <input
+                    {/* <input
                       type="text"
                       className={`form-control form-control-sm small-placeholder ${getValidationClass("skills")}`}
                       id="skills"
@@ -646,7 +658,36 @@ export default function JobOpening() {
                       value={formData.skills}
                       onChange={handleInputChange}
                       placeholder="Search and add skills"
+                    /> */}
+                    <TokenizedTagInputForm
+                      suggestionList={["java", "javascript", "reactjs", "python", "angular"]}
+                      className="form-control-sm small-placeholder"
+                      id="skills"
+                      name="skills"
+                      value={formData.skills}
+                      // onChange={(newInputValue, newTags) => {
+                      //   // You can update the parent component's state here
+                      //   setFormData({ ...formData, skills: newTags });
+                      // }}
+
+                      // onChange={(newTags) => setFormData({ ...formData, skills: newTags })}
+                      onChange={handleSkillsChange} // Notify parent of changes
+                      placeholder="Search and add skills"
                     />
+                    {/* 
+<SearchableDropdown
+                      id="title"
+                      name="title"
+                      options={titles}
+                      selectedValue={formData.title}
+                      placeholder="Choose a title"
+                      onSelect={(selectedOption) => setFormData((prev) => ({ ...prev, title: selectedOption }))}
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      className={`form-select form-select-sm small-placeholder ${getValidationClass("title")}`}
+                      getValidationClass={getValidationClass}
+                    /> */}
+
                     <div className={getFeedbackClass("skills")}>
                       {getFeedbackMessage("skills")}
                     </div>

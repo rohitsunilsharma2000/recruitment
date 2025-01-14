@@ -1,0 +1,22 @@
+.container-wrapper {
+  border: 1px solid gray;
+
+  border-radius: 5px !important;
+
+  padding: 7px 8px 7px !important;
+
+  min-height: 35px;
+
+  max-width: 488px;
+
+  vertical-align: top;
+}
+
+/* .form-control:focus {
+  color: #6b6d70;
+  background-color: #fff;
+  border-color: #86b7fe;
+  outline: 0;
+  box-shadow: none !important;
+}
+*/
