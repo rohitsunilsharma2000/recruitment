@@ -169,4 +169,37 @@ export const changePassword = async (payload) => {
   }
 };
 
+// Fetch countries and positions using restClient
+export const fetchCountries = async () => {
+  try {
+    const response = await restClient.get(
+      "https://countriesnow.space/api/v0.1/countries/positions"
+    );
+
+    // Check for valid data in the response
+    if (response.data && response.data.data) {
+      return response.data.data; // Return the list of countries with positions
+    } else {
+      console.error("Invalid response structure:", response);
+      return []; // Return an empty array in case of invalid response
+    }
+  } catch (error) {
+    console.error("Error fetching countries and positions:", error);
+    throw error; // Re-throw the error for caller handling
+  }
+};
+
+// Function to create a new department
+export const createDepartment = async (departmentData) => {
+  try {
+    const response = await restClient.post('/api/departments', departmentData);
+    return response.data; // Return the response data if the request is successful
+  } catch (error) {
+    console.error('Error creating department:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+};
+
+
+
 export default restClient;

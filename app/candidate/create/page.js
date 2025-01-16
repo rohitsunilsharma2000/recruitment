@@ -1,9 +1,10 @@
 "use client";
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import "../candidate.css";
+import { ValidationHelper } from "@/components/searchable-dropdown/ValidationHelper";
+
 const CreateCandidateForm = () => {
-  // 1) INITIAL STATES
+  // Initial state for form data
   const initialState = {
     firstName: "",
     lastName: "",
@@ -27,16 +28,6 @@ const CreateCandidateForm = () => {
     facebook: "",
     candidateStatus: "",
     candidateOwner: "",
-    // occupation: "",
-    // company: "",
-    // summary: "",
-    // workDuration: "",
-    // workStartMonth: "",
-    // workStartYear: "",
-    // workEndMonth: "",
-    // workEndYear: "",
-    // currentlyWorking: false,
-
     emailOptOut: false,
     resume: null,
     coverLetter: null,
@@ -45,19 +36,12 @@ const CreateCandidateForm = () => {
     contracts: null,
   };
 
-  // State to hold form data (values entered by the user)
   const [formData, setFormData] = useState(initialState);
-
-  // State to hold errors for each field (if any)
   const [formErrors, setFormErrors] = useState({});
-
-  // Track which fields have been touched or edited by the user
   const [touchedFields, setTouchedFields] = useState({});
-
-  // Submission state (you can use this to show a success message, etc.)
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Educational Details State (Array of education-related data)
+  // State for educational details
   const [educationalDetails, setEducationalDetails] = useState([
     {
       institute: "",
@@ -71,6 +55,7 @@ const CreateCandidateForm = () => {
     },
   ]);
 
+  // State for experience details
   const [experienceDetails, setExperienceDetails] = useState([
     {
       occupation: "",
@@ -85,156 +70,63 @@ const CreateCandidateForm = () => {
     },
   ]);
 
-  // 2) HELPER FUNCTIONS FOR DYNAMIC VALIDATION STYLES
-
-  // This function adds dynamic classes for styling invalid or valid fields
+  // Helper function to get validation classes for fields
   const getValidationClass = (fieldName) => {
     if (!touchedFields[fieldName]) {
-      return ""; // If the field hasn't been touched, no class is applied
+      return ""; // No class if the field isn't touched
     }
-    return formErrors[fieldName] ? "is-invalid" : "is-valid"; // If error exists, return invalid, otherwise valid
+    return formErrors[fieldName] ? "is-invalid" : "is-valid";
   };
 
-  // This function adds dynamic feedback classes to show validation messages
+  // Helper function to get feedback classes for validation messages
   const getFeedbackClass = (fieldName) => {
     if (!touchedFields[fieldName]) {
-      return ""; // If not touched, no feedback class
+      return ""; // No class if the field isn't touched
     }
-    return formErrors[fieldName] ? "invalid-feedback" : "valid-feedback"; // Invalid or valid feedback class based on error
+    return formErrors[fieldName] ? "invalid-feedback" : "valid-feedback";
   };
 
-  // This function shows the validation message or "Looks good!" for valid fields
+  // Helper function to get feedback messages for fields
   const getFeedbackMessage = (fieldName) => {
     if (!touchedFields[fieldName]) {
-      return ""; // If field isn't touched, no message is shown
+      return ""; // No message if the field isn't touched
     }
-    return formErrors[fieldName] || "Looks good!"; // Show the error message or a success message
+    return formErrors[fieldName] || "Looks good!";
   };
 
-  // 3) VALIDATION LOGIC
-  // This function validates individual form fields and updates the formErrors state
-  const validateField = (fieldName, value, type) => {
-    let error = ""; // Start with no error for each field
-
-    switch (true) {
-      // REQUIRED TEXT FIELDS (e.g., firstName, email, etc.)
-      case [
-        "firstName",
-        "lastName",
-        "email",
-        "mobile",
-        "phone",
-        "website",
-        "secondaryEmail",
-        "street",
-        "province",
-        "city",
-        "postalCode",
-        "country",
-        "currentJobTitle",
-        "skillSet",
-        "skypeId",
-        "linkedin",
-        "twitter",
-        "facebook",
-        "candidateStatus",
-        "candidateOwner",
-      ].includes(fieldName):
-        if (!value || value.trim() === "") {
-          error = `${fieldName} is required.`;
-        }
-        break;
-
-      // EDUCATIONAL FIELDS (Handle both text and checkbox)
-      case fieldName.startsWith("edu-"): {
-        if (typeof value === "string" && value.trim() === "") {
-          error = `${fieldName} is required.`;
-        }
-        break;
-      }
-      // EDUCATIONAL FIELDS (Handle both text and checkbox)
-      case fieldName.startsWith("exp-"): {
-        if (typeof value === "string" && value.trim() === "") {
-          error = `${fieldName} is required.`;
-        }
-        break;
-      }
-
-      // REQUIRED NUMERIC FIELDS (e.g., experience, salary)
-      case ["experience", "expectedSalary"].includes(fieldName):
-        if (!value || isNaN(value) || value <= 0) {
-          error = `${fieldName} must be a positive number.`;
-        }
-        break;
-
-      // REQUIRED CHECKBOX FIELDS (currentlyPursuing, emailOptOut, etc.)
-      case ["emailOptOut"].includes(fieldName):
-        if (type === "checkbox" && value === false) {
-          error = `You must accept the ${fieldName
-            .replace(/([A-Z])/g, " $1")
-            .toLowerCase()}.`;
-        }
-        break;
-
-      // REQUIRED TEXTAREA (summary)
-      case fieldName === "summary":
-        if (!value || value.trim().length < 10) {
-          error = `${fieldName} must be at least 10 characters long.`;
-        }
-        break;
-
-      // FILE FIELDS (e.g., resume, coverLetter, others, offer, contracts)
-      case ["resume", "coverLetter", "others", "offer", "contracts"].includes(
-        fieldName
-      ):
-        if (!value || value.length === 0) {
-          error = `Please upload a valid file for ${fieldName}.`;
-        }
-        break;
-
-      default:
-        break;
-    }
-
-    // Update formErrors state to store the error message for this field
-    setFormErrors((prevErrors) => ({
-      ...prevErrors,
-      [fieldName]: error, // Store error message for the field
-    }));
-  };
-
-  // Educational Details Handlers
-  // Updates a specific educational field
+  // Handler for changes in educational details
   const handleEducationChange = (index, field, value) => {
+    console.log(`Updating educational detail at index ${index}, field ${field} with value: ${value}`);
     const updatedDetails = educationalDetails.map((detail, idx) =>
       idx === index ? { ...detail, [field]: value } : detail
     );
     setEducationalDetails(updatedDetails);
 
-    // Mark field as touched
     const fieldKey = `edu-${index}-${field}`;
     setTouchedFields((prev) => ({ ...prev, [fieldKey]: true }));
 
-    // Immediately validate the field
-    validateField(fieldKey, value);
+    const error = ValidationHelper.validateField(fieldKey, value, typeof value);
+    setFormErrors((prev) => ({ ...prev, [fieldKey]: error }));
   };
 
+  // Handler for changes in experience details
   const handleExperienceDetailsChange = (index, field, value) => {
+    console.log(`Updating experience detail at index ${index}, field ${field} with value: ${value}`);
     const updatedDetails = experienceDetails.map((detail, idx) =>
       idx === index ? { ...detail, [field]: value } : detail
     );
     setExperienceDetails(updatedDetails);
 
-    // Mark field as touched
     const fieldKey = `exp-${index}-${field}`;
     setTouchedFields((prev) => ({ ...prev, [fieldKey]: true }));
 
-    // Immediately validate the field
-    validateField(fieldKey, value);
+    const error = ValidationHelper.validateField(fieldKey, value, typeof value);
+    setFormErrors((prev) => ({ ...prev, [fieldKey]: error }));
   };
 
-  // Adds a new educational detail entry
+  // Add a new educational detail entry
   const addEducationalDetail = () => {
+    console.log("Adding a new educational detail.");
     setEducationalDetails([
       ...educationalDetails,
       {
@@ -250,11 +142,9 @@ const CreateCandidateForm = () => {
     ]);
   };
 
-
-  // Adds a new educational detail entry
+  // Add a new experience detail entry
   const addExperienceDetail = () => {
-    console.log("Before adding new experience detail:", experienceDetails);
-
+    console.log("Adding a new experience detail.");
     setExperienceDetails([
       ...experienceDetails,
       {
@@ -269,112 +159,75 @@ const CreateCandidateForm = () => {
         currentlyWorking: false,
       },
     ]);
-
-    console.log("After adding new experience detail:", experienceDetails);
   };
-  // Removes an experience detail entry
+
+  // Remove an experience detail entry
   const removeExperienceDetail = (index) => {
+    console.log(`Removing experience detail at index ${index}.`);
     setExperienceDetails(experienceDetails.filter((_, idx) => idx !== index));
   };
-  // Removes an educational detail entry
+
+  // Remove an educational detail entry
   const removeEducationalDetail = (index) => {
+    console.log(`Removing educational detail at index ${index}.`);
     setEducationalDetails(educationalDetails.filter((_, idx) => idx !== index));
   };
 
-
-
-
-
-  // 4) HANDLE INPUT CHANGES
-  // This function handles all form field changes (inputs, checkboxes, files)
+  // Handle changes in general form inputs
   const handleInputChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-    let newValue;
+    const newValue =
+      type === "checkbox" ? checked : type === "file" ? files : value;
 
-    // Handling different input types (text, checkbox, file)
-    if (type === "file") {
-      newValue = files;
-    } else if (type === "checkbox") {
-      newValue = checked;
-    } else {
-      newValue = value;
-    }
+    console.log(`Updating form field ${name} with value: ${newValue}`);
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
+    setTouchedFields((prev) => ({ ...prev, [name]: true }));
 
-    // Update form data with the new value
-    setFormData((prevData) => {
-      const updatedFormData = {
-        ...prevData,
-        [name]: newValue, // Update field with the new value
-      };
-      return updatedFormData;
-    });
-
-    // Mark field as touched
-    setTouchedFields((prev) => {
-      const updatedTouchedFields = {
-        ...prev,
-        [name]: true, // Mark the field as touched
-      };
-      return updatedTouchedFields;
-    });
-
-    // Immediately validate the field
-    validateField(name, newValue, type);
+    const error = ValidationHelper.validateField(name, newValue, type);
+    setFormErrors((prev) => ({ ...prev, [name]: error }));
   };
 
-  // 5) HANDLE FORM SUBMISSION
-  // Handles form submission, validates all fields, and shows success or failure
+  // Handle form submission
   const handleSubmit = (e) => {
-    e.preventDefault(); // Prevent form from submitting
+    e.preventDefault();
+    console.log("Form submission started.");
 
     let valid = true;
-    const missingFields = [];
+    const newErrors = {};
+    const touched = {};
 
-    // Mark all fields as touched so feedback shows for all fields
-    const allTouched = {};
-    Object.keys(formData).forEach((fieldName) => {
-      allTouched[fieldName] = true;
-    });
-    setTouchedFields(allTouched);
-
-    // Validate every field
-    Object.keys(formData).forEach((fieldName) => {
-      const currentValue = formData[fieldName];
-      let fieldType = "text";
-
-      // Determine the type of the field (checkbox, file, text)
-      if (typeof currentValue === "boolean") {
-        fieldType = "checkbox";
-      } else if (currentValue instanceof FileList) {
-        fieldType = "file";
-      }
-
-      validateField(fieldName, currentValue, fieldType);
-
-      // If there's an error for this field, consider the form invalid
-      if (formErrors[fieldName]) {
-        valid = false;
-        missingFields.push(fieldName); // Track missing fields
-      }
+    // Validate formData
+    Object.keys(formData).forEach((field) => {
+      const error = ValidationHelper.validateField(
+        field,
+        formData[field],
+        typeof formData[field]
+      );
+      if (error) valid = false;
+      newErrors[field] = error;
+      touched[field] = true;
     });
 
-    // Show an alert with the list of missing or incorrect fields
-    if (!valid) {
-      const missingFieldsMessage = missingFields.length
-        ? `Please fix the following fields:\n\n${missingFields.join("\n")}`
-        : "Please fix the errors in the form before submitting.";
-      alert(missingFieldsMessage);
-      setIsSubmitted(false);
+    setFormErrors(newErrors);
+    setTouchedFields(touched);
+
+    if (valid) {
+      const finalData = {
+        ...formData,
+        educationalDetails,
+        experienceDetails,
+      };
+      console.log("Form submitted successfully with data:", finalData);
+      alert("Form submitted successfully!");
+      setIsSubmitted(true);
     } else {
-      // Combine formData and educationalDetails into finalData
-      const finalData = { ...formData, educationalDetails, experienceDetails };
-      console.log("Form Submitted:", finalData); // Log the final submitted data
-      alert("Form submitted successfully!"); // Show success message
-      setIsSubmitted(true); // Update submission state
+      console.log("Form submission failed due to validation errors.", newErrors);
+      alert("Please fix the errors in the form.");
     }
   };
 
-  // Return JSX for rendering the form (not shown here for brevity)
+  // Render the form (Add JSX for rendering form inputs as required)
+
 
   return (
     <div className="container mt-5">
@@ -1023,7 +876,6 @@ const CreateCandidateForm = () => {
                     </label>
                   </td>
                   <td className="border-0">
-
                     <input
                       type="text"
                       className={`form-control form-control-sm small-placeholder ${getValidationClass(
@@ -1034,14 +886,16 @@ const CreateCandidateForm = () => {
                       placeholder="institute"
                       value={detail.institute}
                       onChange={(e) =>
-                        handleEducationChange(index, "institute", e.target.value)
+                        handleEducationChange(
+                          index,
+                          "institute",
+                          e.target.value
+                        )
                       }
                     />
                     <div className={getFeedbackClass(`edu-${index}-institute`)}>
                       {getFeedbackMessage(`edu-${index}-institute`)}
                     </div>
-
-
                   </td>
                   <td className="border-0 text-end">
                     <label
@@ -1066,7 +920,8 @@ const CreateCandidateForm = () => {
                       }
                     />
                     <div className={getFeedbackClass(`edu-${index}-major`)}>
-                      {getFeedbackMessage(`edu-${index}-major`)}</div>
+                      {getFeedbackMessage(`edu-${index}-major`)}
+                    </div>
                   </td>
                 </tr>
                 <tr className="border-0">
@@ -1105,11 +960,7 @@ const CreateCandidateForm = () => {
                     <div className={getFeedbackClass(`edu-${index}-degree`)}>
                       {getFeedbackMessage(`edu-${index}-degree`)}
                     </div>
-
-
                   </td>
-
-
                 </tr>
                 <tr className="border-0 ">
                   <td className="border-0 text-end">
@@ -1120,7 +971,7 @@ const CreateCandidateForm = () => {
                       Need to change
                     </label>
                   </td>
-                  <td className="border-0" >
+                  <td className="border-0">
                     <div className="d-flex">
                       <div className="d-flex flex-column me-2 flex-fill">
                         <select
@@ -1256,7 +1107,11 @@ const CreateCandidateForm = () => {
                       checked={formData.currentlyPursuing}
                       onChange={handleInputChange}
                     />
-                    <div className={getFeedbackClass(`edu-${index}-currentlyPursuing`)}>
+                    <div
+                      className={getFeedbackClass(
+                        `edu-${index}-currentlyPursuing`
+                      )}
+                    >
                       {getFeedbackMessage(`edu-${index}-currentlyPursuing`)}
                     </div>
                   </td>
@@ -1348,10 +1203,16 @@ const CreateCandidateForm = () => {
                       placeholder="occupation"
                       value={expDetail.occupation}
                       onChange={(e) =>
-                        handleExperienceDetailsChange(index, "occupation", e.target.value)
+                        handleExperienceDetailsChange(
+                          index,
+                          "occupation",
+                          e.target.value
+                        )
                       }
                     />
-                    <div className={getFeedbackClass(`exp-${index}-occupation`)}>
+                    <div
+                      className={getFeedbackClass(`exp-${index}-occupation`)}
+                    >
                       {getFeedbackMessage(`exp-${index}-occupation`)}
                     </div>
                   </td>
@@ -1373,7 +1234,11 @@ const CreateCandidateForm = () => {
                       placeholder="company"
                       value={expDetail.company}
                       onChange={(e) =>
-                        handleExperienceDetailsChange(index, "company", e.target.value)
+                        handleExperienceDetailsChange(
+                          index,
+                          "company",
+                          e.target.value
+                        )
                       }
                     />
                     <div className={getFeedbackClass(`exp-${index}-company`)}>
@@ -1398,7 +1263,11 @@ const CreateCandidateForm = () => {
                       placeholder="summary"
                       value={expDetail.summary}
                       onChange={(e) =>
-                        handleExperienceDetailsChange(index, "summary", e.target.value)
+                        handleExperienceDetailsChange(
+                          index,
+                          "summary",
+                          e.target.value
+                        )
                       }
                     />
                     <div className={getFeedbackClass(`exp-${index}-summary`)}>
@@ -1457,10 +1326,7 @@ const CreateCandidateForm = () => {
                         <option value="2020">2020</option>
                         <option value="2021">2021</option>
                         <option value="2022">2022</option>
-
                       </select>
-
-
 
                       <span className="mx-2">To</span>
 
@@ -1484,7 +1350,6 @@ const CreateCandidateForm = () => {
                         <option>February</option>
                         <option>March</option>
                       </select>
-
 
                       <div
                         className={getFeedbackClass(`edu-${index}-endMonth`)}
@@ -1512,7 +1377,6 @@ const CreateCandidateForm = () => {
                         <option value="2022">2022</option>
                         {/* Add other years if necessary */}
                       </select>
-
 
                       <div className={getFeedbackClass("workEndYear")}>
                         {getFeedbackMessage("workEndYear")}
@@ -1557,6 +1421,7 @@ const CreateCandidateForm = () => {
                 </button>
               </th>
             </tr>
+
             <tr className="border">
               <th colSpan="4" className="border">
                 Attachment Information

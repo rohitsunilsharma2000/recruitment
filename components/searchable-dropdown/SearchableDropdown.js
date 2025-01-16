@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import "./SearchableDropdown.css";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+// import "./SearchableDropdown.css";
+
+
 
 const SearchableDropdown = ({
   className = "",
@@ -16,72 +18,92 @@ const SearchableDropdown = ({
   getValidationClass = () => ""
 }) => {
   const [selected, setSelected] = useState(selectedValue);
-  const [filteredOptions, setFilteredOptions] = useState(options);
+  const [filteredOptions, setFilteredOptions] = useState([]);
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [visibleOptions, setVisibleOptions] = useState(10); // Initial number of options visible
 
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
 
-  // Filter options based on search input
+  // Lazy load more options when scrolling to the bottom
+  const loadMoreOptions = useCallback(() => {
+    setVisibleOptions((prev) => Math.min(filteredOptions.length, prev + 10)); // Load 10 more options
+  }, [filteredOptions]);
+
+  // Handle scroll event to trigger lazy loading
+  const handleScroll = useCallback(() => {
+    if (dropdownRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = dropdownRef.current;
+      if (scrollHeight - scrollTop === clientHeight) {
+        loadMoreOptions();
+      }
+    }
+  }, [loadMoreOptions]);
+
+  // Filter options based on the search term
   useEffect(() => {
     setFilteredOptions(
-      options.filter(option => option.toLowerCase().includes(search.toLowerCase()))
+      options.filter((option) =>
+        option.toLowerCase().includes(search.toLowerCase())
+      )
     );
+    setVisibleOptions(10); // Reset visible options on search change
     setHighlightedIndex(-1);
   }, [search, options]);
 
-  // Handle select option
-  // const handleSelect = (option) => {
-  //   setSelected(option);
-  //   setIsOpen(false);
-  //   setSearch("");
-  //   setHighlightedIndex(-1);
-  //   onSelect(option); // Call onSelect prop
-  //   if (onChange) {
-  //     onChange({ target: { name, value: option } }); // Call onChange with updated value
-  //   }
-  // };
+  // Add and remove scroll event listener
+  useEffect(() => {
+    const dropdown = dropdownRef.current;
+    if (isOpen && dropdown) {
+      dropdown.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (dropdown) {
+        dropdown.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [isOpen, handleScroll]);
 
   const handleSelect = (option) => {
     setSelected(option);
     setIsOpen(false);
     setSearch("");
     setHighlightedIndex(-1);
-    onSelect(option); // Call onSelect prop
+    onSelect(option);
     if (onChange) {
       onChange({
         target: {
-          name: name, // Ensure `name` is passed correctly
+          name: name,
           value: option
         }
       });
     }
   };
 
-  // Handle keydown events for ArrowUp, ArrowDown, and Enter
   const handleKeyDown = (e) => {
     if (!isOpen) return;
 
-    if (e.key === 'ArrowDown') {
+    if (e.key === "ArrowDown") {
       e.preventDefault();
-      setHighlightedIndex((prevIndex) => Math.min(filteredOptions.length - 1, prevIndex + 1));
-    } else if (e.key === 'ArrowUp') {
+      setHighlightedIndex((prevIndex) =>
+        Math.min(filteredOptions.length - 1, prevIndex + 1)
+      );
+    } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setHighlightedIndex((prevIndex) => Math.max(0, prevIndex - 1));
-    } else if (e.key === 'Enter' && highlightedIndex >= 0) {
+    } else if (e.key === "Enter" && highlightedIndex >= 0) {
       e.preventDefault();
       handleSelect(filteredOptions[highlightedIndex]);
     }
   };
 
-  // Toggle dropdown open/close
   const toggleDropdown = () => {
-    setIsOpen(prevState => !prevState);
+    setIsOpen((prevState) => !prevState);
   };
 
-  // Handle input change for search
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
   };
@@ -95,14 +117,18 @@ const SearchableDropdown = ({
         onClick={toggleDropdown}
         style={{ cursor: "pointer" }}
         onKeyDown={handleKeyDown}
-        tabIndex={0} // Allow the container to receive focus for keyboard interactions
+        tabIndex={0}
       >
         <span>{selected || placeholder}</span>
         <span className="ms-2">&#9660;</span>
       </div>
 
       {isOpen && (
-        <div ref={dropdownRef} className="dropdown-menu show border" style={{ width: "300px" }}>
+        <div
+          ref={dropdownRef}
+          className="dropdown-menu show border"
+          style={{ width: "300px", maxHeight: "200px", overflowY: "auto" }}
+        >
           <input
             ref={inputRef}
             type="text"
@@ -112,14 +138,16 @@ const SearchableDropdown = ({
             onChange={handleSearchChange}
             onKeyDown={handleKeyDown}
           />
-          <ul className="list-unstyled p-2" style={{ maxHeight: "200px", overflowY: "auto" }}>
-            {filteredOptions.map((option, index) => (
+          <ul className="list-unstyled p-2">
+            {filteredOptions.slice(0, visibleOptions).map((option, index) => (
               <li
                 key={index}
-                className={`dropdown-item rounded ${highlightedIndex === index ? 'active' : ''}`}
+                className={`dropdown-item rounded ${highlightedIndex === index ? "active" : ""
+                  }`}
                 onClick={() => handleSelect(option)}
                 style={{
-                  backgroundColor: highlightedIndex === index ? '#dee4f0' : 'transparent',
+                  backgroundColor:
+                    highlightedIndex === index ? "#dee4f0" : "transparent",
                   cursor: "pointer",
                   color: "black"
                 }}

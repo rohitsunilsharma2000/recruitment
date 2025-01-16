@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import "./create-job.css";
-import SearchableDropdown from "@/components/searchable-dropdown/SearchableDropdown";
 import TokenizedTagInputForm from "@/components/tokenized-tag-input/TokenizedTagInputForm";
+import SearchableDropdown from "@/components/searchable-dropdown/searchableDropdown";
 
 export default function JobOpening() {
   // 1) INITIAL STATES

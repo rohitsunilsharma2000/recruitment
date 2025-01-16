@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export default function JobOpening() {
+export default function AllJobOpening() {
   return (
     <div className="container-fluid p-3">
       <div className="row">
@@ -56,7 +56,7 @@ export default function JobOpening() {
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h4 className="mb-0">All Job Openings</h4>
             <div>
-              <Link className="btn btn-light me-2" href="/create">Import</Link>
+              <Link className="btn btn-light me-2" href="/job-openings/create">Import</Link>
 
               <button className="btn btn-light">⋮</button>
             </div>

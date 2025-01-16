@@ -27,7 +27,7 @@ export default function NavBar() {
                 <Link className="nav-link fs-0-point-7 fw-700 active" aria-current="page" href="/dashboard">Home</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link fs-0-point-7 fw-700" href="/job-openings">Job Openings</Link>
+                <Link className="nav-link fs-0-point-7 fw-700" href="/job-openings/all-job">Job Openings</Link>
               </li>
               <li className="nav-item">
                 <Link className="nav-link fs-0-point-7 fw-700" href="/candidate/create">Candidates</Link>
