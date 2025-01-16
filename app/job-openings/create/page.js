@@ -6,7 +6,7 @@ import "./create-job.css";
 import { fetchCountries, fetchIndustry, fetchJobStatus, fetchJobTypes, fetchLeads } from "@/utils/restClient";
 import { ValidationHelper } from "@/components/searchable-dropdown/ValidationHelper";
 import AddDepartmentModal from "@/components/modal/add-department/add-department";
-import SearchableDropdown from "@/components/searchable-dropdown/searchableDropdown";
+import SearchableDropdown from "@/components/searchable-dropdown/SearchableDropdown";
 import TokenizedTagInputForm from "@/components/tokenized-tag-input/TokenizedTagInputForm";
 
 export default function CreateJobOpening() {
