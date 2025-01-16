@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import "../candidate.css";
-import { ValidationHelper } from "@/components/searchable-dropdown/ValidationHelper";
+import { ValidationHelper } from "@/components/TypeAheadDropdown/ValidationHelper";
 
 const CreateCandidateForm = () => {
   // Initial state for form data

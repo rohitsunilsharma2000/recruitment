@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import "./create-job.css";
 import { fetchCountries, fetchIndustry, fetchJobStatus, fetchJobTypes, fetchLeads } from "@/utils/restClient";
-import { ValidationHelper } from "@/components/searchable-dropdown/ValidationHelper";
+import { ValidationHelper } from "@/components/TypeAheadDropdown/ValidationHelper";
 import AddDepartmentModal from "@/components/modal/add-department/add-department";
-import SearchableDropdown from "@/components/searchable-dropdown/SearchableDropdown";
 import TokenizedTagInputForm from "@/components/tokenized-tag-input/TokenizedTagInputForm";
+import TypeAheadDropdown from "@/components/TypeAheadDropdown/TypeAheadDropdown";
 
 export default function CreateJobOpening() {
   // 1) INITIAL STATES
@@ -379,7 +379,7 @@ export default function CreateJobOpening() {
     async function fetchIndustryData() {
       try {
         const industryData = await fetchIndustry(); // Call the fetchCountries function
-        console.log("IndustryData ", industryData.slice(0, 5))
+        console.log("IndustryData ", industryData)
         setIndustryOptions(industryData)
       } catch (error) {
         console.error("Failed to fetch industry data:", error);
@@ -500,7 +500,7 @@ export default function CreateJobOpening() {
                       <option>Recruiter 1</option>
                       <option>Recruiter 2</option>
                     </select> */}
-                  <SearchableDropdown
+                  <TypeAheadDropdown
                     id="title"
                     name="title"
                     options={titles}
@@ -529,7 +529,7 @@ export default function CreateJobOpening() {
 
 
 
-                  <SearchableDropdown
+                  <TypeAheadDropdown
                     id="hiringManager "
                     name="hiringManager"
                     options={hiringManagerOptions}
@@ -650,7 +650,7 @@ export default function CreateJobOpening() {
                 <td>
 
 
-                  <SearchableDropdown
+                  <TypeAheadDropdown
                     id="jobOpeningStatus "
                     name="jobOpeningStatus"
                     options={jobOpeningStatusOptions}
@@ -672,7 +672,7 @@ export default function CreateJobOpening() {
                     Job Type (optional)
                   </label>
                 </td>
-                <td>   <SearchableDropdown
+                <td>   <TypeAheadDropdown
                   id="jobType "
                   name="jobType"
                   options={jobTypeOptions}
@@ -774,7 +774,7 @@ export default function CreateJobOpening() {
                 </td>
                 <td>
 
-                  <SearchableDropdown
+                  <TypeAheadDropdown
                     id="industry"
                     name="industry"
                     options={industryOptions}
@@ -859,7 +859,7 @@ export default function CreateJobOpening() {
                       placeholder="Enter country"
                     /> */}
 
-                  <SearchableDropdown
+                  <TypeAheadDropdown
                     id="country"
                     name="country"
                     options={countryOptions}

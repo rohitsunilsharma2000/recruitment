@@ -5,7 +5,7 @@ import "./searchableDropdown.css"
 
 
 
-const SearchableDropdown = ({
+const TypeAheadDropdown = ({
   className = "",
   id,
   name,
@@ -162,4 +162,4 @@ const SearchableDropdown = ({
   );
 };
 
-export default SearchableDropdown;
+export default TypeAheadDropdown;
