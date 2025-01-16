@@ -201,5 +201,15 @@ export const createDepartment = async (departmentData) => {
 };
 
 
+export const fetchDepartments = async () => {
+  try {
+    const response = await restClient.get('/api/departments');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all departments :', error);
+    throw error;
+  }
+};
+
 
 export default restClient;
