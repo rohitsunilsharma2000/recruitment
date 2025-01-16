@@ -211,5 +211,51 @@ export const fetchDepartments = async () => {
   }
 };
 
+export const fetchLeads = async () => {
+  try {
+    const response = await restClient.get('/api/users');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all leads :', error);
+    throw error;
+  }
+};
+
+
+
+
+export const fetchJobTypes = async () => {
+  try {
+    const response = await restClient.get('/api/job-types');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all job-types :', error);
+    throw error;
+  }
+};
+
+
+
+export const fetchJobStatus = async () => {
+  try {
+    const response = await restClient.get('/api/job-status');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all job-status :', error);
+    throw error;
+  }
+};
+
+
+export const fetchIndustry = async () => {
+  try {
+    const response = await restClient.get('/api/industry');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all industry :', error);
+    throw error;
+  }
+};
+
 
 export default restClient;

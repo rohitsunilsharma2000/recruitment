@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import "./create-job.css";
-import { fetchCountries } from "@/utils/restClient";
+import { fetchCountries, fetchIndustry, fetchJobStatus, fetchJobTypes, fetchLeads } from "@/utils/restClient";
 import { ValidationHelper } from "@/components/searchable-dropdown/ValidationHelper";
 import AddDepartmentModal from "@/components/modal/add-department/add-department";
 import SearchableDropdown from "@/components/searchable-dropdown/searchableDropdown";
+import TokenizedTagInputForm from "@/components/tokenized-tag-input/TokenizedTagInputForm";
 
 export default function CreateJobOpening() {
   // 1) INITIAL STATES
@@ -37,16 +38,10 @@ export default function CreateJobOpening() {
     otherAttachments: null,
   };
 
-  const industryOptions = [];
-  industryOptions.push(...[
-    "None", "Administration", "Advertising", "Agriculture", "Architecture & Construction", "Arts & Graphics", "Airline - Aviation", "Accounting", "Automotive", "Banking", "Biotechnology", "Broadcasting", "Business Management", "Charity", "Catering", "Customer Service", "Chemicals", "Construction", "Communications", "Consulting", "Computer", "Consumer", "Cosmetics", "Design", "Defence", "Education", "Electronics", "Engineering", "Energy and Utilities", "Entertainment", "Employment - Recruiting - Staffing", "Environmental", "Exercise - Fitness", "Export/Import", "Financial Services", "Fashion", "FMCG/Foods/Beverage", "Fertilizers/Pesticides", "Furniture", "Grocery", "Gas", "Government", "Government/Military", "Government & Public Sector", "Gems & Jewellery", "Health Care", "Human Resources", "Hospitality", "Hotels and Lodging", "HVAC", "Hardware", "Insurance", "Installation", "IT Services", "Industrial", "Internet Services", "Import - Export", "Legal", "Logistics", "Landscaping", "Leisure and Sport", "Library Science", "Marketing", "Manufacturing", "Management", "Merchandising", "Medical", "Media", "Metals", "Mining", "Military", "Mortgage", "Marine", "Maritime", "Nonprofit Charitable Organizations", "NGO/Social Services", "Newspaper", "Oil & Gas", "Other", "Other/Not Classified", "Pharma", "Polymer / Plastic / Rubber", "Pharma/Biotech/Clinical Research", "Public Sector and Government", "Printing/Packaging/Publishing", "Personal and Household Services", "Property & Real Estate", "Paper", "Pet Store", "Public Relations", "Real Estate", "Retail", "Retail & Wholesale", "Recreation", "Real Estate and Property", "Recruitment/Employment Firm", "Real Estate/Property Management", "Restaurant/Food Services", "Rental Services", "Research & Development", "Repair / Maintenance Services", "Services", "Sales - Marketing", "Science & Technology", "Security/Law Enforcement", "Shipping/Marine", "Security and Surveillance", "Sports and Physical Recreation", "Staffing/Employment Agencies", "Social Services", "Sports Leisure & Lifestyle", "Semiconductor", "Technology", "Services - Corporate B2B", "Travel", "Training", "Transportation", "Telecommunications", "Trade and Services", "Travel and Tourism", "Textiles/Garments/Accessories", "Tyres", "Utilities", "Wireless", "Wood / Fibre / Paper", "Waste Management", "Wholesale Trade/Import-Export"
-  ]);
 
   const titles = ['Developer', 'Product Manager', 'Product Lead', 'Technical Manager', 'Web Designer'];
-  const hiringManagerOptions = ['test'];
+  // const hiringManagerOptions = ['OPIODTUYRUIOY9UIHLBJK '];
   const assignedRecruiterOptions = ['test'];
-  const jobOpeningStatusOptions = ['test'];
-  const jobTypeOptions = ['test'];
   const salaryOptions = [];
   // const countryOptions = [];
 
@@ -78,6 +73,18 @@ export default function CreateJobOpening() {
     },
     attachmentPath: '',
   });
+
+
+
+  const [recruters, setRecruters] = useState([]);
+  const [hiringManagerOptions, setHiringManagerOptions] = useState([]);
+  const [jobOpeningStatusOptions, setJobOpeningStatusOptions] = useState([]);
+  const [jobTypeOptions, setJobTypeOptions] = useState([]);
+  const [industryOptions, setIndustryOptions] = useState([]);
+
+
+
+
   // 2. Toggle whether the modal is visible or not
   const [showModal, setShowModal] = useState(false);
 
@@ -271,6 +278,14 @@ export default function CreateJobOpening() {
       alert("Please fix the errors in the form before submitting.");
     }
   };
+  // Log changes when `TokenizedTagInput` updates the `skills`
+  //Parent (JobOpening ) toified from TokenizedTagInput
+  const handleSkillsChange = (newTags) => {
+    console.log("Previous form data:", formData);
+    const updatedFormData = { ...formData, skills: newTags };
+    console.log("Updated form data:", updatedFormData);
+    setFormData(updatedFormData);
+  };
 
 
 
@@ -290,7 +305,7 @@ export default function CreateJobOpening() {
       try {
         const countriesData = await fetchCountries(); // Call the fetchCountries function
         const countryNames = countriesData.map((country) => country.name); // Extract country names
-        console.log(countryNames)
+        console.log("countryNames ", countryNames.slice(0, 5))
         setCountries(countryNames); // Set the array of country names into state
       } catch (error) {
         console.error("Failed to fetch countries:", error);
@@ -298,17 +313,95 @@ export default function CreateJobOpening() {
       }
     }
 
+    async function fetchJobTypesData() {
+      try {
+        const jobTypes = await fetchJobTypes(); // Call the fetchCountries function
+        console.log("jobTypes ", jobTypes)
+        setJobTypeOptions(jobTypes)
+      } catch (error) {
+        console.error("Failed to fetch jobTypes:", error);
+        setJobTypeOptions([]); // Default to an empty array in case of error
+      }
+    }
 
 
 
+    async function fetchJobStatusData() {
+      try {
+        const jobStatus = await fetchJobStatus(); // Call the fetchCountries function
+        console.log("jobStatus ", jobStatus)
+        setJobOpeningStatusOptions(jobStatus)
+      } catch (error) {
+        console.error("Failed to fetch job status:", error);
+        setJobOpeningStatusOptions([]); // Default to an empty array in case of error
+      }
+    }
+
+
+    async function fetchRecruitersData() {
+      try {
+        const response = await fetchLeads();
+        // console.log("fetchRecruitersData response : ", response);
+
+        // Filter the users with the role "Recruiter" and extract the desired fields
+        const recruters = response
+          .filter(user => user.role.name === "Recruiter")
+          .map(user => ({
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName
+          }));
+        console.log("Extracted recruiters data : ", recruters);
+        setRecruters(recruters); // Set the array of departments names into state
+
+
+        const hiringManagers = response
+          .filter(user => user.role.name === "Hiring Manager")
+          .map(user => user.firstName + " " + user.lastName); // Extract the firstName
+
+        // Push the filtered and transformed names into hiringManagerOptions
+        setHiringManagerOptions(hiringManagers)
+
+        console.log("hiringManagerOptions: ", hiringManagerOptions);
+        console.log("recruiters have been set into state");
+
+
+
+      } catch (error) {
+        console.error("Failed to fetch recruiters:", error);
+        setRecruters([]); // Default to an empty array in case of error
+        // hiringManagerOptions.push(...[])
+        console.log("Setting empty recruiters array due to error");
+      }
+    }
+
+
+    async function fetchIndustryData() {
+      try {
+        const industryData = await fetchIndustry(); // Call the fetchCountries function
+        console.log("IndustryData ", industryData.slice(0, 5))
+        setIndustryOptions(industryData)
+      } catch (error) {
+        console.error("Failed to fetch industry data:", error);
+        setIndustryOptions([]); // Default to an empty array in case of error
+      }
+    }
+
+
+    fetchRecruitersData();
     fetchCountriesData(); // Call the function
+    fetchJobTypesData();
+    fetchJobStatusData();
+    fetchIndustryData();
   }, []);
 
 
 
   return (
     <div className="container">
-      <h3 className="mb-1">Create Job Opening</h3>
+      <h3 className="mb-1">Create Job Opening
+
+      </h3>
 
       {/* Only render the MyModal component if showModal is true */}
       {showModal && (
@@ -330,6 +423,7 @@ export default function CreateJobOpening() {
           Save and Publish
         </button>
       </div>
+      <p>{hiringManagerOptions.join(", ")}</p>
 
       {/* JOB OPENING INFORMATION */}
       <div className="card border-0">
@@ -428,7 +522,7 @@ export default function CreateJobOpening() {
 
                 <td>
                   <label htmlFor="hiringManager" className="form-label fs-0-point-7 mb-0 me-2">
-                    Hiring Manager (required)
+                    Hiring Manager <b>id is </b>(required)
                   </label>
                 </td>
                 <td>
@@ -464,30 +558,20 @@ export default function CreateJobOpening() {
                   </label>
                 </td>
                 <td>
-                  {/* <select
-                      className={`form-select form-select-sm small-placeholder ${getValidationClass("assignedRecruiter")}`}
-                      id="assignedRecruiter"
-                      name="assignedRecruiter"
-                      value={formData.assignedRecruiter}
-                      onChange={handleInputChange}
-                    >
-                      <option value="">Choose...</option>
-                      <option>Recruiter 1</option>
-                      <option>Recruiter 2</option>
-                    </select> */}
-
-                  <SearchableDropdown
-                    id="assignedRecruiter "
+                  <select
                     name="assignedRecruiter"
-                    options={assignedRecruiterOptions}
-                    selectedValue={formData.assignedRecruiter}
-                    placeholder="Choose a hiring"
-                    onSelect={(selectedOption) => setFormData((prev) => ({ ...prev, assignedRecruiter: selectedOption }))}
                     value={formData.assignedRecruiter}
                     onChange={handleInputChange}
-                    className={`form-select form-select-sm small-placeholder ${getValidationClass("assignedRecruiter")}`}
-                    getValidationClass={getValidationClass}
-                  />
+                    className="form-select"
+                  >
+                    <option value="">Select Recruter</option>
+                    {recruters.map((recruter) => (
+                      <option key={recruter.id} value={recruter.id}>
+                        {recruter.firstName} {recruter.lastName}
+                      </option>
+                    ))}
+                  </select>
+
 
                   <div className={getFeedbackClass("assignedRecruiter")}>
                     {getFeedbackMessage("assignedRecruiter")}
@@ -564,6 +648,8 @@ export default function CreateJobOpening() {
                   </label>
                 </td>
                 <td>
+
+
                   <SearchableDropdown
                     id="jobOpeningStatus "
                     name="jobOpeningStatus"
@@ -579,7 +665,6 @@ export default function CreateJobOpening() {
                   <div className={getFeedbackClass("jobType")}>
                     {getFeedbackMessage("jobType")}
                   </div>
-
                 </td>
 
                 <td>
@@ -587,24 +672,25 @@ export default function CreateJobOpening() {
                     Job Type (optional)
                   </label>
                 </td>
-                <td>
-                  <SearchableDropdown
-                    id="jobType "
-                    name="jobType"
-                    options={jobTypeOptions}
-                    selectedValue={formData.jobType}
-                    placeholder="Choose a job type"
-                    onSelect={(selectedOption) => setFormData((prev) => ({ ...prev, jobType: selectedOption }))}
-                    value={formData.jobType}
-                    onChange={handleInputChange}
-                    className={`form-select form-select-sm small-placeholder ${getValidationClass("jobType")}`}
-                    getValidationClass={getValidationClass}
-                  />
+                <td>   <SearchableDropdown
+                  id="jobType "
+                  name="jobType"
+                  options={jobTypeOptions}
+                  selectedValue={formData.jobType}
+                  placeholder="Choose a Status"
+                  onSelect={(selectedOption) => setFormData((prev) => ({ ...prev, jobType: selectedOption }))}
+                  value={formData.jobType}
+                  onChange={handleInputChange}
+                  className={`form-select form-select-sm small-placeholder ${getValidationClass("jobType")}`}
+                  getValidationClass={getValidationClass}
+                />
 
 
                   <div className={getFeedbackClass("jobOpeningStatus")}>
                     {getFeedbackMessage("jobOpeningStatus")}
                   </div>
+
+
 
                 </td>
               </tr>
@@ -640,15 +726,21 @@ export default function CreateJobOpening() {
                   </label>
                 </td>
                 <td>
-                  <input
-                    type="text"
-                    className={`form-control form-control-sm small-placeholder ${getValidationClass("skills")}`}
+                  {/* <TokenizedTagInputForm
+                    suggestionList={["java", "javascript", "reactjs", "python", "angular"]}
+                    className="form-control-sm small-placeholder"
                     id="skills"
                     name="skills"
                     value={formData.skills}
-                    onChange={handleInputChange}
+                    // onChange={(newInputValue, newTags) => {
+                    //   // You can update the parent component's state here
+                    //   setFormData({ ...formData, skills: newTags });
+                    // }}
+
+                    // onChange={(newTags) => setFormData({ ...formData, skills: newTags })}
+                    onChange={handleSkillsChange} // Notify parent of changes
                     placeholder="Search and add skills"
-                  />
+                  /> */}
                   <div className={getFeedbackClass("skills")}>
                     {getFeedbackMessage("skills")}
                   </div>

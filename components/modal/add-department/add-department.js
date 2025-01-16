@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { fetchDepartments } from "@/utils/restClient";
+import { fetchDepartments, fetchLeads } from "@/utils/restClient";
 
 export default function AddDepartmentModal({ initialData, onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -18,9 +18,9 @@ export default function AddDepartmentModal({ initialData, onClose, onSave }) {
   ]);
 
   const [leads, setLeads] = useState([
-    { id: 6, name: "John Doe" },
-    { id: 7, name: "Jane Smith" },
-    { id: 8, name: "Robert Brown" },
+    // { id: 6, name: "John Doe" },
+    // { id: 7, name: "Jane Smith" },
+    // { id: 8, name: "Robert Brown" },
   ]);
 
   // Dynamically set form values when the component mounts
@@ -60,9 +60,33 @@ export default function AddDepartmentModal({ initialData, onClose, onSave }) {
     }
 
 
+    // Fetch countries and positions
+    async function fetchLeadsData() {
+      try {
+        console.log("Fetching departments data...");
+        const response = await fetchLeads(); // Call the fetchDepartments function
+        console.log("fetchDepartmentsData response : ", response);
+
+        // Extract and return only the `id` and `departmentName` properties
+        const users = response.map(user => ({
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        }));
+
+        console.log("Extracted departments data : ", users);
+        setLeads(users); // Set the array of departments names into state
+        console.log("Departments have been set into state");
+
+      } catch (error) {
+        console.error("Failed to fetch departments:", error);
+        setDepartments([]); // Default to an empty array in case of error
+        console.log("Setting empty departments array due to error");
+      }
+    }
 
 
-
+    fetchLeadsData();
     fetchDepartmentsData(); // Call the function
   }, [initialData]);
 
@@ -128,7 +152,10 @@ export default function AddDepartmentModal({ initialData, onClose, onSave }) {
                   <option value="">Select Department Lead</option>
                   {leads.map((lead) => (
                     <option key={lead.id} value={lead.id}>
-                      {lead.name}
+                      {/* {lead.firstName} */}
+                      {lead.firstName} {lead.lastName}
+
+
                     </option>
                   ))}
                 </select>
