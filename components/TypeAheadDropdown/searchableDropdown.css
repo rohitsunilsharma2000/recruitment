@@ -16,3 +16,12 @@
   border-radius: 6px;
   width: calc(100% - 18px);
 }
+
+.typeAhedAvatar {
+  height: 40px;
+  width: 40px;
+}
+
+.email-fs {
+  font-size: 12px;
+}

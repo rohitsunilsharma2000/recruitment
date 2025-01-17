@@ -46,9 +46,7 @@ const TypeAheadDropdown = ({
   useEffect(() => {
     setFilteredOptions(
       options.filter((option) =>
-        // option.toLowerCase().includes(search.toLowerCase())
-        option.userName.toLowerCase().includes(search.toLowerCase())
-
+        option.toLowerCase().includes(search.toLowerCase())
       )
     );
     setVisibleOptions(10); // Reset visible options on search change
@@ -121,9 +119,7 @@ const TypeAheadDropdown = ({
         onKeyDown={handleKeyDown}
         tabIndex={0}
       >
-        {/* <span>{selected || placeholder}</span> */}
-        <span>{selected ? selected.userName : placeholder}</span>
-
+        <span>{selected || placeholder}</span>
         <span className="ms-2">&#9660;</span>
       </div>
 
@@ -143,28 +139,6 @@ const TypeAheadDropdown = ({
             onKeyDown={handleKeyDown}
           />
           <ul className="list-unstyled p-2">
-            {filteredOptions.slice(0, visibleOptions).map((user, index) => (
-              <li
-                key={user.id} // Use unique key like user.id
-                className={`dropdown-item rounded ${highlightedIndex === index ? "active" : ""}`}
-                onClick={() => handleSelect(user)}
-                style={{
-                  backgroundColor: highlightedIndex === index ? "#dee4f0" : "transparent",
-                  cursor: "pointer",
-                  color: "black"
-                }}
-              >
-                <div className="list-group-item d-flex align-items-center py-0">
-                  <img src="https://placehold.co/40" alt="Avatar" className="rounded-circle me-3 typeAhedAvatar" />
-                  <div className="flex-grow-1">
-                    <p className="mb-0 text-muted email-fs">{user.userName}</p>
-                    <p className="mb-1 text-muted email-fs">{user.id}</p>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-          {/* <ul className="list-unstyled p-2">
             {filteredOptions.slice(0, visibleOptions).map((option, index) => (
               <li
                 key={index}
@@ -182,13 +156,13 @@ const TypeAheadDropdown = ({
                 <div className="list-group-item d-flex align-items-center py-0">
                   <img src="https://via.placeholder.com/40" alt="Avatar" className="rounded-circle me-3 typeAhedAvatar" />
                   <div className="flex-grow-1">
-                    <p className="mb-0 text-muted email-fs"> {option.userName}</p>
+                    <p className="mb-0 text-muted email-fs"> {option}</p>
                     <p className="mb-1 text-muted email-fs" >janesmith@example.com</p>
                   </div>
                 </div>
               </li>
             ))}
-          </ul> */}
+          </ul>
         </div>
       )}
     </div>
