@@ -199,110 +199,50 @@ export default function AllJobOpening() {
   };
 
   const handleApplyFilters = (appliedFilters) => {
-    console.log('Applied Filters:', appliedFilters);  // Log the applied filters
-
+    
     const filteredData = jobData.filter((job) => {
-      // Global Search Filter
-      const matchesGlobalSearch =
-        !appliedFilters.globalSearch ||
-        Object.values(job)
-          .join(" ")
-          .toLowerCase()
-          .includes(appliedFilters.globalSearch.toLowerCase());
+      // Global Search Filter: Checks if any job field matches the global search text
+      let matchesGlobalSearch = true;  // Default to true if no global search filter is applied
+      if (appliedFilters.globalSearch) {
+        const allJobValues = Object.values(job).join(" ").toLowerCase();
+        const searchTerm = appliedFilters.globalSearch.toLowerCase();
+        matchesGlobalSearch = allJobValues.includes(searchTerm);
+      }
 
-      // console.log('Global Search Filter:');
-      // if (!appliedFilters.globalSearch) {
-      //   console.log('  No global search filter applied.');
-      // } else if (matchesGlobalSearch) {
-      //   console.log(`  Job matches global search: ${appliedFilters.globalSearch}`);
-      // } else {
-      //   console.log(`  Job does not match global search: ${appliedFilters.globalSearch}`);
-      // }
+      // Posting Title Filter: Checks if the job posting title matches the filter criteria
+      let matchesPostingTitle = true;  // Default to true if no posting title filter is applied
+      if (appliedFilters.selectFilter && appliedFilters.inputFilter) {
+        const postingTitle = job["Posting Title"]?.toLowerCase();
+        const inputFilter = appliedFilters.inputFilter.toLowerCase();
 
-      // Posting Title Filter
-      const matchesSelect =
-        !appliedFilters.selectFilter ||
-        (appliedFilters.selectFilter === "is" &&
-          job["Posting Title"]?.toLowerCase() ===
-          appliedFilters.inputFilter?.toLowerCase()) ||
-        (appliedFilters.selectFilter === "isn't" &&
-          job["Posting Title"]?.toLowerCase() !==
-          appliedFilters.inputFilter?.toLowerCase()) ||
-        (appliedFilters.selectFilter === "contains" &&
-          job["Posting Title"]?.toLowerCase().includes(
-            appliedFilters.inputFilter?.toLowerCase()
-          ));
-
-      console.log('Posting Title:', job["Posting Title"]?.toLowerCase());
-      console.log('Posting Title appliedFilters:', appliedFilters.inputFilter?.toLowerCase());
-
-
-
-      if (!appliedFilters.selectFilter) {
-        console.log('  No posting title filter applied.');
-      } else if (appliedFilters.selectFilter === 'is') {
-        if (job["Posting Title"]?.toLowerCase() === appliedFilters.inputFilter?.toLowerCase()) {
-          console.log(`  Job posting title is exactly: ${appliedFilters.inputFilter}`);
-        } else {
-          console.log(`  Job posting title is NOT: ${appliedFilters.inputFilter}`);
-        }
-      } else if (appliedFilters.selectFilter === "isn't") {
-        if (job["Posting Title"]?.toLowerCase() !== appliedFilters.inputFilter?.toLowerCase()) {
-          console.log(`  Job posting title is NOT: ${appliedFilters.inputFilter}`);
-        } else {
-          console.log(`  Job posting title is exactly: ${appliedFilters.inputFilter}`);
-        }
-      } else if (appliedFilters.selectFilter === "contains") {
-        if (job["Posting Title"]?.toLowerCase().includes(appliedFilters.inputFilter?.toLowerCase())) {
-          console.log(`  Job posting title contains: ${appliedFilters.inputFilter}`);
-        } else {
-          console.log(`  Job posting title does NOT contain: ${appliedFilters.inputFilter}`);
+        if (appliedFilters.selectFilter === "is") {
+          matchesPostingTitle = postingTitle === inputFilter;
+        } else if (appliedFilters.selectFilter === "isn't") {
+          matchesPostingTitle = postingTitle !== inputFilter;
+        } else if (appliedFilters.selectFilter === "contains") {
+          matchesPostingTitle = postingTitle.includes(inputFilter);
         }
       }
 
-      // To-Dos Filter
-      const matchesTodoFilter =
-        !appliedFilters.todoFilter ||
-        (appliedFilters.todoFilter === "withoutOpenTodo" &&
-          job["Number of Applications"] === "0") ||
-        (appliedFilters.todoFilter === "overdue" &&
-          job["Job Opening Status"] === "Overdue") ||
-        (appliedFilters.todoFilter === "todoDue" &&
-          ["Today", "Tomorrow", "Next 7 Days", "Today + Overdue"].includes(
-            appliedFilters.todoSubFilter
-          ));
-
-      console.log('To-Dos Filter:');
-      if (!appliedFilters.todoFilter) {
-        console.log('  No to-dos filter applied.');
-      } else if (appliedFilters.todoFilter === "withoutOpenTodo") {
-        if (job["Number of Applications"] === "0") {
-          console.log('  Job has no open to-dos (Number of Applications is 0)');
-        } else {
-          console.log('  Job has open to-dos (Number of Applications is not 0)');
-        }
-      } else if (appliedFilters.todoFilter === "overdue") {
-        if (job["Job Opening Status"] === "Overdue") {
-          console.log('  Job status is overdue');
-        } else {
-          console.log('  Job status is NOT overdue');
-        }
-      } else if (appliedFilters.todoFilter === "todoDue") {
-        if (["Today", "Tomorrow", "Next 7 Days", "Today + Overdue"].includes(appliedFilters.todoSubFilter)) {
-          console.log(`  Job due in: ${appliedFilters.todoSubFilter}`);
-        } else {
-          console.log('  Job is not due within the selected time frame');
+      // To-Dos Filter: Checks if the job matches the To-Dos filter criteria
+      let matchesToDo = true;  // Default to true if no To-Do filter is applied
+      if (appliedFilters.todoFilter) {
+        if (appliedFilters.todoFilter === "withoutOpenTodo") {
+          matchesToDo = job["Number of Applications"] === "0";  // No open to-dos
+        } else if (appliedFilters.todoFilter === "overdue") {
+          matchesToDo = job["Job Opening Status"] === "Overdue";  // Job is overdue
+        } else if (appliedFilters.todoFilter === "todoDue") {
+          const dueFilters = ["Today", "Tomorrow", "Next 7 Days", "Today + Overdue"];
+          matchesToDo = dueFilters.includes(appliedFilters.todoSubFilter);  // Job is due within selected time
         }
       }
 
-      const result = matchesGlobalSearch && matchesSelect && matchesTodoFilter;
-      console.log('Final Match for Job:', job["Posting Title"], result);  // Log the final match result for the job
-
-      return result;
+      // Final check: Only include the job if all filters match
+      return matchesGlobalSearch && matchesPostingTitle && matchesToDo;
     });
 
+    // Set the filtered jobs to the state
     setFilteredJobData(filteredData);
-    console.log('Filtered Data:', filteredData);  // Log the filtered data
   };
 
 
