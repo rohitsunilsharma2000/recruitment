@@ -77,7 +77,7 @@ const TokenizedTagInputForm = ({
 
 
   return (
-    <div className="container mt-4 container-wrapper">
+    <div className="container  container-wrapper">
       <div className="tag-input">
         <div className="tag-input-field">
           {value.map((tag, index) => (

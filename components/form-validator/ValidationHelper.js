@@ -23,7 +23,8 @@ export const ValidationHelper = {
 
     // Text field validation
     if (requiredTextFields.includes(fieldName)) {
-      if (!value || value.trim() === "") {
+      // Ensure `value` is a string before calling `trim()`
+      if (!value || typeof value !== 'string' || value.trim() === "") {
         error = `${fieldName.replace(/([A-Z])/g, " $1")} is required.`;
       }
     }

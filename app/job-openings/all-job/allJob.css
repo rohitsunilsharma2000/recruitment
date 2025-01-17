@@ -1,0 +1,54 @@
+/* Grid Container */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 20px;
+}
+
+.grid-item {
+  background-color: #f1f1f1;
+  border: 1px solid #ccc;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Off-Canvas Styling */
+.offcanvas {
+  position: fixed;
+  top: 0;
+  left: -300px; /* Start off-screen */
+  width: 300px;
+  height: 100%;
+  background-color: #333;
+  color: white;
+  padding: 20px;
+  transition: left 0.3s ease;
+  z-index: 1000;
+}
+
+.offcanvas.open {
+  left: 0; /* Move into view */
+}
+
+.offcanvas h3 {
+  margin-top: 0;
+}
+
+/* Buttons */
+.btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn.close {
+  background-color: #dc3545;
+}
+
+.btn:hover {
+  opacity: 0.8;
+}

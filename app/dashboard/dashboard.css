@@ -81,11 +81,16 @@
   padding-top: 0px !important;
 }
 
-/* 
-.table-fixed td:first-child,
-.table-fixed th:first-child  */
 
-td:first-child {
+/* This CSS ensures that the first column in a table (td:first-child) 
+always has a fixed width of 270px, and its total width includes any
+ padding or border, so it won't grow larger than specified. */
+/* td:first-child {
   width: 270px;
   box-sizing: border-box;
+} */
+
+
+th{
+  /* font-size: 12px!important; */
 }

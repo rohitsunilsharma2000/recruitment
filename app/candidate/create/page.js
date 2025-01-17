@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import "../candidate.css";
-import { ValidationHelper } from "@/components/TypeAheadDropdown/ValidationHelper";
+import { ValidationHelper } from "@/components/form-validator/ValidationHelper";
 
 const CreateCandidateForm = () => {
   // Initial state for form data
@@ -230,18 +230,50 @@ const CreateCandidateForm = () => {
 
 
   return (
-    <div className="container mt-5">
-      <h2>Create Candidate</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="container ">
+      
+      <nav className="navbar navbar-expand-lg p-3" style={{ backgroundColor: "#e3f2fd"}}>
+  <div className="container-fluid">
+    <span className="navbar-brand">
+   <b> Create Candidate</b>
+    </span>
+    <button
+      className="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span className="navbar-toggler-icon"></span>
+    </button>
+    <div className="collapse navbar-collapse" id="navbarNav">
+      <ul className="navbar-nav me-auto mb-2 mb-lg-0"></ul>
+      {/* Add your new content here */}
+      <div className="d-flex justify-content-end gap-3 mt-1">
+        <button type="button" className="btn btn-secondary">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          onClick={handleSubmit}
+        >
+          Save and Publish
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+<div className="row">
+<div className="col-md-12">
+
+<form onSubmit={handleSubmit}>
         {/* ACTIONS */}
-        <div className="d-flex justify-content-end gap-3 mb-3">
-          <button type="button" className="btn btn-secondary">
-            Cancel
-          </button>
-          <button type="submit" className="btn btn-primary">
-            Save and Publish
-          </button>
-        </div>
+      
         <table className="table table-bordered">
           <tbody>
             <tr className="border">
@@ -1525,6 +1557,8 @@ const CreateCandidateForm = () => {
           </tbody>
         </table>
       </form>
+  </div></div>
+  
     </div>
   );
 };

@@ -138,3 +138,9 @@ main {
 .lh-tight {
   line-height: 1.25;
 }
+input,
+select {
+  border: none !important;
+  border-bottom: 1px solid #ccc !important;
+  outline: none !important;
+}
