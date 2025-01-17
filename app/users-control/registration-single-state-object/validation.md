@@ -61,7 +61,7 @@ Let’s build this step by step to make it beginner-friendly:
                placeholder="Enter password"
              />
            </div>
-           <button type="submit" className="btn btn-primary">
+           <button type="submit" className="btn-sm btn btn-primary">
              Submit
            </button>
          </form>
@@ -288,7 +288,7 @@ const RegistrationForm = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="btn-sm btn btn-primary">
             Submit
           </button>
         </form>
@@ -421,7 +421,7 @@ const RegistrationForm = () => {
             onChange={handleChange}
           />
         </div>
-        <button type="submit" className="btn btn-primary">
+        <button type="submit" className="btn-sm btn btn-primary">
           Submit
         </button>
       </form>
@@ -954,7 +954,7 @@ Here is how to bind the state and validation messages to your form fields for dy
     )}
   </div>
 
-  <button type="submit" className="btn btn-primary">
+  <button type="submit" className="btn-sm btn btn-primary">
     Submit
   </button>
 </form>

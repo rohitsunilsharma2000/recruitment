@@ -145,7 +145,7 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
         {menuData.Setup.map((item, index) => (
           <li className="mb-1" key={index}>
             <button
-              className="btn btn-toggle align-items-center text-decoration-none collapsed"
+              className="btn-sm btn btn-toggle align-items-center text-decoration-none collapsed"
               data-bs-toggle="collapse"
               data-bs-target={`#collapse-${index}`}
               aria-expanded="false"
@@ -245,13 +245,13 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
       </ul>
       <div className="mt-3 d-flex justify-content-between">
         <button
-          className="btn btn-primary btn-sm"
+          className="btn-sm btn btn-primary btn "
           onClick={handleApplyFilters}
         >
           Apply
         </button>
         <button
-          className="btn btn-secondary btn-sm"
+          className="btn-sm btn btn-secondary btn "
           onClick={handleClearFilters}
         >
           Clear

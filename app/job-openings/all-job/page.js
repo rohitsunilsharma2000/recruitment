@@ -395,16 +395,16 @@ export default function AllJobOpening() {
       <nav className="navbar navbar-expand-lg p-3" style={{ backgroundColor: "#e3f2fd" }}>
         <div className="container-fluid">
           <span className="navbar-brand">
-            <button className="btn btn-light" onClick={toggleSidebar}>
+            <button className="btn-sm btn btn-light" onClick={toggleSidebar}>
               <i className="bi bi-funnel"></i>
             </button>
             <b> All Job Openings</b>
           </span>
           <div className="d-flex justify-content-end gap-3 mt-1">
-            <button type="button" className="btn btn-secondary">
+            <button type="button" className="btn-sm btn btn-secondary">
               Cancel
             </button>
-            <Link className="btn btn-primary me-2" href="/job-openings/create">
+            <Link className="btn-sm btn btn-primary me-2" href="/job-openings/create">
               Create Job Opening
             </Link>
           </div>

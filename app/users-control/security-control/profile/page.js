@@ -45,7 +45,7 @@ export default function Profile() {
       </p>
 
       <div className='d-flex justify-content-end mb-3'>
-        {/* <a href="#" className="btn btn-primary btn-new-profile">+ New Profile</a> */}
+        {/* <a href="#" className="btn-sm btn btn-primary btn-new-profile">+ New Profile</a> */}
         <AddProfileModal />
       </div>
 

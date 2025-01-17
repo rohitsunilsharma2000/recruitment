@@ -29,10 +29,10 @@ const SessionExpiredModal = ({ show, onClose }) => {
             <p>Your session has expired. Please log in again.</p>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
+            <button type="button" className="btn-sm btn btn-secondary" onClick={onClose}>
               Close
             </button>
-            <Link href="/authentication/card/sign-in" className="btn btn-primary text-decoration-none">
+            <Link href="/authentication/card/sign-in" className="btn-sm btn btn-primary text-decoration-none">
               Sign In
             </Link>
           </div>

@@ -53,7 +53,7 @@ const Sidebar = () => {
         {menuData.Setup.map((item, index) => (
           <li className="mb-1" key={index}>
             <a
-              className={`btn btn-toggle align-items-center text-decoration-none ${item.subItems ? "collapsed" : ""
+              className={`btn-sm btn btn-toggle align-items-center text-decoration-none ${item.subItems ? "collapsed" : ""
                 }`}
               data-bs-toggle={item.subItems ? "collapse" : undefined}
               data-bs-target={item.subItems ? `#collapse-${index}` : undefined}

@@ -141,7 +141,7 @@ const RoleHierarchy = () => {
     return roleList.map((role) => (
       <div key={role.id} className="hierarchy">
         <button
-          className="btn btn-link btn-toggle text-decoration-none fs-0-point-7"
+          className="btn-sm btn btn-link btn-toggle text-decoration-none fs-0-point-7"
           onClick={() => handleToggle(role.id)}
         >
           {role.name}
@@ -196,7 +196,7 @@ const RoleHierarchy = () => {
             {/* Expand/Collapse All */}
             <div className="d-flex justify-content-start my-3">
               {/* New Role Button */}
-              <button className="btn btn-sm btn-primary btn-recruitment me-3 ">
+              <button className="btn btn  btn-primary btn-recruitment me-3 ">
                 <span className="custom-font fw-700 " onClick={handleToggleDiv}>
                   {" "}
                   + New Role
@@ -324,7 +324,7 @@ const RoleHierarchy = () => {
                 </table>
                 <div className="d-grid gap-2 d-md-flex justify-content-md-start">
 
-                  <button className="btn btn-sm btn btn-outline-danger   ">
+                  <button className="btn btn  btn-sm btn btn-outline-danger   ">
                     <span className="custom-font fw-700 " onClick={handleToggleDiv}>
                       Cancel
                     </span>
@@ -332,7 +332,7 @@ const RoleHierarchy = () => {
 
 
 
-                  <button className="btn btn-sm btn-primary "
+                  <button className="btn btn  btn-primary "
                     disabled={isSubmitting}
                   >
                     <span className="custom-font fw-700 " >

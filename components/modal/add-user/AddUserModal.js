@@ -179,7 +179,7 @@ export default function AddUserModal() {
   return (
     <>
       <button
-        className="btn btn-sm btn-primary btn-recruitment"
+        className="btn btn  btn-primary btn-recruitment"
         data-bs-toggle="modal"
         data-bs-target="#addUserModal"
       >
@@ -490,14 +490,14 @@ export default function AddUserModal() {
             <div className="modal-footer">
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn-sm btn btn-secondary"
                 data-bs-dismiss="modal"
               >
                 Cancel
               </button>
               <button
                 type="button"
-                className="btn btn-primary"
+                className="btn-sm btn btn-primary"
                 onClick={handleSubmit}
               >
                 Save

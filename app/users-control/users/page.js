@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { fetchUsers } from "@/utils/restClient";
 
 export default function UserList() {
-  
+
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // State for the search term
   const [filteredUsers, setFilteredUsers] = useState([]); // State for filtered users
@@ -59,7 +59,7 @@ export default function UserList() {
             {/* <!-- Dropdown --> */}
             <div className="dropdown">
               <button
-                className="btn btn-outline-secondary dropdown-toggle"
+                className="btn-sm btn btn-outline-secondary dropdown-toggle"
                 type="button"
                 id="userDropdown"
                 data-bs-toggle="dropdown"
@@ -92,7 +92,7 @@ export default function UserList() {
             </div>
 
             {/* <!-- Add New User Button --> */}
-            {/* <button className="btn btn-primary">
+            {/* <button className="btn-sm btn btn-primary">
         + Add New User
       </button> */}
             <AddUserModal />
@@ -110,7 +110,7 @@ export default function UserList() {
               placeholder="Search"
               aria-label="Search"
               aria-describedby="searchIcon"
-              onChange={handleSearch}              
+              onChange={handleSearch}
             />
           </div>
 

@@ -225,7 +225,7 @@ export default function ChangePassword() {
 
         <button
           type="submit"
-          className="btn btn-primary w-100 mb-3"
+          className="btn-sm btn btn-primary w-100 mb-3"
           disabled={!emailValid || !passwordMatch}
         >
           Change Password

@@ -218,7 +218,7 @@ const RegistrationForm = () => {
           }
         </div>
 
-        <button type="submit" className="btn btn-primary" onClick={handleSubmit}>
+        <button type="submit" className="btn-sm btn btn-primary" onClick={handleSubmit}>
           Submit
         </button>
       </form>

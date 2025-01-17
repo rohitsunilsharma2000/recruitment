@@ -60,8 +60,8 @@ export default function SignInPage() {
           console.log("localStorage and cookie cleared after 5 minutes");
           // alert("Session Expired !! SignIn again");
           // router.push("/authentication/card/sign-in");
-        }, 5000); // 5 seconds delay 
-        // }, 300000); // 300000 milliseconds = 5 minutes
+          // }, 5000); // 5 seconds delay 
+        }, 300000); // 300000 milliseconds = 5 minutes
 
 
 
@@ -120,7 +120,7 @@ export default function SignInPage() {
           <div className="position-relative">
             <i className="bi bi-person-fill position-absolute top-50 start-0 translate-middle-y px-2"></i>
             <button
-              className="btn btn-sm position-absolute top-50 end-0 translate-middle-y px-2"
+              className="btn btn  position-absolute top-50 end-0 translate-middle-y px-2"
               type="button"
               onClick={togglePassword}
             >
@@ -165,7 +165,7 @@ export default function SignInPage() {
           </div>
         </div>
 
-        <button type="submit" className="btn btn-sm btn-primary w-100 mb-3">
+        <button type="submit" className="btn btn  btn-primary w-100 mb-3">
           <span className="custom-font">Sign In</span>
         </button>
 

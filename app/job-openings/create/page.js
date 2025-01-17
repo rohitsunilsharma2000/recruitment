@@ -110,7 +110,7 @@ export default function CreateJobOpening() {
     // Optionally set formData again if needed when saving
     setFormData((prevFormData) => ({
       ...prevFormData,
-      departmentName: updatedData.departmentName,
+      departmentName: updatedData.parentDepartmentId,
     }));
   };
 
@@ -329,12 +329,12 @@ export default function CreateJobOpening() {
             <ul className="navbar-nav me-auto mb-2 mb-lg-0"></ul>
             {/* Add your new content here */}
             <div className="d-flex justify-content-end gap-3 mt-1">
-              <button type="button" className="btn btn-secondary">
+              <button type="button" className="btn-sm btn btn-secondary">
                 Cancel
               </button>
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="btn-sm btn btn-primary"
                 onClick={handleSubmit}
               >
                 Save and Publish
@@ -410,7 +410,7 @@ export default function CreateJobOpening() {
                           <i className="bi bi-buildings fs-6 "></i>
                         </button>
                         {/* <button
-                          className="btn btn-primary ms-2"
+                          className="btn-sm btn btn-primary ms-2"
                           style={{ whiteSpace: "nowrap" }}
                           onClick={handleOpenModal}
                         >

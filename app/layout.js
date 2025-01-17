@@ -39,7 +39,7 @@ export default function RootLayout({ children }) {
 
   // Set the modal trigger in restClient (no need to reassign)
   useEffect(() => {
-    checkSessionExpiration(); // Check session expiry on layout load
+    // checkSessionExpiration(); // Check session expiry on layout load
     // Pass the setModalVisible function to restClient
     setModalTriggerInRestClient(setModalVisible);
   }, []);

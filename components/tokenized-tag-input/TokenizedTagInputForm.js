@@ -117,7 +117,7 @@ const TokenizedTagInputForm = ({
         {/* Clear All Tags Button */}
         {value.length > 0 && (
           <button
-            className="btn btn-danger mt-2"
+            className="btn-sm btn btn-danger mt-2"
             onClick={(e) => {
               e.preventDefault(); // Prevent default behavior
               setFilteredSuggestions([]);

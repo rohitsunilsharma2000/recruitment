@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+
 import { fetchDepartments, fetchLeads } from "@/utils/restClient";
 
 export default function AddDepartmentModal({ initialData, onClose, onSave }) {
@@ -11,17 +11,10 @@ export default function AddDepartmentModal({ initialData, onClose, onSave }) {
     attachmentPath: initialData.attachmentPath || "",
   });
 
-  const [departments, setDepartments] = useState([
-    // { id: 1, name: "Engineering" },
-    // { id: 2, name: "HR" },
-    // { id: 3, name: "Marketing" },
-  ]);
-
-  const [leads, setLeads] = useState([
-    // { id: 6, name: "John Doe" },
-    // { id: 7, name: "Jane Smith" },
-    // { id: 8, name: "Robert Brown" },
-  ]);
+  const [departments, setDepartments] = useState([]);
+  const [leads, setLeads] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(""); // New state to track search input
+  const [filteredDepartments, setFilteredDepartments] = useState([]); // New state for filtered departments
 
   // Dynamically set form values when the component mounts
   useEffect(() => {
@@ -32,63 +25,62 @@ export default function AddDepartmentModal({ initialData, onClose, onSave }) {
       attachmentPath: initialData.attachmentPath || "",
     });
 
-
-
-    // Fetch countries and positions
     async function fetchDepartmentsData() {
       try {
         console.log("Fetching departments data...");
-        const response = await fetchDepartments(); // Call the fetchDepartments function
+        const response = await fetchDepartments();
         console.log("fetchDepartmentsData response : ", response);
 
-        // Extract and return only the `id` and `departmentName` properties
         const departments = response.map(department => ({
           id: department.id,
           departmentName: department.departmentName,
+          departmentLeadName: department.departmentLeadName
         }));
 
-        console.log("Extracted departments data : ", departments);
-
-        setDepartments(departments); // Set the array of departments names into state
+        setDepartments(departments);
+        setFilteredDepartments(departments); // Set initial filtered departments to all departments
         console.log("Departments have been set into state");
 
       } catch (error) {
         console.error("Failed to fetch departments:", error);
-        setDepartments([]); // Default to an empty array in case of error
-        console.log("Setting empty departments array due to error");
+        setDepartments([]);
+        setFilteredDepartments([]); // Handle error by setting empty array
       }
     }
 
-
-    // Fetch countries and positions
     async function fetchLeadsData() {
       try {
-        console.log("Fetching departments data...");
-        const response = await fetchLeads(); // Call the fetchDepartments function
-        console.log("fetchDepartmentsData response : ", response);
+        const response = await fetchLeads();
+        console.log("fetchLeadsData response : ", response);
 
-        // Extract and return only the `id` and `departmentName` properties
         const users = response.map(user => ({
           id: user.id,
           firstName: user.firstName,
           lastName: user.lastName,
         }));
 
-        console.log("Extracted departments data : ", users);
-        setLeads(users); // Set the array of departments names into state
-        console.log("Departments have been set into state");
-
+        setLeads(users);
       } catch (error) {
-        console.error("Failed to fetch departments:", error);
-        setDepartments([]); // Default to an empty array in case of error
-        console.log("Setting empty departments array due to error");
+        console.error("Failed to fetchLeadsData:", error);
+        setLeads([]); // Handle error by setting empty array
       }
     }
-
 
     fetchLeadsData();
     fetchDepartmentsData(); // Call the function
   }, [initialData]);
+
+  // Filter departments based on search query
+  useEffect(() => {
+    if (searchQuery) {
+      const filtered = departments.filter(department =>
+        department.departmentName.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredDepartments(filtered); // Update filtered departments state
+    } else {
+      setFilteredDepartments(departments); // If no search query, show all departments
+    }
+  }, [searchQuery, departments]);
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -102,74 +94,76 @@ export default function AddDepartmentModal({ initialData, onClose, onSave }) {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value); // Update search query state on input change
+  };
+
   return (
     <div className="modal show" style={{ display: "block" }} tabIndex="-1" role="dialog">
-      <div className="modal-dialog" role="document">
+      <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">Create Department</h5>
+            <h5 className="modal-title">Show :</h5>
+
+            <div className="position-relative ms-auto">
+              <input
+                className="form-control ps-5 bg-light"
+                type="search"
+                placeholder="Search..."
+                aria-label="Search"
+                value={searchQuery}
+                onChange={handleSearchChange} // Handle search query change
+              />
+              <button
+                className="btn bg-transparent px-2 py-0 position-absolute top-50 start-0 translate-middle-y"
+                type="submit"
+              >
+                <i className="bi bi-search fs-5"></i>
+              </button>
+            </div>
+
+            <button type="button" className="btn-md  btn btn-primary ms-2">
+              <span>
+                <i className="bi bi-plus-lg me-1 "></i>
+              </span>
+              <span className="">
+                New Department
+              </span>
+            </button>
+
             <button type="button" className="btn-close" aria-label="Close" onClick={onClose} />
           </div>
           <div className="modal-body">
             <form onSubmit={handleSave}>
-              {/* Department Name */}
-              <div className="mb-3">
-                <label htmlFor="departmentName" className="form-label">Department Name</label>
-                <input
-                  type="text"
-                  name="departmentName"
-                  value={formData.departmentName}
-                  onChange={handleChange}
-                  className="form-control"
-                />
-              </div>
-              <div className="mb-3">
-                <label htmlFor="parentDepartmentId" className="form-label">Parent Department</label>
-                <select
-                  name="parentDepartmentId"
-                  value={formData.parentDepartmentId}
-                  onChange={handleChange}
-                  className="form-select"
-                >
-                  <option value="">Select Parent Department</option>
-                  {departments.map((department) => (
-                    <option key={department.id} value={department.id}>
-                      {department.departmentName}
-                    </option>
+              <table className="table table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Department Name</th>
+                    <th scope="col">Department Owner</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredDepartments.map((department) => (
+                    <tr key={department.id}>
+                      <th scope="row">
+                        <input
+                          type="radio"
+                          name="parentDepartmentId"
+                          value={department.id}
+                          onClick={(e) => handleChange(e)} // Update form data
+                        />
+                      </th>
+                      <td>{department.departmentName}</td>
+                      <td>{department.departmentLeadName}</td>
+                    </tr>
                   ))}
-                </select>
-              </div>
-              <div className="mb-3">
-                <label htmlFor="departmentLead" className="form-label">Department Lead</label>
-                <select
-                  name="departmentLead"
-                  value={formData.departmentLead}
-                  onChange={handleChange}
-                  className="form-select"
-                >
-                  <option value="">Select Department Lead</option>
-                  {leads.map((lead) => (
-                    <option key={lead.id} value={lead.id}>
-                      {/* {lead.firstName} */}
-                      {lead.firstName} {lead.lastName}
+                </tbody>
+              </table>
 
-
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="mb-3">
-                <label htmlFor="attachmentPath" className="form-label">Attachment Path</label>
-                <input
-                  type="file"
-                  name="attachmentPath"
-                  onChange={handleChange}
-                  className="form-control"
-                />
-              </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={onClose}>Close</button>
-                <button type="submit" className="btn btn-primary">Save Changes</button>
+                <button type="button" className="btn-sm btn btn-secondary" onClick={onClose}>Close</button>
+                <button type="submit" className="btn-sm btn btn-primary">Save Changes</button>
               </div>
             </form>
           </div>

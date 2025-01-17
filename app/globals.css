@@ -18,12 +18,16 @@ body {
   padding: 0 !important;
 }
 
-.btn {
-  /* padding: 2px 8px !important; */
-
+.btn-sm {
   --bs-btn-padding-y: 0.25rem !important;
   --bs-btn-padding-x: 0.5rem !important;
   --bs-btn-font-size: 0.7rem !important;
+}
+
+.btn-md {
+  --bs-btn-padding-y: 0.5rem !important;
+  --bs-btn-padding-x: 0.5rem !important;
+  --bs-btn-font-size: 0.8rem !important;
 }
 
 .form-label,
@@ -44,4 +48,13 @@ label {
 select::placeholder {
   font-size: 0.75rem !important; /* Smaller placeholder text */
   color: #6c757d !important; /* Optional: Adjust placeholder color */
+}
+
+.modal {
+  background: #0000004d !important;
+  transition: transform 0.3s ease;
+}
+
+.modal-content {
+  box-shadow: 0 4px 10px #00000087 !important;
 }
