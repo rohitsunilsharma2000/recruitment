@@ -12,6 +12,7 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
             link: "#",
             type: "select",
             options: [
+              "--Select--",
               "is",
               "isn't",
               "contains",
@@ -34,6 +35,7 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
         link: "#toDos",
         subItems: [
           {
+
             type: "radio",
             label: "Without Open To-Do",
             value: "withoutOpenTodo",
@@ -45,7 +47,10 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
             subItems: [
               {
                 type: "select",
-                options: ["To Do's", "Tasks", "Calls"],
+                options: [
+                  "--Select--", "To Do's", "Tasks"
+                  // , "Calls"
+                ],
               },
             ],
           },
@@ -56,7 +61,8 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
             subItems: [
               {
                 type: "select",
-                options: ["Today", "Tomorrow", "Next 7 Days", "Today + Overdue"],
+                options: ["--Select--",
+                  "Today", "Tomorrow", "Next 7 Days", "Today + Overdue"],
               },
             ],
           },
@@ -68,6 +74,7 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
               {
                 type: "select",
                 options: [
+                  "--Select--",
                   "In the last",
                   "On",
                   "Before",
@@ -88,7 +95,9 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
               },
               {
                 type: "select",
-                options: ["days", "weeks", "months"],
+                options: [
+                  "--Select--",
+                  "days", "weeks", "months"],
               },
             ],
           },

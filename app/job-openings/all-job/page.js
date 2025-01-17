@@ -8,6 +8,81 @@ export default function AllJobOpening() {
 
   const jobData = [
     {
+      "Job Opening ID": "ZR_5_JOB",
+      "Posting Title": "Operations Manager",
+      "Assigned Recruiter(s)": "recruiter5@example.com",
+      "Target Date": "01/17/2025",
+      "Job Opening Status": "Overdue",
+      "City": "Miami",
+      "Department Name": "Operations",
+      "Hiring Manager": "manager5@example.com",
+      "Job Type": "Full time",
+      "Number of Applications": "0",
+      "To Do's": "Pending documentation approval",
+      "Last Activity Time": "01/06/2025 02:00 PM",
+      "Date Opened": "12/16/2024",
+      "Province": "Florida",
+      "Country": "United States",
+      "Number of Positions": "2"
+    },
+    {
+      "Job Opening ID": "ZR_9_JOB",
+      "Posting Title": "Project Manager",
+      "Assigned Recruiter(s)": "recruiter9@example.com",
+      "Target Date": "01/15/2025",
+      "Job Opening Status": "Overdue",
+      "City": "Boston",
+      "Department Name": "Project Management",
+      "Hiring Manager": "manager9@example.com",
+      "Job Type": "Contract",
+      "Number of Applications": "5",
+      "To Do's": "Follow up with stakeholders",
+      "Last Activity Time": "01/10/2025 12:00 PM",
+      "Date Opened": "12/14/2024",
+      "Province": "Massachusetts",
+      "Country": "United States",
+      "Number of Positions": "1"
+    },
+    {
+      "Job Opening ID": "ZR_12_JOB",
+      "Posting Title": "HR Coordinator",
+      "Assigned Recruiter(s)": "recruiter12@example.com",
+      "Target Date": "01/10/2025",
+      "Job Opening Status": "Overdue",
+      "City": "Atlanta",
+      "Department Name": "Human Resources",
+      "Hiring Manager": "manager12@example.com",
+      "Job Type": "Full time",
+      "Number of Applications": "10",
+      "To Do's": "Send interview schedules",
+      "Last Activity Time": "01/12/2025 03:00 PM",
+      "Date Opened": "12/11/2024",
+      "Province": "Georgia",
+      "Country": "United States",
+      "Number of Positions": "4"
+    },
+    {
+      "Job Opening ID": "ZR_15_JOB",
+      "Posting Title": "Marketing Executive",
+      "Assigned Recruiter(s)": "recruiter15@example.com",
+      "Target Date": "01/19/2025",
+      "Job Opening Status": "Overdue",
+      "City": "Chicago",
+      "Department Name": "Marketing",
+      "Hiring Manager": "manager15@example.com",
+      "Job Type": "Part time",
+      "Number of Applications": "2",
+      "To Do's": "Finalize campaign strategies",
+      "Last Activity Time": "01/15/2025 11:30 AM",
+      "Date Opened": "12/18/2024",
+      "Province": "Illinois",
+      "Country": "United States",
+      "Number of Positions": "3"
+    }
+    ,
+
+
+    {
       "Job Opening ID": "ZR_3_JOB",
       "Posting Title": "Senior Accountant (Sample)",
       "Assigned Recruiter(s)": "saha@bishnupadasaha.agency",
@@ -199,39 +274,96 @@ export default function AllJobOpening() {
   };
 
   const handleApplyFilters = (appliedFilters) => {
-    
+
     const filteredData = jobData.filter((job) => {
       // Global Search Filter: Checks if any job field matches the global search text
       let matchesGlobalSearch = true;  // Default to true if no global search filter is applied
+      const inputFilter = appliedFilters.inputFilter.toLowerCase();
+      const todoSubFilter = appliedFilters.todoSubFilter;
+
       if (appliedFilters.globalSearch) {
         const allJobValues = Object.values(job).join(" ").toLowerCase();
         const searchTerm = appliedFilters.globalSearch.toLowerCase();
         matchesGlobalSearch = allJobValues.includes(searchTerm);
       }
 
+
       // Posting Title Filter: Checks if the job posting title matches the filter criteria
       let matchesPostingTitle = true;  // Default to true if no posting title filter is applied
-      if (appliedFilters.selectFilter && appliedFilters.inputFilter) {
-        const postingTitle = job["Posting Title"]?.toLowerCase();
-        const inputFilter = appliedFilters.inputFilter.toLowerCase();
+      // if (appliedFilters.selectFilter && appliedFilters.inputFilter) {
+      if (appliedFilters.selectFilter && appliedFilters.inputFilter !== undefined && appliedFilters.inputFilter === '') {
 
-        if (appliedFilters.selectFilter === "is") {
-          matchesPostingTitle = postingTitle === inputFilter;
-        } else if (appliedFilters.selectFilter === "isn't") {
-          matchesPostingTitle = postingTitle !== inputFilter;
-        } else if (appliedFilters.selectFilter === "contains") {
-          matchesPostingTitle = postingTitle.includes(inputFilter);
+        const postingTitle = job["Posting Title"]?.toLowerCase();
+
+        if (appliedFilters.selectFilter === "is" || appliedFilters.selectFilter === "contains") {
+          matchesPostingTitle = postingTitle.includes(inputFilter);  // Check if posting title contains the input filter
         }
+        else if (appliedFilters.selectFilter === "isn't" || appliedFilters.selectFilter === "doesn't contain") {
+          matchesPostingTitle = !postingTitle.includes(inputFilter);
+        }
+        else if (appliedFilters.selectFilter === "starts with") {
+          matchesPostingTitle = postingTitle.startsWith(inputFilter);
+        }
+        else if (appliedFilters.selectFilter === "ends with") {
+          matchesPostingTitle = postingTitle.endsWith(inputFilter);  // Check if posting title ends with the input filter
+        }
+        else if (appliedFilters.selectFilter === "ends with") {
+          matchesPostingTitle = postingTitle.endsWith(inputFilter);  // Check if posting title ends with the input filter
+        }
+        else if (appliedFilters.selectFilter === "is empty") {
+          matchesPostingTitle = !postingTitle || postingTitle.trim() === "";  // Check if posting title is empty or contains only spaces
+        }
+        else if (appliedFilters.selectFilter === "is not empty") {
+          matchesPostingTitle = postingTitle && postingTitle.trim() !== "";  // Check if posting title is not empty
+        }
+
+
+        // "is empty",
+        // "is not empty",
       }
 
       // To-Dos Filter: Checks if the job matches the To-Dos filter criteria
       let matchesToDo = true;  // Default to true if no To-Do filter is applied
       if (appliedFilters.todoFilter) {
+
+        const targetDate = job["Target Date"]?.toLowerCase();
+        const todayDate = new Date();  // Get today's date
+        // targetDate.setHours(0, 0, 0, 0); // Reset to midnight for comparison
+
+
+
+        // Get the month, day, and year
+        const month = (todayDate.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-indexed, so add 1
+        const day = todayDate.getDate().toString().padStart(2, '0'); // Pad day with leading zero if necessary
+        const year = todayDate.getFullYear(); // Get the full year
+
+        // Format the date as mm/dd/yyyy
+        const formattedTodayDate = `${month}/${day}/${year}`;
+        const numberOfApplications = job["Number of Applications"];
+
         if (appliedFilters.todoFilter === "withoutOpenTodo") {
-          matchesToDo = job["Number of Applications"] === "0";  // No open to-dos
-        } else if (appliedFilters.todoFilter === "overdue") {
-          matchesToDo = job["Job Opening Status"] === "Overdue";  // Job is overdue
-        } else if (appliedFilters.todoFilter === "todoDue") {
+          matchesToDo = numberOfApplications === "0";  // No open to-dos
+        }
+        /**
+         * Overdue + To Do’s Filter jobs where:
+         *     1."Job Opening Status" === "Overdue"
+         *     2. Target Date is close (e.g., today or earlier).
+         *  
+         */
+        else if (appliedFilters.todoFilter === "overdue" && todoSubFilter === "To Do's") {
+          // Check if the target date is less than or equal to today's date (overdue)
+          matchesToDo = targetDate <= formattedTodayDate;
+        }
+        /**
+         * Overdue + Tasks’s Filter jobs where:
+         *     1."Job Opening Status" === "Overdue"
+         *     2. Number of Applications > 0
+         *  
+         */
+        else if (appliedFilters.todoFilter === "overdue" && todoSubFilter === "Tasks") {
+          matchesToDo = numberOfApplications > "0";  // No open to-dos
+        }
+        else if (appliedFilters.todoFilter === "todoDue") {
           const dueFilters = ["Today", "Tomorrow", "Next 7 Days", "Today + Overdue"];
           matchesToDo = dueFilters.includes(appliedFilters.todoSubFilter);  // Job is due within selected time
         }
