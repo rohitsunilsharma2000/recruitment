@@ -307,42 +307,42 @@ export default function CreateJobOpening() {
           onSave={handleSaveData}
         />
       )}
- 
 
-<nav className="navbar navbar-expand-lg p-3" style={{ backgroundColor: "#e3f2fd"}}>
-  <div className="container-fluid">
-    <span className="navbar-brand">
-   <b> Create Job Opening</b>
-    </span>
-    <button
-      className="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarNav"
-      aria-controls="navbarNav"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <span className="navbar-toggler-icon"></span>
-    </button>
-    <div className="collapse navbar-collapse" id="navbarNav">
-      <ul className="navbar-nav me-auto mb-2 mb-lg-0"></ul>
-      {/* Add your new content here */}
-      <div className="d-flex justify-content-end gap-3 mt-1">
-        <button type="button" className="btn btn-secondary">
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="btn btn-primary"
-          onClick={handleSubmit}
-        >
-          Save and Publish
-        </button>
-      </div>
-    </div>
-  </div>
-</nav>
+
+      <nav className="navbar navbar-expand-lg p-3" style={{ backgroundColor: "#e3f2fd" }}>
+        <div className="container-fluid">
+          <span className="navbar-brand">
+            <b> Create Job Opening</b>
+          </span>
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="collapse navbar-collapse" id="navbarNav">
+            <ul className="navbar-nav me-auto mb-2 mb-lg-0"></ul>
+            {/* Add your new content here */}
+            <div className="d-flex justify-content-end gap-3 mt-1">
+              <button type="button" className="btn btn-secondary">
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                onClick={handleSubmit}
+              >
+                Save and Publish
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
 
       {/* <p>{hiringManagerOptions.join(", ")}</p> */}
       <div className="row">
@@ -390,10 +390,10 @@ export default function CreateJobOpening() {
                       </label>
                     </td>
                     <td>
-                      <div className="d-flex">
+                      <div className="d-flex position-relative">
                         <input
                           type="text"
-                          className={`form-control form-control-sm small-placeholder ${getValidationClass(
+                          className={`form-control form-control-sm small-placeholder pe-5  ${getValidationClass(
                             "departmentName"
                           )}`}
                           id="departmentName"
@@ -403,12 +403,19 @@ export default function CreateJobOpening() {
                           placeholder="Enter department name"
                         />
                         <button
+                          className="btn  btn-light  py-0 position-absolute top-50 end-0 translate-middle-y "
+                          style={{ whiteSpace: "nowrap", height: "33.1px", marginRight: '0.8px', borderRadius: "0px 3.2px 3.2px 0px" }}
+                          onClick={handleOpenModal}
+                        >
+                          <i className="bi bi-buildings fs-6 "></i>
+                        </button>
+                        {/* <button
                           className="btn btn-primary ms-2"
                           style={{ whiteSpace: "nowrap" }}
                           onClick={handleOpenModal}
                         >
                           Create Department
-                        </button>
+                        </button> */}
                       </div>
                       <div className={getFeedbackClass("departmentName")}>
                         {getFeedbackMessage("departmentName")}
@@ -857,7 +864,7 @@ export default function CreateJobOpening() {
                       </label>
                     </td>
                     <td>
-                    
+
 
                       <TypeAheadDropdown
                         id="country"

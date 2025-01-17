@@ -123,7 +123,6 @@ export default function AddDepartmentModal({ initialData, onClose, onSave }) {
                   className="form-control"
                 />
               </div>
-              {/* Parent Department */}
               <div className="mb-3">
                 <label htmlFor="parentDepartmentId" className="form-label">Parent Department</label>
                 <select
@@ -140,7 +139,6 @@ export default function AddDepartmentModal({ initialData, onClose, onSave }) {
                   ))}
                 </select>
               </div>
-              {/* Department Lead */}
               <div className="mb-3">
                 <label htmlFor="departmentLead" className="form-label">Department Lead</label>
                 <select
@@ -160,7 +158,6 @@ export default function AddDepartmentModal({ initialData, onClose, onSave }) {
                   ))}
                 </select>
               </div>
-              {/* Attachment Path */}
               <div className="mb-3">
                 <label htmlFor="attachmentPath" className="form-label">Attachment Path</label>
                 <input

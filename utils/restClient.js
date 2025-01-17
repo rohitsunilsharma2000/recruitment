@@ -1,5 +1,10 @@
 // utils/restClient.js
 import axios from 'axios';
+import { useState } from 'react';
+
+
+let setModalVisible; // Variable to store the setter function for modal visibility
+
 
 const restClient = axios.create({
   baseURL: 'http://localhost:8080', // Change to your API base URL
@@ -7,6 +12,12 @@ const restClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Function to set the modal trigger
+export const setModalTrigger = (setModal) => {
+  setModalVisible = setModal; // Store the state setter function passed from the component
+};
+
 
 // Add interceptors to handle token authentication
 restClient.interceptors.request.use((config) => {
@@ -20,6 +31,20 @@ restClient.interceptors.request.use((config) => {
 }, (error) => {
   return Promise.reject(error);
 });
+
+// Handle 401 errors (Unauthorized)
+restClient.interceptors.response.use(
+  (response) => response, // Return the response if no error
+  async (error) => {
+    if (error.response?.status === 401 && setModalVisible) {
+      setModalVisible(true); // Show the modal by setting state when 401 occurs
+    }
+    return Promise.reject(error);
+  }
+);
+
+
+
 
 // Login function
 export const login = async (username, password) => {
@@ -256,6 +281,8 @@ export const fetchIndustry = async () => {
     throw error;
   }
 };
+
+
 
 
 export default restClient;
