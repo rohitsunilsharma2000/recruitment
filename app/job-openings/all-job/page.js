@@ -251,6 +251,32 @@ export default function AllJobOpening() {
       Country: "United States",
       "Number of Positions": "1",
     },
+    {
+      "Job Opening ID": "ZR_1_JOB",
+      "Posting Title": "Software Engineer",
+      "Assigned Recruiter(s)": "recruiter1@example.com",
+      "Target Date": "01/10/2025",
+      "Job Opening Status": "Open",
+      "City": "San Francisco",
+      "Department Name": "Engineering",
+      "Hiring Manager": "manager1@example.com",
+      "Job Type": "Full time",
+      "Number of Applications": "10",
+      "Date Opened": "12/10/2024"
+    },
+    {
+      "Job Opening ID": "ZR_3_JOB",
+      "Posting Title": "Senior Accountant (Sample)",
+      "Assigned Recruiter(s)": "saha@bishnupadasaha.agency",
+      "Target Date": "01/12/2025",
+      "Job Opening Status": "Waiting for approval",
+      "City": "Tallahassee",
+      "Department Name": "Paula Rojas (Sample)",
+      "Hiring Manager": "saha@bishnupadasaha.agency",
+      "Job Type": "Full time",
+      "Number of Applications": "0",
+      "Date Opened": "12/19/2024"
+    }
   ];
   const [filters, setFilters] = useState({
     selectFilter: "",
@@ -327,23 +353,27 @@ export default function AllJobOpening() {
       if (appliedFilters.todoFilter) {
 
         const targetDate = job["Target Date"]?.toLowerCase();
+        const jobOpeningStatus = job["Job Opening Status"]?.toLowerCase();
+
         const todayDate = new Date();  // Get today's date
-        // targetDate.setHours(0, 0, 0, 0); // Reset to midnight for comparison
+        const formattedTodayDate = formatDate(todayDate);
+
+        const tomorrowDate = new Date();
+        tomorrowDate.setDate(todayDate.getDate() + 1); // Increment date to tomorrow
+        const formattedTomorrowDate = formatDate(tomorrowDate);
 
 
+        const nextWeekDate = new Date();
+        nextWeekDate.setDate(todayDate.getDate() + 7); // Increment date to next 7 days
+        const formattedNextWeekDate = formatDate(nextWeekDate);
 
-        // Get the month, day, and year
-        const month = (todayDate.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-indexed, so add 1
-        const day = todayDate.getDate().toString().padStart(2, '0'); // Pad day with leading zero if necessary
-        const year = todayDate.getFullYear(); // Get the full year
 
-        // Format the date as mm/dd/yyyy
-        const formattedTodayDate = `${month}/${day}/${year}`;
         const numberOfApplications = job["Number of Applications"];
 
         if (appliedFilters.todoFilter === "withoutOpenTodo") {
           matchesToDo = numberOfApplications === "0";  // No open to-dos
         }
+
         /**
          * Overdue + To Do’s Filter jobs where:
          *     1."Job Opening Status" === "Overdue"
@@ -363,11 +393,67 @@ export default function AllJobOpening() {
         else if (appliedFilters.todoFilter === "overdue" && todoSubFilter === "Tasks") {
           matchesToDo = numberOfApplications > "0";  // No open to-dos
         }
+
         else if (appliedFilters.todoFilter === "todoDue") {
-          const dueFilters = ["Today", "Tomorrow", "Next 7 Days", "Today + Overdue"];
-          matchesToDo = dueFilters.includes(appliedFilters.todoSubFilter);  // Job is due within selected time
+          /**
+            * Filter jobs where the "Target Date" matches today's date.
+            */
+          if (appliedFilters.todoSubFilter === "Today") {
+            matchesToDo = targetDate === formattedTodayDate;
+          }
+          /**
+           * Description: Filter jobs where the "Target Date" is tomorrow.
+           */
+          else if (appliedFilters.todoSubFilter === "Tomorrow") {
+            matchesToDo = targetDate === formattedTomorrowDate;
+          }
+          /**
+          * Description: Filter jobs where the "Target Date" is within the next 7 days from today.
+          */
+          else if (appliedFilters.todoSubFilter === "Next 7 Days") {
+            matchesToDo = targetDate === formattedNextWeekDate;
+          }
+          /**
+          *
+          * Description: Combine two conditions:
+          * 
+          *   "Target Date" is equal to today's date.
+          *       Or 
+          *   "Job Opening Status" is "Overdue" and "Target Date" is before today.
+          */
+          else if (appliedFilters.todoSubFilter === "Today + Overdue") {
+
+            const isToday = targetDate === formattedTodayDate; // Target date is today
+            const isOverdue = jobOpeningStatus === "Overdue" && targetDate < formattedTodayDate;
+
+            matchesToDo = isToday || isOverdue;
+          }
+
+        } else if (appliedFilters.todoFilter === "withoutAnyTodo") {
+
+          const calendarFilterOptions = appliedFilters.calendarFilterOptions;//"In the last", "On", "Before", "After", "Today", "Yesterday"...
+          const inputNumber = parseInt(appliedFilters.inputFilter, 10);
+          const durationUnitsOptions = appliedFilters.durationUnitsOptions; // "days", "weeks", "months"
+
+          // 1. **In the last** (e.g., "In the last 7 days")
+          // Does the target date fall between the lookBackDate and today?
+          if (calendarFilterOptions === "In the last" && !isNaN(inputNumber)) {
+            const lookBackDate = new Date();
+
+            if (durationUnitsOptions == 'days') {
+              lookBackDate.setDate(todayDate.getDate() - inputNumber);  // Subtract days
+            }
+            const formattedLookBackDate = formatDate(lookBackDate);
+
+            matchesToDo = targetDate >= formattedLookBackDate && targetDate <= formattedTodayDate;
+          }
         }
+
+
+
       }
+
+
 
       // Final check: Only include the job if all filters match
       return matchesGlobalSearch && matchesPostingTitle && matchesToDo;
@@ -377,6 +463,14 @@ export default function AllJobOpening() {
     setFilteredJobData(filteredData);
   };
 
+  function formatDate(date) {
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-indexed, so add 1
+    const day = date.getDate().toString().padStart(2, '0'); // Pad day with leading zero if necessary
+    const year = date.getFullYear(); // Get the full year
+
+    // Return the formatted date as mm/dd/yyyy
+    return `${month}/${day}/${year}`;
+  }
 
   const handleClearFilters = () => {
     setFilters({

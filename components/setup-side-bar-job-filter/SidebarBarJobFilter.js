@@ -35,7 +35,6 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
         link: "#toDos",
         subItems: [
           {
-
             type: "radio",
             label: "Without Open To-Do",
             value: "withoutOpenTodo",
@@ -47,10 +46,7 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
             subItems: [
               {
                 type: "select",
-                options: [
-                  "--Select--", "To Do's", "Tasks"
-                  // , "Calls"
-                ],
+                options: ["--Select--", "To Do's", "Tasks"],
               },
             ],
           },
@@ -61,8 +57,7 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
             subItems: [
               {
                 type: "select",
-                options: ["--Select--",
-                  "Today", "Tomorrow", "Next 7 Days", "Today + Overdue"],
+                options: ["--Select--", "Today", "Tomorrow", "Next 7 Days", "Today + Overdue"],
               },
             ],
           },
@@ -95,9 +90,7 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
               },
               {
                 type: "select",
-                options: [
-                  "--Select--",
-                  "days", "weeks", "months"],
+                options: ["--Select--", "days", "weeks", "months"],
               },
             ],
           },
@@ -183,12 +176,13 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
                                   <select
                                     key={nestedIndex}
                                     className="form-select form-select-sm"
-                                    onChange={(e) =>
-                                      handleLocalChange(
-                                        "todoSubFilter",
-                                        e.target.value
-                                      )
-                                    }
+                                    onChange={(e) => {
+                                      if (nestedIndex === 0) {
+                                        handleLocalChange("calendarFilterOptions", e.target.value); // First select
+                                      } else if (nestedIndex === 2) {
+                                        handleLocalChange("durationUnitsOptions", e.target.value); // Second select (e.g., days, weeks, months)
+                                      }
+                                    }}
                                   >
                                     {nestedItem.options.map((option, optIndex) => (
                                       <option key={optIndex} value={option}>
@@ -203,7 +197,7 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
                                     type="text"
                                     placeholder={nestedItem.placeholder}
                                     onChange={(e) =>
-                                      handleLocalChange("todoSubFilter", e.target.value)
+                                      handleLocalChange("inputFilter", e.target.value)
                                     }
                                   />
                                 ) : null
@@ -245,13 +239,13 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
       </ul>
       <div className="mt-3 d-flex justify-content-between">
         <button
-          className="btn-sm btn btn-primary btn "
+          className="btn-sm btn btn-primary"
           onClick={handleApplyFilters}
         >
           Apply
         </button>
         <button
-          className="btn-sm btn btn-secondary btn "
+          className="btn-sm btn btn-secondary"
           onClick={handleClearFilters}
         >
           Clear

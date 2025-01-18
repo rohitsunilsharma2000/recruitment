@@ -51,7 +51,6 @@ export default function CreateJobOpening() {
     "Technical Manager",
     "Web Designer",
   ];
-  // const hiringManagerOptions = ['OPIODTUYRUIOY9UIHLBJK '];
   const assignedRecruiterOptions = ["test"];
   const salaryOptions = [];
   // const countryOptions = [];
@@ -261,9 +260,18 @@ export default function CreateJobOpening() {
         console.log("Extracted recruiters data : ", recruters);
         setRecruters(recruters); // Set the array of departments names into state
 
+
+
         const hiringManagers = response
           .filter((user) => user.role.name === "Hiring Manager")
-          .map((user) => user.firstName + " " + user.lastName); // Extract the firstName
+          .map((user) => ({
+            id: user.id,
+            userName: user.firstName + " " + user.lastName,
+          }));
+
+        // const hiringManagers = response
+        //   .filter((user) => user.role.name === "Hiring Manager")
+        //   .map((user) => user.firstName + " " + user.lastName); // Extract the firstName
 
         // Push the filtered and transformed names into hiringManagerOptions
         console.log("hiringManagerOptions: ", hiringManagers);
@@ -434,7 +442,7 @@ export default function CreateJobOpening() {
                       </label>
                     </td>
                     <td>
-                      <TypeAheadDropdown
+                      {/* <TypeAheadDropdown
                         id="title"
                         name="title"
                         options={titles}
@@ -452,7 +460,7 @@ export default function CreateJobOpening() {
                           "title"
                         )}`}
                         getValidationclassName={getValidationClass}
-                      />
+                      /> */}
 
                       <div className={getFeedbackClass("title")}>
                         {getFeedbackMessage("title")}
@@ -617,7 +625,7 @@ export default function CreateJobOpening() {
                       </label>
                     </td>
                     <td>
-                      <TypeAheadDropdown
+                      {/* <TypeAheadDropdown
                         id="jobOpeningStatus "
                         name="jobOpeningStatus"
                         options={jobOpeningStatusOptions}
@@ -635,7 +643,7 @@ export default function CreateJobOpening() {
                           "jobOpeningStatus"
                         )}`}
                         getValidationclassName={getValidationClass}
-                      />
+                      /> */}
                       <div className={getFeedbackClass("jobType")}>
                         {getFeedbackMessage("jobType")}
                       </div>
@@ -651,7 +659,7 @@ export default function CreateJobOpening() {
                     </td>
                     <td>
                       {" "}
-                      <TypeAheadDropdown
+                      {/* <TypeAheadDropdown
                         id="jobType "
                         name="jobType"
                         options={jobTypeOptions}
@@ -669,7 +677,7 @@ export default function CreateJobOpening() {
                           "jobType"
                         )}`}
                         getValidationclassName={getValidationClass}
-                      />
+                      /> */}
                       <div className={getFeedbackClass("jobOpeningStatus")}>
                         {getFeedbackMessage("jobOpeningStatus")}
                       </div>
@@ -768,7 +776,7 @@ export default function CreateJobOpening() {
                       </label>
                     </td>
                     <td>
-                      <TypeAheadDropdown
+                      {/* <TypeAheadDropdown
                         id="industry"
                         name="industry"
                         options={industryOptions}
@@ -784,9 +792,9 @@ export default function CreateJobOpening() {
                         onChange={handleInputChange}
                         className={`form-select form-select-sm small-placeholder ${getValidationClass(
                           "industry"
-                        )}`}
-                        getValidationclassName={getValidationClass}
-                      />
+                        )}`} 
+                      getValidationclassName={getValidationClass}
+                      /> */}
                       <div className={getFeedbackClass("industry")}>
                         {getFeedbackMessage("industry")}
                       </div>
@@ -866,7 +874,7 @@ export default function CreateJobOpening() {
                     <td>
 
 
-                      <TypeAheadDropdown
+                      {/* <TypeAheadDropdown
                         id="country"
                         name="country"
                         options={countryOptions}
@@ -884,7 +892,7 @@ export default function CreateJobOpening() {
                           "country"
                         )}`}
                         getValidationclassName={getValidationClass}
-                      />
+                      /> */}
 
                       <div className={getFeedbackClass("country")}>
                         {getFeedbackMessage("country")}
