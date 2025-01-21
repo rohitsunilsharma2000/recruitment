@@ -119,7 +119,7 @@ export default function AllJobOpening() {
       "Job Opening ID": "ZR_1_JOB",
       "Posting Title": "Software Engineer",
       "Assigned Recruiter(s)": "recruiter1@example.com",
-      "Target Date": "01/15/2025",
+      "Target Date": "01/15/2024",
       "Job Opening Status": "Open",
       City: "San Francisco",
       "Department Name": "Engineering",
@@ -136,7 +136,7 @@ export default function AllJobOpening() {
       "Job Opening ID": "ZR_2_JOB",
       "Posting Title": "Senior Software Engineer",
       "Assigned Recruiter(s)": "recruiter2@example.com",
-      "Target Date": "01/20/2025",
+      "Target Date": "01/20/2024",
       "Job Opening Status": "In-progress",
       City: "Austin",
       "Department Name": "Engineering",
@@ -276,6 +276,31 @@ export default function AllJobOpening() {
       "Job Type": "Full time",
       "Number of Applications": "0",
       "Date Opened": "12/19/2024"
+    }, {
+      "Job Opening ID": "ZR_1_JOB",
+      "Posting Title": "Software Engineer",
+      "Assigned Recruiter(s)": "recruiter1@example.com",
+      "Target Date": "01/20/2024",
+      "Job Opening Status": "Open",
+      "City": "San Francisco",
+      "Department Name": "Engineering",
+      "Hiring Manager": "manager1@example.com",
+      "Job Type": "Full time",
+      "Number of Applications": "10",
+      "Date Opened": "12/10/2024"
+    },
+    {
+      "Job Opening ID": "ZR_3_JOB",
+      "Posting Title": "Senior Accountant (Sample)",
+      "Assigned Recruiter(s)": "saha@bishnupadasaha.agency",
+      "Target Date": "01/30/2024",
+      "Job Opening Status": "Waiting for approval",
+      "City": "Tallahassee",
+      "Department Name": "Paula Rojas (Sample)",
+      "Hiring Manager": "saha@bishnupadasaha.agency",
+      "Job Type": "Full time",
+      "Number of Applications": "0",
+      "Date Opened": "12/19/2024"
     }
   ];
   const [filters, setFilters] = useState({
@@ -350,9 +375,13 @@ export default function AllJobOpening() {
 
       // To-Dos Filter: Checks if the job matches the To-Dos filter criteria
       let matchesToDo = true;  // Default to true if no To-Do filter is applied
+      let matchDateOnFilterTodo = true;
       if (appliedFilters.todoFilter) {
 
         const targetDate = job["Target Date"]?.toLowerCase();
+        const targetDateObj = new Date(targetDate); // Convert string to Date object
+        const formattedTargetDateObj = formatDate(targetDateObj)
+
         const jobOpeningStatus = job["Job Opening Status"]?.toLowerCase();
 
         const todayDate = new Date();  // Get today's date
@@ -366,6 +395,21 @@ export default function AllJobOpening() {
         const nextWeekDate = new Date();
         nextWeekDate.setDate(todayDate.getDate() + 7); // Increment date to next 7 days
         const formattedNextWeekDate = formatDate(nextWeekDate);
+
+
+        const lookBackDate = new Date();
+
+        const inputDate = appliedFilters.inputFilter;
+        const inputDateObject = new Date(inputDate);
+        const formattedInputDateObject = formatDate(inputDateObject)
+
+        // const formattedInputDate = formatDate(inputDate);
+
+
+
+        const calendarFilterOptions = appliedFilters.calendarFilterOptions;//"In the last", "On", "Before", "After", "Today", "Yesterday"...
+        const inputNumber = parseInt(appliedFilters.inputFilter, 10);
+        const durationUnitsOptions = appliedFilters.durationUnitsOptions; // "days", "weeks", "months"
 
 
         const numberOfApplications = job["Number of Applications"];
@@ -398,19 +442,19 @@ export default function AllJobOpening() {
           /**
             * Filter jobs where the "Target Date" matches today's date.
             */
-          if (appliedFilters.todoSubFilter === "Today") {
+          if (appliedFilters.calendarFilterOptions === "Today") {
             matchesToDo = targetDate === formattedTodayDate;
           }
           /**
            * Description: Filter jobs where the "Target Date" is tomorrow.
            */
-          else if (appliedFilters.todoSubFilter === "Tomorrow") {
+          else if (appliedFilters.calendarFilterOptions === "Tomorrow") {
             matchesToDo = targetDate === formattedTomorrowDate;
           }
           /**
           * Description: Filter jobs where the "Target Date" is within the next 7 days from today.
           */
-          else if (appliedFilters.todoSubFilter === "Next 7 Days") {
+          else if (appliedFilters.calendarFilterOptions === "Next 7 Days") {
             matchesToDo = targetDate === formattedNextWeekDate;
           }
           /**
@@ -421,7 +465,7 @@ export default function AllJobOpening() {
           *       Or 
           *   "Job Opening Status" is "Overdue" and "Target Date" is before today.
           */
-          else if (appliedFilters.todoSubFilter === "Today + Overdue") {
+          else if (appliedFilters.calendarFilterOptions === "Today + Overdue") {
 
             const isToday = targetDate === formattedTodayDate; // Target date is today
             const isOverdue = jobOpeningStatus === "Overdue" && targetDate < formattedTodayDate;
@@ -431,23 +475,95 @@ export default function AllJobOpening() {
 
         } else if (appliedFilters.todoFilter === "withoutAnyTodo") {
 
-          const calendarFilterOptions = appliedFilters.calendarFilterOptions;//"In the last", "On", "Before", "After", "Today", "Yesterday"...
-          const inputNumber = parseInt(appliedFilters.inputFilter, 10);
-          const durationUnitsOptions = appliedFilters.durationUnitsOptions; // "days", "weeks", "months"
 
           // 1. **In the last** (e.g., "In the last 7 days")
           // Does the target date fall between the lookBackDate and today?
           if (calendarFilterOptions === "In the last" && !isNaN(inputNumber)) {
-            const lookBackDate = new Date();
 
             if (durationUnitsOptions == 'days') {
               lookBackDate.setDate(todayDate.getDate() - inputNumber);  // Subtract days
+            } else if (durationUnitsOptions === "weeks") {
+              lookBackDate.setDate(todayDate.getDate() - inputNumber * 7); // Subtract weeks
             }
-            const formattedLookBackDate = formatDate(lookBackDate);
-
-            matchesToDo = targetDate >= formattedLookBackDate && targetDate <= formattedTodayDate;
+            else if (durationUnitsOptions === "months") {
+              lookBackDate.setMonth(todayDate.getMonth() - inputNumber); // Subtract months
+              /**
+               * @Todo : not working 
+               */
+            }
+            matchesToDo = targetDateObj >= lookBackDate && targetDateObj <= todayDate;
+          } else if (calendarFilterOptions === "On") {
+            matchesToDo = formattedTargetDateObj === formattedInputDateObject;
           }
+          else if (calendarFilterOptions === "Before") {
+            matchesToDo = formattedTargetDateObj < formattedInputDateObject;
+          } else if (calendarFilterOptions === "After") {
+            matchesToDo = formattedTargetDateObj > formattedInputDateObject;
+          }
+          else if (calendarFilterOptions === "Today") {
+            matchesToDo = formattedTargetDateObj === formattedTodayDate;
+          }
+          else if (calendarFilterOptions === "Yesterday") {
+
+            const yesterdayDate = new Date();
+            yesterdayDate.setDate(todayDate.getDate() - 1); // Subtract one day
+            const formattedYesterdayDate = formatDate(yesterdayDate)
+
+            matchesToDo = targetDate === formattedYesterdayDate;
+          }
+          else if (calendarFilterOptions === "This Week") {
+            const weekStart = new Date();
+            weekStart.setDate(todayDate.getDate() - todayDate.getDay()); // Get the start of the week
+            const formattedWeekStart = formatDate(weekStart)
+
+            matchesToDo = targetDate >= formattedWeekStart && targetDate <= formattedTodayDate;
+          }
+
+          else if (calendarFilterOptions === "This Month") {
+            const monthStart = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1); // Start of the month
+            const formattedmonthStart = formatDate(monthStart)
+
+            matchesToDo = targetDate >= formattedmonthStart && targetDate <= formattedTodayDate;
+          }
+
+          else if (calendarFilterOptions === "This Year") {
+            const yearStart = new Date(todayDate.getFullYear(), 0, 1); // Start of the year
+            const formattedyearStart = formatDate(yearStart)
+            matchesToDo = targetDate >= formattedyearStart && targetDate <= formattedTodayDate;
+          }
+
+          else if (calendarFilterOptions === "Last Week") {
+            const weekStart = new Date();
+            weekStart.setDate(todayDate.getDate() - todayDate.getDay() - 7); // Start of last week
+            const formattedWeekStart = formatDate(weekStart)
+
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 6); // End of last week
+            const formattedWeekEnd = formatDate(weekEnd)
+
+            matchesToDo = targetDate >= formattedWeekStart && targetDate <= formattedWeekEnd;
+          }
+
+          else if (calendarFilterOptions === "Last Month") {
+            const lastMonthStart = new Date(todayDate.getFullYear(), todayDate.getMonth() - 1, 1); // Start of last month
+            const formattedLastMonthStart = formatDate(lastMonthStart)
+            const lastMonthEnd = new Date(todayDate.getFullYear(), todayDate.getMonth(), 0); // End of last month
+            const formattedLastMonthEnd = formatDate(lastMonthEnd)
+            // matchesToDo = formattedTargetDateObj > formattedInputDateObject;
+
+            matchesToDo = formattedTargetDateObj >= formattedLastMonthStart && targetDate <= formattedLastMonthEnd;
+            /**
+             * @Todo : not working 
+             */
+          } else if (calendarFilterOptions === "Until Today") {
+            matchesToDo = targetDate <= formattedTodayDate;
+            // Example: "Until Today" filters jobs with "Target Date" up to and including today.
+          }
+
+
+
         }
+
 
 
 

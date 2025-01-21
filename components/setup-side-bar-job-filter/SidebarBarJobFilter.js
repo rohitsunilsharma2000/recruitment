@@ -100,8 +100,12 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
   };
 
   const [localFilters, setLocalFilters] = useState(filters);
+  const isTodaySelected = localFilters.calendarFilterOptions == "Today";
+  const isDateAppliedWithDurationDisabled = localFilters.calendarFilterOptions !== "In the last" || isTodaySelected;
 
+  // Track whether the "durationUnitsOptions" should be disabled
   const handleLocalChange = (key, value) => {
+
     setLocalFilters((prev) => ({
       ...prev,
       [key]: value,
@@ -170,7 +174,7 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
                         </label>
                         {subItem.subItems &&
                           subItem.value === localFilters.todoFilter && (
-                            <ul className="list-unstyled ms-4">
+                            <ul className="list-unstyled ms-2">
                               {subItem.subItems.map((nestedItem, nestedIndex) =>
                                 nestedItem.type === "select" ? (
                                   <select
@@ -183,6 +187,8 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
                                         handleLocalChange("durationUnitsOptions", e.target.value); // Second select (e.g., days, weeks, months)
                                       }
                                     }}
+                                    disabled={(nestedIndex === 2 && isDateAppliedWithDurationDisabled)}
+
                                   >
                                     {nestedItem.options.map((option, optIndex) => (
                                       <option key={optIndex} value={option}>
@@ -194,11 +200,14 @@ const SidebarBarJobFilter = ({ filters, onFilterChange, onApplyFilters, onClearF
                                   <input
                                     key={nestedIndex}
                                     className="form-control form-control-sm mt-2"
-                                    type="text"
+                                    // type="text"
+                                    type={isDateAppliedWithDurationDisabled == true ? "date" : "text"}
                                     placeholder={nestedItem.placeholder}
                                     onChange={(e) =>
                                       handleLocalChange("inputFilter", e.target.value)
                                     }
+                                    disabled={isTodaySelected}
+
                                   />
                                 ) : null
                               )}

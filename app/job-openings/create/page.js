@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import "./create-job.css";
 import {
+  createJobOpening,
   fetchCountries,
   fetchIndustry,
   fetchJobStatus,
@@ -45,12 +46,13 @@ export default function CreateJobOpening() {
   };
 
   const titles = [
-    "Developer",
-    "Product Manager",
-    "Product Lead",
-    "Technical Manager",
-    "Web Designer",
-  ];
+    { id: 1, listValue: 'Developer' },
+    { id: 2, listValue: 'Product Manager' },
+    { id: 3, listValue: 'Product Lead' },
+    { id: 4, listValue: 'Technical Manager' },
+    { id: 5, listValue: 'Web Designer' }
+  ]
+
   const assignedRecruiterOptions = ["test"];
   const salaryOptions = [];
   // const countryOptions = [];
@@ -140,15 +142,41 @@ export default function CreateJobOpening() {
     return formErrors[fieldName] || "Looks good!";
   };
 
+
+
   // 3) VALIDATION LOGIC
   // 4) HANDLE INPUT CHANGES
   const handleInputChange = (e) => {
     const { name, value, type, checked, files } = e.target;
     const newValue =
-      type === "file" ? files : type === "checkbox" ? checked : value;
+      // type === "file" ? files :
+      type === "file" ? (files ? files[0] : null) : // Retrieve the first file
+        type === "checkbox" ? checked : value;
 
-    // Update form data
-    setFormData((prev) => ({ ...prev, [name]: newValue }));
+
+
+    // Log the new value (based on input type)
+    if (type === "file" && files && files.length > 0) {
+      const file = files[0]; // Get the selected file (assuming single file)
+      console.log(name + " : " + file.name); // Log the file details
+    } else if (typeof newValue === 'object' && newValue !== null) {
+      // If newValue is an object (including arrays), stringify and log it
+      console.log(name + " : " + JSON.stringify(newValue, null, 2));
+    } else {
+      // If newValue is a primitive (string, number, or boolean), log it directly
+      console.log(name + " : " + newValue);
+    }
+
+
+    // Update form data (asynchronously)
+    setFormData((prev) => {
+      const updatedFormData = { ...prev, [name]: newValue };
+      // Log the updated form data inside the setFormData callback to see the result
+      console.log("Updated formData: ", updatedFormData);
+      return updatedFormData;
+    });
+
+
 
     // Mark field as touched
     setTouchedFields((prev) => ({ ...prev, [name]: true }));
@@ -158,6 +186,103 @@ export default function CreateJobOpening() {
     setFormErrors((prev) => ({ ...prev, [name]: error }));
   };
 
+
+  const buildPayload = () => {
+    // Initialize the payload object
+    const payload = {};
+
+    // Basic Fields
+    if (formData.postingTitle.trim()) payload.postingTitle = formData.postingTitle.trim();
+    if (formData.title.trim()) payload.title = formData.title.trim();
+    if (formData.targetDate) payload.targetDate = formData.targetDate; // Assuming it's a date string
+    if (formData.salary.trim()) payload.salary = formData.salary.trim();
+    if (formData.workExperience) payload.workExperience = formData.workExperience;
+
+    // Status & Job Type
+    if (formData.jobOpeningStatus) payload.status = formData.jobOpeningStatus;
+    if (formData.jobType) payload.jobType = formData.jobType;
+
+    // Industry and Skills
+    if (formData.industry) payload.industry = formData.industry;
+    if (formData.skills.length) payload.requiredSkills = formData.skills;
+
+    // Department
+    if (formData.departmentName) {
+      payload.department = {
+        id: formData.departmentName, // Assuming the department name is being stored as the ID
+        name: data.departmentName,   // Assuming `data.departmentName` is the department name
+      };
+    }
+
+    // Hiring Manager
+    if (formData.hiringManager) {
+      payload.hiringManager = {
+        id: formData.hiringManager.id,
+        firstName: formData.hiringManager.firstName,
+        lastName: formData.hiringManager.lastName,
+        email: formData.hiringManager.email,
+      };
+    }
+
+    // Recruiter
+    if (formData.assignedRecruiter) {
+      payload.assignedRecruiter = {
+        id: formData.assignedRecruiter.id,
+        firstName: formData.assignedRecruiter.firstName,
+        lastName: formData.assignedRecruiter.lastName,
+        email: formData.assignedRecruiter.email,
+      };
+    }
+
+    // Job Description and Requirements
+    if (formData.jobDescription) {
+      payload.descriptionInformation = {
+        jobDescription: formData.jobDescription,
+        requirements: formData.requirements,
+        benefits: formData.benefits,
+      };
+    }
+
+    // Address Information
+    if (formData.city.trim() || formData.province.trim() || formData.country.trim() || formData.postalCode.trim()) {
+      payload.addressInformation = {
+        city: formData.city.trim(),
+        province: formData.province.trim(),
+        country: formData.country.trim(),
+        postalCode: formData.postalCode.trim(),
+      };
+    }
+
+    // Attachments (Assuming it's an array of files with filePath)
+    if (formData.otherAttachments) {
+      payload.attachments = formData.otherAttachments.map((attachment) => ({
+        fileName: attachment.fileName,
+        filePath: attachment.filePath,
+        attachmentType: attachment.attachmentType || "JOB_SUMMARY", // default if no type is provided
+      }));
+    }
+
+    // Date Opened
+    if (formData.dateOpened) payload.dateOpened = formData.dateOpened;
+
+    return payload;
+  };
+
+
+  async function createJobOpeningData(payload) {
+    try {
+      const jobOpening = await createJobOpening(payload); // Call the API function
+
+      // Handle successful response
+      console.log("User created successfully for :", jobOpening.postingTitle);
+
+    } catch (error) {
+      console.error("Error creating user:", error);
+    } finally {
+      // Clear all form fields
+
+    }
+  }
   // 5) HANDLE FORM SUBMISSION
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -186,6 +311,15 @@ export default function CreateJobOpening() {
 
     if (valid) {
       setIsSubmitted(true);
+      // Build the payload dynamically using the helper function
+      const payload = buildPayload();
+      // Only call the service if required fields are valid
+      if (Object.keys(payload).length > 0) {
+        createJobOpeningData(payload);
+        console.log("Form submitted successfully!");
+      } else {
+        console.log("Form contains no valid data");
+      }
       alert("Form is valid and ready to submit!");
       console.log("Form Data:", formData);
     } else {
@@ -236,8 +370,14 @@ export default function CreateJobOpening() {
     async function fetchJobStatusData() {
       try {
         const jobStatus = await fetchJobStatus(); // Call the fetchCountries function
-        console.log("jobStatus ", jobStatus);
-        setJobOpeningStatusOptions(jobStatus);
+
+        const jobStatusesWithId = jobStatus.map((status, index) => ({
+          id: index + 1,  // Adding an id starting from 1
+          listValue: status
+        }));
+
+        console.log("jobStatusesWithId ", jobStatusesWithId);
+        setJobOpeningStatusOptions(jobStatusesWithId);
       } catch (error) {
         console.error("Failed to fetch job status:", error);
         setJobOpeningStatusOptions([]); // Default to an empty array in case of error
@@ -254,8 +394,7 @@ export default function CreateJobOpening() {
           .filter((user) => user.role.name === "Recruiter")
           .map((user) => ({
             id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
+            listValue: user.firstName + " " + user.lastName
           }));
         console.log("Extracted recruiters data : ", recruters);
         setRecruters(recruters); // Set the array of departments names into state
@@ -266,7 +405,7 @@ export default function CreateJobOpening() {
           .filter((user) => user.role.name === "Hiring Manager")
           .map((user) => ({
             id: user.id,
-            userName: user.firstName + " " + user.lastName,
+            listValue: user.firstName + " " + user.lastName,
           }));
 
         // const hiringManagers = response
@@ -442,7 +581,7 @@ export default function CreateJobOpening() {
                       </label>
                     </td>
                     <td>
-                      {/* <TypeAheadDropdown
+                      <TypeAheadDropdown
                         id="title"
                         name="title"
                         options={titles}
@@ -460,7 +599,7 @@ export default function CreateJobOpening() {
                           "title"
                         )}`}
                         getValidationclassName={getValidationClass}
-                      /> */}
+                      />
 
                       <div className={getFeedbackClass("title")}>
                         {getFeedbackMessage("title")}
@@ -494,11 +633,10 @@ export default function CreateJobOpening() {
                           "hiringManager"
                         )}`}
                         getValidationclassName={getValidationClass}
+
                       />
-                      {/* <div className={getFeedbackClass("hiringManager")}>
-                      {getFeedbackMessage("hiringManager")}
-                    </div> */}
-                      <div className={getValidationClass("hiringManager")}>
+
+                      <div className={getFeedbackClass("hiringManager")}>
                         {getFeedbackMessage("hiringManager")}
                       </div>
                     </td>
@@ -515,7 +653,7 @@ export default function CreateJobOpening() {
                       </label>
                     </td>
                     <td>
-                      <select
+                      {/* <select
                         name="assignedRecruiter"
                         value={formData.assignedRecruiter}
                         onChange={handleInputChange}
@@ -527,7 +665,28 @@ export default function CreateJobOpening() {
                             {recruter.firstName} {recruter.lastName}
                           </option>
                         ))}
-                      </select>
+                      </select> */}
+
+                      <TypeAheadDropdown
+                        id="assignedRecruiter "
+                        name="assignedRecruiter"
+                        options={recruters}
+                        selectedValue={formData.assignedRecruiter}
+                        placeholder="Choose a hiring"
+                        onSelect={(selectedOption) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            assignedRecruiter: selectedOption,
+                          }))
+                        }
+                        value={formData.assignedRecruiter}
+                        onChange={handleInputChange}
+                        className={`form-select form-select-sm small-placeholder ${getValidationClass(
+                          "assignedRecruiter"
+                        )}`}
+                        getValidationclassName={getValidationClass}
+
+                      />
 
                       <div className={getFeedbackClass("assignedRecruiter")}>
                         {getFeedbackMessage("assignedRecruiter")}
@@ -625,7 +784,7 @@ export default function CreateJobOpening() {
                       </label>
                     </td>
                     <td>
-                      {/* <TypeAheadDropdown
+                      <TypeAheadDropdown
                         id="jobOpeningStatus "
                         name="jobOpeningStatus"
                         options={jobOpeningStatusOptions}
@@ -643,7 +802,7 @@ export default function CreateJobOpening() {
                           "jobOpeningStatus"
                         )}`}
                         getValidationclassName={getValidationClass}
-                      /> */}
+                      />
                       <div className={getFeedbackClass("jobType")}>
                         {getFeedbackMessage("jobType")}
                       </div>
