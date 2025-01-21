@@ -284,6 +284,15 @@ export const fetchIndustry = async () => {
 
 
 
+export const createJobOpening = async (payload) => {
+  try {
+    const response = await restClient.post('/api/job-openings', payload);
+    return response.data; // Return the response data if the request is successful
+  } catch (error) {
+    console.error('Error creating role:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+};
 
 
 

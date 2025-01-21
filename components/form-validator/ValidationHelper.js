@@ -23,8 +23,16 @@ export const ValidationHelper = {
 
     // Text field validation
     if (requiredTextFields.includes(fieldName)) {
-      // Ensure `value` is a string before calling `trim()`
-      if (!value || typeof value !== 'string' || value.trim() === "") {
+
+      /**
+       * Objective:
+          When value is an object, we should not trigger an error.
+          
+         1. The error should only be triggered when value is neither a string nor an object.
+         2.  If value is a string and is empty or contains only whitespace, it should trigger the error.
+       */
+      if (!value || (typeof value !== 'string' && typeof value !== 'object') || (typeof value === 'string' && value.trim() === "")) {
+
         error = `${fieldName.replace(/([A-Z])/g, " $1")} is required.`;
       }
     }

@@ -47,7 +47,7 @@ const TypeAheadDropdown = ({
     setFilteredOptions(
       options.filter((option) =>
         // option.toLowerCase().includes(search.toLowerCase())
-        option.userName.toLowerCase().includes(search.toLowerCase())
+        option.listValue.toLowerCase().includes(search.toLowerCase())
 
       )
     );
@@ -122,7 +122,7 @@ const TypeAheadDropdown = ({
         tabIndex={0}
       >
         {/* <span>{selected || placeholder}</span> */}
-        <span>{selected ? selected.userName : placeholder}</span>
+        <span>{selected ? selected.listValue : placeholder}</span>
 
         <span className="ms-2">&#9660;</span>
       </div>
@@ -157,7 +157,7 @@ const TypeAheadDropdown = ({
                 <div className="list-group-item d-flex align-items-center py-0">
                   <img src="https://placehold.co/40" alt="Avatar" className="rounded-circle me-3 typeAhedAvatar" />
                   <div className="flex-grow-1">
-                    <p className="mb-0 text-muted email-fs">{user.userName}</p>
+                    <p className="mb-0 text-muted email-fs">{user.listValue}</p>
                     <p className="mb-1 text-muted email-fs">{user.id}</p>
                   </div>
                 </div>
@@ -182,7 +182,7 @@ const TypeAheadDropdown = ({
                 <div className="list-group-item d-flex align-items-center py-0">
                   <img src="https://via.placeholder.com/40" alt="Avatar" className="rounded-circle me-3 typeAhedAvatar" />
                   <div className="flex-grow-1">
-                    <p className="mb-0 text-muted email-fs"> {option.userName}</p>
+                    <p className="mb-0 text-muted email-fs"> {option.listValue}</p>
                     <p className="mb-1 text-muted email-fs" >janesmith@example.com</p>
                   </div>
                 </div>
