@@ -15,6 +15,7 @@ import AddDepartmentModal from "@/components/modal/add-department/add-department
 import TokenizedTagInputForm from "@/components/tokenized-tag-input/TokenizedTagInputForm";
 import TypeAheadDropdown from "@/components/TypeAheadDropdown/TypeAheadDropdown";
 import { ValidationHelper } from "@/components/form-validator/ValidationHelper";
+import StatusMessage from "@/components/status-message/StatusMessage";
 
 export default function CreateJobOpening() {
   // 1) INITIAL STATES
@@ -72,7 +73,8 @@ export default function CreateJobOpening() {
 
   // Submission state (you can use this to show a success message, etc.)
   const [isSubmitted, setIsSubmitted] = useState(false);
-
+  const [status, setStatus] = useState(''); // State to track status (loading, success, error)
+  const [errorMessage, setErrorMessage] = useState('');
   // 1. Main data in the parent
   const [data, setData] = useState({
     departmentName: "",
@@ -226,12 +228,8 @@ export default function CreateJobOpening() {
 
     return payload;
   };
-
-  const [status, setStatus] = useState(''); // State to track status (loading, success, error)
-
   async function createJobOpeningData(payload) {
     setStatus('loading'); // Set status to loading when the API call starts
-
     try {
       const jobOpening = await createJobOpening(payload); // Call the API function
 
@@ -239,11 +237,28 @@ export default function CreateJobOpening() {
       setStatus('success'); // Set status to success if the API call is successful
       console.log('Job opening created successfully:', jobOpening.postingTitle);
     } catch (error) {
-      // If any error occurs or HTTP status is not 200
+      // If any error occurs, capture the error message
+      const errorMessage =
+        error.response && error.response.data && error.response.data.message
+          ? error.response.data.message
+          : 'An unexpected error occurred';
+
+      // Log the error message to the console
+      console.error('Error creating job opening:', errorMessage);
+
+      // Set status to error and display the message
       setStatus('error');
-      console.error('Error creating job opening:', error);
+      setErrorMessage(errorMessage); // Optionally set a state to display the error message to the user
+
     } finally {
       // Clear form fields after operation
+      // setFormData(initialState);
+
+      // Delay clearing the status and error message using setTimeout
+      setTimeout(() => {
+        setStatus('');
+        setErrorMessage('');
+      }, 10000); // Delay for 10 seconds before clearing the status and error message
 
     }
   }
@@ -437,22 +452,9 @@ export default function CreateJobOpening() {
         />
       )}
 
-      {status === 'loading' &&
 
-        <div
-          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
-          style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.5)', // semi-transparent background
-            zIndex: 9999, // Ensure it's above all other content
-          }}
-        >
-          <div className="spinner-border text-light" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
-      }
-      {status === 'success' && <div class="alert alert-success" role="alert">Job opening created successfully!</div>}
-      {status === 'error' && <div class="alert alert-danger" role="alert">Error occurred while creating job opening. Please try again.</div>}
+      {/* Use the StatusMessage component */}
+      <StatusMessage status={status} errorMessage={errorMessage} />
 
 
 
