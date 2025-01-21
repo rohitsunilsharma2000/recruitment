@@ -189,97 +189,61 @@ export default function CreateJobOpening() {
 
   const buildPayload = () => {
     // Initialize the payload object
-    const payload = {};
-
-    // Basic Fields
-    if (formData.postingTitle.trim()) payload.postingTitle = formData.postingTitle.trim();
-    if (formData.title.trim()) payload.title = formData.title.trim();
-    if (formData.targetDate) payload.targetDate = formData.targetDate; // Assuming it's a date string
-    if (formData.salary.trim()) payload.salary = formData.salary.trim();
-    if (formData.workExperience) payload.workExperience = formData.workExperience;
-
-    // Status & Job Type
-    if (formData.jobOpeningStatus) payload.status = formData.jobOpeningStatus;
-    if (formData.jobType) payload.jobType = formData.jobType;
-
-    // Industry and Skills
-    if (formData.industry) payload.industry = formData.industry;
-    if (formData.skills.length) payload.requiredSkills = formData.skills;
-
-    // Department
-    if (formData.departmentName) {
-      payload.department = {
-        id: formData.departmentName, // Assuming the department name is being stored as the ID
-        name: data.departmentName,   // Assuming `data.departmentName` is the department name
-      };
+    const payload = {
+      "postingTitle": formData.postingTitle,
+      "title": formData.title.listValue,
+      "assignedRecruiter": {
+        "id": formData.assignedRecruiter.id,
+      },
+      "targetDate": formData.targetDate,
+      "status": formData.jobOpeningStatus.listValue,
+      "industry": formData.industry.listValue,
+      "salary": formData.salary,
+      "department": {
+        "id": formData.departmentName
+      },
+      "hiringManager": {
+        "id": formData.hiringManager.id
+      },
+      "dateOpened": formData.dateOpened,
+      "jobType": formData.jobType.listValue,
+      "requiredSkills": formData.skills,
+      "addressInformation": {
+        "isRemoteJob": formData.remoteJob,
+        "city": formData.city,
+        "province": formData.province,
+        "country": formData.country.listValue,
+        "postalCode": formData.postalCode
+      },
+      "descriptionInformation": {
+        "jobDescription": formData.jobDescription,
+        "requirements": formData.requirements,
+        "benefits": formData.benefits,
+      },
+      "attachments": [],
+      "workExperience": formData.workExperience
     }
-
-    // Hiring Manager
-    if (formData.hiringManager) {
-      payload.hiringManager = {
-        id: formData.hiringManager.id,
-        firstName: formData.hiringManager.firstName,
-        lastName: formData.hiringManager.lastName,
-        email: formData.hiringManager.email,
-      };
-    }
-
-    // Recruiter
-    if (formData.assignedRecruiter) {
-      payload.assignedRecruiter = {
-        id: formData.assignedRecruiter.id,
-        firstName: formData.assignedRecruiter.firstName,
-        lastName: formData.assignedRecruiter.lastName,
-        email: formData.assignedRecruiter.email,
-      };
-    }
-
-    // Job Description and Requirements
-    if (formData.jobDescription) {
-      payload.descriptionInformation = {
-        jobDescription: formData.jobDescription,
-        requirements: formData.requirements,
-        benefits: formData.benefits,
-      };
-    }
-
-    // Address Information
-    if (formData.city.trim() || formData.province.trim() || formData.country.trim() || formData.postalCode.trim()) {
-      payload.addressInformation = {
-        city: formData.city.trim(),
-        province: formData.province.trim(),
-        country: formData.country.trim(),
-        postalCode: formData.postalCode.trim(),
-      };
-    }
-
-    // Attachments (Assuming it's an array of files with filePath)
-    if (formData.otherAttachments) {
-      payload.attachments = formData.otherAttachments.map((attachment) => ({
-        fileName: attachment.fileName,
-        filePath: attachment.filePath,
-        attachmentType: attachment.attachmentType || "JOB_SUMMARY", // default if no type is provided
-      }));
-    }
-
-    // Date Opened
-    if (formData.dateOpened) payload.dateOpened = formData.dateOpened;
 
     return payload;
   };
 
+  const [status, setStatus] = useState(''); // State to track status (loading, success, error)
 
   async function createJobOpeningData(payload) {
+    setStatus('loading'); // Set status to loading when the API call starts
+
     try {
       const jobOpening = await createJobOpening(payload); // Call the API function
 
-      // Handle successful response
-      console.log("User created successfully for :", jobOpening.postingTitle);
-
+      // If the job opening creation is successful (HTTP 200)
+      setStatus('success'); // Set status to success if the API call is successful
+      console.log('Job opening created successfully:', jobOpening.postingTitle);
     } catch (error) {
-      console.error("Error creating user:", error);
+      // If any error occurs or HTTP status is not 200
+      setStatus('error');
+      console.error('Error creating job opening:', error);
     } finally {
-      // Clear all form fields
+      // Clear form fields after operation
 
     }
   }
@@ -313,6 +277,7 @@ export default function CreateJobOpening() {
       setIsSubmitted(true);
       // Build the payload dynamically using the helper function
       const payload = buildPayload();
+      console.log("payload ", payload)
       // Only call the service if required fields are valid
       if (Object.keys(payload).length > 0) {
         createJobOpeningData(payload);
@@ -347,8 +312,15 @@ export default function CreateJobOpening() {
     async function fetchCountriesData() {
       try {
         const countriesData = await fetchCountries(); // Call the fetchCountries function
-        const countryNames = countriesData.map((country) => country.name); // Extract country names
-        console.log("countryNames ", countryNames.slice(0, 5));
+        const countryNames = countriesData.map((country, index) =>
+        (
+          {
+            id: index + 1,  // Adding an id starting from 1
+            listValue: country.name
+          }
+        )
+        );
+        console.log("countryNames ", countryNames);
         setCountries(countryNames); // Set the array of country names into state
       } catch (error) {
         console.error("Failed to fetch countries:", error);
@@ -358,9 +330,13 @@ export default function CreateJobOpening() {
 
     async function fetchJobTypesData() {
       try {
-        const jobTypes = await fetchJobTypes(); // Call the fetchCountries function
-        console.log("jobTypes ", jobTypes);
-        setJobTypeOptions(jobTypes);
+        const jobTypes = await fetchJobTypes();
+        const jobTypesWithId = jobTypes.map((type, index) => ({
+          id: index + 1,  // Adding an id starting from 1
+          listValue: type
+        }));
+        console.log("jobTypes ", jobTypesWithId);
+        setJobTypeOptions(jobTypesWithId);
       } catch (error) {
         console.error("Failed to fetch jobTypes:", error);
         setJobTypeOptions([]); // Default to an empty array in case of error
@@ -428,8 +404,14 @@ export default function CreateJobOpening() {
 
     async function fetchIndustryData() {
       try {
-        const industryData = await fetchIndustry(); // Call the fetchCountries function
+        const response = await fetchIndustry(); // Call the fetchCountries function
         // console.log("IndustryData ", industryData)
+
+        const industryData = response.map((type, index) => ({
+          id: index + 1,  // Adding an id starting from 1
+          listValue: type
+        }));
+        console.log("IndustryData ", industryData);
         setIndustryOptions(industryData);
       } catch (error) {
         console.error("Failed to fetch industry data:", error);
@@ -454,6 +436,25 @@ export default function CreateJobOpening() {
           onSave={handleSaveData}
         />
       )}
+
+      {status === 'loading' &&
+
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', // semi-transparent background
+            zIndex: 9999, // Ensure it's above all other content
+          }}
+        >
+          <div className="spinner-border text-light" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      }
+      {status === 'success' && <div class="alert alert-success" role="alert">Job opening created successfully!</div>}
+      {status === 'error' && <div class="alert alert-danger" role="alert">Error occurred while creating job opening. Please try again.</div>}
+
+
 
 
       <nav className="navbar navbar-expand-lg p-3" style={{ backgroundColor: "#e3f2fd" }}>
@@ -818,7 +819,7 @@ export default function CreateJobOpening() {
                     </td>
                     <td>
                       {" "}
-                      {/* <TypeAheadDropdown
+                      <TypeAheadDropdown
                         id="jobType "
                         name="jobType"
                         options={jobTypeOptions}
@@ -836,7 +837,7 @@ export default function CreateJobOpening() {
                           "jobType"
                         )}`}
                         getValidationclassName={getValidationClass}
-                      /> */}
+                      />
                       <div className={getFeedbackClass("jobOpeningStatus")}>
                         {getFeedbackMessage("jobOpeningStatus")}
                       </div>
@@ -912,16 +913,22 @@ export default function CreateJobOpening() {
                       </label>
                     </td>
                     <td>
-                      <input
-                        type="checkbox"
-                        className={`form-check-input ${getValidationClass(
-                          "remoteJob"
-                        )}`}
-                        id="remoteJob"
-                        name="remoteJob"
-                        checked={formData.remoteJob}
-                        onChange={handleInputChange}
-                      />
+
+
+                      <div className="form-check form-switch">
+                        {/* <input className="form-check-input" type="checkbox" id="flexSwitchCheckDefault"> */}
+                        <input
+                          type="checkbox"
+                          className={`form-check-input ${getValidationClass(
+                            "remoteJob"
+                          )}`}
+                          id="remoteJob"
+                          name="remoteJob"
+                          checked={formData.remoteJob}
+                          onChange={handleInputChange}
+                        />
+                        {/* <label className="form-check-label" for="flexSwitchCheckDefault">Default switch</label> */}
+                      </div>
                       <div className={getFeedbackClass("remoteJob")}>
                         {getFeedbackMessage("remoteJob")}
                       </div>
@@ -935,7 +942,7 @@ export default function CreateJobOpening() {
                       </label>
                     </td>
                     <td>
-                      {/* <TypeAheadDropdown
+                      <TypeAheadDropdown
                         id="industry"
                         name="industry"
                         options={industryOptions}
@@ -951,9 +958,9 @@ export default function CreateJobOpening() {
                         onChange={handleInputChange}
                         className={`form-select form-select-sm small-placeholder ${getValidationClass(
                           "industry"
-                        )}`} 
-                      getValidationclassName={getValidationClass}
-                      /> */}
+                        )}`}
+                        getValidationclassName={getValidationClass}
+                      />
                       <div className={getFeedbackClass("industry")}>
                         {getFeedbackMessage("industry")}
                       </div>
@@ -978,17 +985,19 @@ export default function CreateJobOpening() {
                       </label>
                     </td>
                     <td>
-                      <input
-                        type="text"
-                        className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                          "city"
-                        )}`}
-                        id="city"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleInputChange}
-                        placeholder="Enter city"
-                      />
+                      <div className="form-check form-switch">
+                        <input
+                          type="text"
+                          className={`form-control form-control-sm small-placeholder ${getValidationClass(
+                            "city"
+                          )}`}
+                          id="city"
+                          name="city"
+                          value={formData.city}
+                          onChange={handleInputChange}
+                          placeholder="Enter city"
+                        />
+                      </div>
                       <div className={getFeedbackClass("city")}>
                         {getFeedbackMessage("city")}
                       </div>
@@ -1033,7 +1042,8 @@ export default function CreateJobOpening() {
                     <td>
 
 
-                      {/* <TypeAheadDropdown
+                      <TypeAheadDropdown
+
                         id="country"
                         name="country"
                         options={countryOptions}
@@ -1051,7 +1061,7 @@ export default function CreateJobOpening() {
                           "country"
                         )}`}
                         getValidationclassName={getValidationClass}
-                      /> */}
+                      />
 
                       <div className={getFeedbackClass("country")}>
                         {getFeedbackMessage("country")}

@@ -17,7 +17,9 @@ export const ValidationHelper = {
       "postalCode", "jobDescription", "requirements", "benefits",
     ];
 
-    const requiredNumericFields = ["experience", "expectedSalary", "noOfPositions", "salary", "workExperience"];
+    const requiredNumericFields = ["experience", "expectedSalary", "noOfPositions", "salary"
+      // , "workExperience"
+    ];
     const requiredFileFields = ["resume", "coverLetter", "others", "offer", "contracts", "jobSummary", "otherAttachments"];
     const requiredDateFields = ["targetDate", "dateOpened"];
 
