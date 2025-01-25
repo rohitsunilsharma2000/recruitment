@@ -10,6 +10,8 @@ import {
   fetchJobStatus,
   fetchJobTypes,
   fetchLeads,
+  fetchWorkExperience,
+ 
 } from "@/utils/restClient";
 import AddDepartmentModal from "@/components/modal/add-department/add-department";
 import TokenizedTagInputForm from "@/components/tokenized-tag-input/TokenizedTagInputForm";
@@ -92,6 +94,8 @@ export default function CreateJobOpening() {
   const [jobOpeningStatusOptions, setJobOpeningStatusOptions] = useState([]);
   const [jobTypeOptions, setJobTypeOptions] = useState([]);
   const [industryOptions, setIndustryOptions] = useState([]);
+  const [workExperienceOptions, setworkExperienceOptions] = useState([]);
+
 
   // 2. Toggle whether the modal is visible or not
   const [showModal, setShowModal] = useState(false);
@@ -382,7 +386,7 @@ export default function CreateJobOpening() {
 
         // Filter the users with the role "Recruiter" and extract the desired fields
         const recruters = response
-          .filter((user) => user.role.name === "Recruiter")
+          .filter((user) => user.role.name === "Recruiter" )
           .map((user) => ({
             id: user.id,
             listValue: user.firstName + " " + user.lastName
@@ -399,9 +403,7 @@ export default function CreateJobOpening() {
             listValue: user.firstName + " " + user.lastName,
           }));
 
-        // const hiringManagers = response
-        //   .filter((user) => user.role.name === "Hiring Manager")
-        //   .map((user) => user.firstName + " " + user.lastName); // Extract the firstName
+
 
         // Push the filtered and transformed names into hiringManagerOptions
         console.log("hiringManagerOptions: ", hiringManagers);
@@ -434,11 +436,31 @@ export default function CreateJobOpening() {
       }
     }
 
+
+    async function fetchWorkExperienceData() {
+      try {
+        const workExperienceRequiredOptions = await fetchWorkExperience(); // Call the fetchCountries function
+
+        const workExperienceRequiredOptionsWithId = workExperienceRequiredOptions.map((experience, index) => ({
+          id: index + 1,  // Adding an id starting from 1
+          listValue: experience
+        }));
+
+        console.log("workExperienceRequiredOptionsWithId ", workExperienceRequiredOptionsWithId);
+        setworkExperienceOptions(workExperienceRequiredOptionsWithId);
+      } catch (error) {
+        console.error("Failed to fetch work experience:", error);
+        setworkExperienceOptions([]); // Default to an empty array in case of error
+      }
+    }
+
+
     fetchRecruitersData();
     fetchCountriesData(); // Call the function
     fetchJobTypesData();
     fetchJobStatusData();
     fetchIndustryData();
+    fetchWorkExperienceData()
   }, []);
 
   return (
@@ -510,7 +532,7 @@ export default function CreateJobOpening() {
                         htmlFor="postingTitle"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Posting Title (required)
+                        Posting Title <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td>
@@ -535,7 +557,7 @@ export default function CreateJobOpening() {
                         htmlFor="departmentName"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Department Name (required){" "}
+                        Department Name <span className="text-danger fs-5">*</span>{" "}
                         <strong>{data.departmentName}</strong>
                       </label>
                     </td>
@@ -580,7 +602,7 @@ export default function CreateJobOpening() {
                         htmlFor="title"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Title (required)
+                        Title <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td>
@@ -614,7 +636,7 @@ export default function CreateJobOpening() {
                         htmlFor="hiringManager"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Hiring Manager <b>id is </b>(required)
+                        Hiring Manager <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td>
@@ -652,7 +674,7 @@ export default function CreateJobOpening() {
                         htmlFor="assignedRecruiter"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Assigned Recruiter(s) (required)
+                        Assigned Recruiter(s) <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td>
@@ -702,7 +724,7 @@ export default function CreateJobOpening() {
                         htmlFor="noOfPositions"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Number of Positions (required)
+                        Number of Positions <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td>
@@ -731,7 +753,7 @@ export default function CreateJobOpening() {
                         htmlFor="targetDate"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Target Date (required)
+                        Target Date <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td>
@@ -756,7 +778,7 @@ export default function CreateJobOpening() {
                         htmlFor="dateOpened"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Date Opened (required)
+                        Date Opened <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td>
@@ -853,7 +875,7 @@ export default function CreateJobOpening() {
                         htmlFor="salary"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Salary (required)
+                        Salary <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td>
@@ -879,7 +901,7 @@ export default function CreateJobOpening() {
                         htmlFor="skills"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Required Skills (required)
+                        Required Skills <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td>
@@ -983,7 +1005,7 @@ export default function CreateJobOpening() {
                         htmlFor="city"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        City (required)
+                        City <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td>
@@ -997,6 +1019,7 @@ export default function CreateJobOpening() {
                           name="city"
                           value={formData.city}
                           onChange={handleInputChange}
+
                           placeholder="Enter city"
                         />
                       </div>
@@ -1010,7 +1033,7 @@ export default function CreateJobOpening() {
                         htmlFor="province"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Province (required)
+                        Province <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td>
@@ -1038,7 +1061,7 @@ export default function CreateJobOpening() {
                         htmlFor="country"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Country (required)
+                        Country <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td>
@@ -1075,7 +1098,7 @@ export default function CreateJobOpening() {
                         htmlFor="postalCode"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Postal Code (required)
+                        Postal Code <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td>
@@ -1110,26 +1133,37 @@ export default function CreateJobOpening() {
                         htmlFor="workExperience"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Work Experience (required)
+                        Work Experience <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td>
-                      <input
-                        type="text"
-                        className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                          "workExperience"
-                        )}`}
-                        id="workExperience"
+
+                      <TypeAheadDropdown
+                        id="workExperience "
                         name="workExperience"
+                        options={workExperienceOptions}
+                        selectedValue={formData.workExperience}
+                        placeholder="Choose a hiring"
+                        onSelect={(selectedOption) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            jobOpeningStatus: selectedOption,
+                          }))
+                        }
                         value={formData.workExperience}
                         onChange={handleInputChange}
-                        placeholder="e.g. 2-3 years"
+                        className={`form-select form-select-sm small-placeholder ${getValidationClass(
+                          "workExperience"
+                        )}`}
+                        getValidationclassName={getValidationClass}
                       />
                       <div className={getFeedbackClass("workExperience")}>
                         {getFeedbackMessage("workExperience")}
                       </div>
                     </td>
                   </tr>
+
+
 
                   {/* Row: Job Description */}
                   <tr>
@@ -1138,7 +1172,7 @@ export default function CreateJobOpening() {
                         htmlFor="jobDescription"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Job Description (required)
+                        Job Description <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td colSpan="3">
@@ -1165,7 +1199,7 @@ export default function CreateJobOpening() {
                         htmlFor="requirements"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Requirements (required)
+                        Requirements <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td colSpan="3">
@@ -1192,7 +1226,7 @@ export default function CreateJobOpening() {
                         htmlFor="benefits"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Benefits (required)
+                        Benefits <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td colSpan="3">
@@ -1219,7 +1253,7 @@ export default function CreateJobOpening() {
                         htmlFor="jobSummary"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Job Summary (required)
+                        Job Summary <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td colSpan="3">
@@ -1245,7 +1279,7 @@ export default function CreateJobOpening() {
                         htmlFor="otherAttachments"
                         className="form-label fs-0-point-7 mb-0 me-2"
                       >
-                        Other Attachments (required)
+                        Other Attachments <span className="text-danger fs-5">*</span>
                       </label>
                     </td>
                     <td colSpan="3">

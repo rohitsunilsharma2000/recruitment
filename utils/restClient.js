@@ -294,6 +294,51 @@ export const createJobOpening = async (payload) => {
   }
 };
 
+//City (required)
+export const fetchWorkExperience = async () => {
+  try {
+    const response = await restClient.get('/api/work-experience');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all work-experience :', error);
+    throw error;
+  }
+};
 
+
+
+export const createCandidate = async (payload) => {
+  try {
+    const response = await restClient.post('/api/candidates', payload);
+    return response.data; // Return the response data if the request is successful
+  } catch (error) {
+    console.error('Error fetching all create-candidate :', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+};
+
+
+
+
+export const fetchJobApplicationsStatus = async () => {
+  try {
+    const response = await restClient.get('/api/job-applications/statuses');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all job-applications :', error);
+    throw error;
+  }
+};
+
+
+export const fetchJobResourceList = async () => {
+  try {
+    const response = await restClient.get('/api/all-job-references');
+    return response.data;
+  } catch (error) {
+    console.error('Error in fetch job resource list :', error);
+    throw error;
+  }
+};
 
 export default restClient;
