@@ -3,7 +3,7 @@ import React from 'react';
 const StatusMessage = ({ status, errorMessage }) => {
   return (
     <div>
-      {status}+1
+      {status}
       {/* Loading Spinner */}
       {status === 'loading' && (
         <div

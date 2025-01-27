@@ -1,0 +1,10 @@
+/* Rating icons styling */
+.star-icon {
+  font-size: 1.5rem;
+  color: #f39c12; /* Yellow color */
+  margin-right: 5px;
+}
+
+.star-icon:hover {
+  cursor: pointer;
+}

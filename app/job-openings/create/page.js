@@ -11,7 +11,7 @@ import {
   fetchJobTypes,
   fetchLeads,
   fetchWorkExperience,
- 
+
 } from "@/utils/restClient";
 import AddDepartmentModal from "@/components/modal/add-department/add-department";
 import TokenizedTagInputForm from "@/components/tokenized-tag-input/TokenizedTagInputForm";
@@ -386,7 +386,7 @@ export default function CreateJobOpening() {
 
         // Filter the users with the role "Recruiter" and extract the desired fields
         const recruters = response
-          .filter((user) => user.role.name === "Recruiter" )
+          .filter((user) => user.role.name === "Recruiter")
           .map((user) => ({
             id: user.id,
             listValue: user.firstName + " " + user.lastName
@@ -951,7 +951,7 @@ export default function CreateJobOpening() {
                           checked={formData.remoteJob}
                           onChange={handleInputChange}
                         />
-                        {/* <label className="form-check-label" for="flexSwitchCheckDefault">Default switch</label> */}
+                        {/* <label className="form-check-label" htmlhtmlFor="flexSwitchCheckDefault">Default switch</label> */}
                       </div>
                       <div className={getFeedbackClass("remoteJob")}>
                         {getFeedbackMessage("remoteJob")}

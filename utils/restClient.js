@@ -341,4 +341,25 @@ export const fetchJobResourceList = async () => {
   }
 };
 
+
+export const fetchAllCandidates = async () => {
+  try {
+    const response = await restClient.get('/api/candidates');
+    return response.data;
+  } catch (error) {
+    console.error('Error in  fetch All Candidates  :', error);
+    throw error;
+  }
+};
+
+export const fetchAllQuestion = async () => {
+  try {
+    const response = await restClient.get('/api/question-bank');
+    return response.data; // Return the response data
+  } catch (error) {
+    console.error('Error fetching job applications:', error);
+    throw error; // Throw the error for further handling
+  }
+};
+
 export default restClient;
