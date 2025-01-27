@@ -269,6 +269,24 @@ const SetupPage = () => {
             </div>
           </div>
         </div>
+
+        <div className="col">
+          <div className="card h-100">
+            <div className="card-body">
+              <h5 className="card-title">Bootstrap </h5>
+              <ul className="list-unstyled mb-0">
+              <li>
+                  <Link
+                    href="/template/all-form"
+                    className="text-decoration-none"
+                  >
+                  All Bootstrap Components  
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
