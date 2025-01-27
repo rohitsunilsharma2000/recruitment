@@ -21,37 +21,72 @@ const BootstrapFormHandler = () => {
     switch: false
   });
 
+  // const handleChange = (e) => {
+  //   const { name, value, type, checked, files } = e.target;
+  //   if (type === 'checkbox' || type === 'radio') {
+  //     setFormData((prevState) => ({
+  //       ...prevState,
+  //       [name]: type === 'checkbox' ? checked : value
+  //     }));
+  //   } else if (type === 'file') {
+  //     setFormData((prevState) => ({
+  //       ...prevState,
+  //       [name]: files[0] // Only take the first file
+  //     }));
+  //   } else {
+  //     setFormData((prevState) => ({
+  //       ...prevState,
+  //       [name]: value
+  //     }));
+  //   }
+  // };
+
+
+
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-    if (type === 'checkbox' || type === 'radio') {
-      setFormData((prevState) => ({
-        ...prevState,
-        [name]: type === 'checkbox' ? checked : value
-      }));
+  
+    console.log("Handling change for:", name); // Logs the field name that triggered the change
+    console.log("Field type:", type); // Logs the type of input (checkbox, file, text, etc.)
+  
+    if (type === 'checkbox' ) {
+      console.log("Checkbox/Radio value:", checked); // Logs the new checked state for checkbox or radio button
+      setFormData((prevState) => {
+        const updatedState = { ...prevState, [name]: checked };
+        console.log("Updated formData after checkbox/radio change:", updatedState); // Logs formData after update
+        return updatedState;
+      });
     } else if (type === 'file') {
-      setFormData((prevState) => ({
-        ...prevState,
-        [name]: files[0] // Only take the first file
-      }));
+      console.log("File selected:", files[0]?.name); // Logs the name of the file selected
+      setFormData((prevState) => {
+        const updatedState = { ...prevState, [name]: files[0] };
+        console.log("Updated formData after file change:", updatedState); // Logs formData after update
+        return updatedState;
+      });
     } else {
-      setFormData((prevState) => ({
-        ...prevState,
-        [name]: value
-      }));
+      console.log("Text value:", value); // Logs the new text value for inputs like text, email, etc.
+      setFormData((prevState) => {
+        const updatedState = { ...prevState, [name]: value };
+        console.log("Updated formData after text change:", updatedState); // Logs formData after update
+        return updatedState;
+      });
     }
   };
-
+  
   const handleSubmit = (e) => {
+    
     e.preventDefault();
-    console.log(formData);
+    console.log("Form submitted with data:", formData); // Logs the entire form data when submitted
   };
+  
 
   return (
-    <div className="container mt-5">
-
-    <form onSubmit={handleSubmit} className="p-4">
+    <div className="container mt-5">  
+    <h1>Bootstrap Form Handler for all form component</h1>
+    <p>Using single state variable and single handler </p>
+    <form onSubmit={handleSubmit} className="p-4 card">
       {/* Text Input */}
-      <div className="form-group mb-3">
+      <div className="form-group mb-3 ">
         <label htmlFor="text">Text Input</label>
         <input
           type="text"
