@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import "./evaluation.css";
-import { fetchAllQuestion } from '@/utils/restClient';
+import { fetchAllQuestion, fetchJobApplicationsStatus } from '@/utils/restClient';
 
 const Tabs = () => {
-  // Single state object to hold all form data
   const [formData, setFormData] = useState({
     activeTab: 'tab1',
     candidateStatus: '',
@@ -17,20 +16,49 @@ const Tabs = () => {
     // Fields for the "final" rating submission
     overallRating: '1',
     overallStatus: 'active',
-    overallComments: ''
+    overallCommentsForGeneralReview: '',
+    overallCommentsForScreening: ''
   });
 
   const [allQuestions, setAllQuestion] = useState([]);
+  const [questionTypes, setQuestionType] = useState([]);
+  const [choosedQuestionResponses, setchoosedQuestionResponses] = useState({});
+  const [statusCategories, setStatusCategories] = useState([]);
+  const [hoveredRating, setHoveredRating] = useState({});
 
+  const handleMouseEnter = (questionId, value) => {
+    setHoveredRating((prev) => ({
+      ...prev,
+      [questionId]: value,
+    }));
+  };
+
+  const handleMouseLeave = (questionId) => {
+    setHoveredRating((prev) => ({
+      ...prev,
+      [questionId]: undefined,
+    }));
+  };
   // Single handler for generic changes (text, select, checkbox, etc.)
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: type === "checkbox" ? checked : value
 
-    }));
+    // Log the event details
+    console.log('Event triggered:', { name, value, type, checked });
+
+    setFormData((prevData) => {
+      const updatedData = {
+        ...prevData,
+        [name]: type === "checkbox" ? checked : value
+      };
+
+      // Log the updated form data
+      console.log('Updated formData:', updatedData);
+
+      return updatedData;
+    });
   };
+
 
   // Helper to change the active tab
   const handleTabChange = (tabValue) => {
@@ -40,39 +68,174 @@ const Tabs = () => {
     }));
   };
 
-  // Helper to handle star rating logic
-  const handleRatingChange = (value) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      rating: value
-    }));
+
+  const handleRatingChange = (questionBankTemplateId, value) => {
+    // Log the initial state before the update
+    console.log("Initial state (before update):", choosedQuestionResponses);
+
+    // Log the specific questionBankTemplateId and value we are updating
+    console.log("Updating rating for questionBankTemplateId:", questionBankTemplateId);
+    console.log("New rating value:", value);
+
+    // Perform the state update
+    setchoosedQuestionResponses((prevResponses) => {
+      // Log the previous state of the specific question before updating
+      console.log("Previous response for questionBankTemplateId:", questionBankTemplateId, prevResponses[questionBankTemplateId]);
+
+      // Create the updated responses
+      const updatedResponses = {
+        ...prevResponses,  // Spread the previous responses to maintain the other question data
+        [questionBankTemplateId]: {    // Update the specific question's response
+          ...prevResponses[questionBankTemplateId],  // Spread the previous response of that question
+          rating: value     // Update the rating
+        }
+      };
+
+      // Log the updated response for the specific question
+      console.log("Updated response for questionBankTemplateId:", questionBankTemplateId, updatedResponses[questionBankTemplateId]);
+
+      // Log the full updated state after the change
+      console.log("Updated state (after change):", updatedResponses);
+
+      return updatedResponses;  // Return the updated state
+    });
   };
 
-  // Helper to show/hide the comments box
-  const toggleComments = () => {
-    setFormData((prevData) => ({
-      ...prevData,
-      showComments: !prevData.showComments
-    }));
+  const handleCommentChange = (questionBankTemplateId, value) => {
+    // Log the current state before the update
+    console.log("Initial state (before comment change):", choosedQuestionResponses);
+
+    // Log the specific questionBankTemplateId and the new comment value
+    console.log("Updating comment for questionBankTemplateId:", questionBankTemplateId);
+    console.log("New comment value:", value);
+
+    // Perform the state update for comments
+    setchoosedQuestionResponses((prevResponses) => {
+      // Log the previous comment for the specific question before updating
+      console.log("Previous comment for questionBankTemplateId:", questionBankTemplateId, prevResponses[questionBankTemplateId]?.comments);
+
+      // Create the updated responses with the new comment
+      const updatedResponses = {
+        ...prevResponses,  // Spread the previous responses to preserve other data
+        [questionBankTemplateId]: {    // Update the specific question's response
+          ...prevResponses[questionBankTemplateId],  // Spread the previous response of that question
+          comments: value     // Update the comment
+        }
+      };
+
+      // Log the updated response for the specific question
+      console.log("Updated comment for questionBankTemplateId:", questionBankTemplateId, updatedResponses[questionBankTemplateId]?.comments);
+
+      // Log the full updated state after the change
+      console.log("Updated state (after comment change):", updatedResponses);
+
+      return updatedResponses;  // Return the updated state
+    });
   };
 
-  // Single submit handler
+  const toggleComments = (questionBankTemplateId) => {
+    // Log the current state before the toggle action
+    console.log("Initial state (before toggling comments visibility):", choosedQuestionResponses);
+
+    // Log the specific questionBankTemplateId for which we're toggling the comments visibility
+    console.log("Toggling comments visibility for questionBankTemplateId:", questionBankTemplateId);
+
+    // Perform the state update for toggling comments visibility
+    setchoosedQuestionResponses((prevResponses) => {
+      // Log the previous visibility of comments for the specific question before toggling
+      console.log("Previous comments visibility for questionBankTemplateId:", questionBankTemplateId, prevResponses[questionBankTemplateId]?.showComments);
+
+      // Create the updated responses with toggled visibility
+      const updatedResponses = {
+        ...prevResponses,  // Spread the previous responses to preserve other data
+        [questionBankTemplateId]: {    // Update the specific question's response
+          ...prevResponses[questionBankTemplateId],  // Spread the previous response of that question
+          showComments: !prevResponses[questionBankTemplateId]?.showComments  // Toggle the visibility
+        }
+      };
+
+      // Log the updated visibility for the specific question
+      console.log("Updated comments visibility for questionBankTemplateId:", questionBankTemplateId, updatedResponses[questionBankTemplateId]?.showComments);
+
+      // Log the full updated state after the toggle
+      console.log("Updated state (after toggling comments visibility):", updatedResponses);
+
+      return updatedResponses;  // Return the updated state
+    });
+  };
+
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you can handle your form submission logic
-    console.log("FormData on submit:", formData);
+
+    const questionReviews = Object.keys(choosedQuestionResponses).map((questionBankTemplateId) => ({
+      questionBankTemplateId,
+      rating: choosedQuestionResponses[questionBankTemplateId]?.rating || 0,
+      comments: choosedQuestionResponses[questionBankTemplateId]?.comments || '',
+    }));
+    // Prepare the payload directly from questionResponses
+
+    const payload = {
+      "generalReview": {
+        "rating": 4,
+        "candidateStatus": formData.candidateStatus,
+        "overallComments": formData.overallCommentsForGeneralReview,
+      },
+      "screeningReviews": [
+        {
+          "reviewType": formData.chosenAssessment,
+          "overallRating": formData.overallRating,
+          "status": formData.overallStatus,
+          "overallComments": formData.overallCommentsForScreening,
+          "questionReviews": questionReviews
+        }
+      ]
+    }
+    console.log("Form Data for submission:", payload);
     alert("Check console for form data!");
   };
 
-  // For demonstration/logging
-  // useEffect(() => { 
-  //   console.log(`Component rendered! Active Tab: ${formData.activeTab}`);
-  // }, [formData.activeTab]);
 
+
+  // Generic function to filter by any key and value
+  const filterByKeyValue = (array, key, value) => {
+    return array.filter((item) => item[key] === value);
+  };
+
+
+  // Helper function to generate status options
+  // Flatten all status options and assign an id to each status
+  const getAllStatusesOptions = (statusCategories) => {
+    return Object.entries(statusCategories).flatMap(([statuses]) =>
+      statuses.map((status, index) => ({
+        value: status, // Generate a unique ID (combining category and index)
+        label: status
+      }))
+    );
+  };
+
+
+  // Render the form (Add JSX for rendering form inputs as required)
   useEffect(() => {
+
+
+    async function fetchJobApplicationsStatusData() {
+      try {
+        const response = await fetchJobApplicationsStatus();
+        // console.log("fetchJobApplicationsStatus ", response)
+        const allCategories = getAllStatusesOptions(response);
+        console.log("fetchJobApplicationsStatus ", allCategories)
+
+        setStatusCategories(allCategories); // Set the array of departments names into state
+      } catch (error) {
+        setStatusCategories([]);
+      }
+    }
+
     async function AllQuestionData() {
       try {
         const response = await fetchAllQuestion(); // Fetch data from the API
+        setAllQuestion(response)
 
         // Extract unique competencyTypes and map to the desired format
         const assessmentOptions = [...new Set(response.map(item => item.competencyType))].map(type => ({
@@ -82,18 +245,26 @@ const Tabs = () => {
 
         console.log(assessmentOptions);
         console.log("Fetched all question statuses:", assessmentOptions);
-        setAllQuestion(assessmentOptions);
+        setQuestionType(assessmentOptions);
+
       } catch (error) {
-        setAllQuestion([]);
+        setQuestionType([]);
+        setAllQuestion([])
+
       }
     }
-
+    fetchJobApplicationsStatusData();
     AllQuestionData(); // Trigger the API call when the component mounts
   }, []);
 
 
 
 
+  // const generalQuestions = filterByKeyValue(allQuestions, "competencyType", "General");
+  // const leadershipQuestions = filterByKeyValue(allQuestions, "question", "How do you handle conflict?");
+
+  // console.log("General Questions:", generalQuestions);
+  // console.log("Leadership Questions:", leadershipQuestions);
   return (
     <div className="container">
       <form onSubmit={handleSubmit}>
@@ -188,16 +359,16 @@ const Tabs = () => {
                       </div>
 
                       <div className="mb-4">
-                        <label htmlFor="overallComments" className="form-label">
+                        <label htmlFor="overallCommentsForGeneralReview" className="form-label">
                           Overall Comments
                         </label>
                         <textarea
                           className="form-control"
-                          id="overallComments"
-                          name="overallComments"
+                          id="overallCommentsForGeneralReview"
+                          name="overallCommentsForGeneralReview"
                           rows="4"
                           placeholder="Write your comments here..."
-                          value={formData.overallComments}
+                          value={formData.overallCommentsForGeneralReview}
                           onChange={handleChange}
                         ></textarea>
                       </div>
@@ -254,8 +425,8 @@ const Tabs = () => {
                         >
 
                           <option value="">Choose Assessment</option>
-                          {allQuestions.map((option) => (
-                            <option key={option.value} value={option.value}>
+                          {questionTypes.map((option, index) => (
+                            <option key={index} value={option.value}>
                               {option.label}
                             </option>
                           ))}
@@ -288,69 +459,84 @@ const Tabs = () => {
                     className={`tab-pane ${formData.activeTab === 'tab3' ? 'active' : ''}`}
                     id="tab3"
                   >
-                    <div className="mt-5">
+                    <div className="mt-1">
                       <div className="accordion accordion-flush mb-4 border" id="accordionFlushExample">
-                        <div className="accordion-item">
-                          <h2 className="accordion-header">
+                        <div className="accordion-item ">
+                          <h6 className="accordion-header">
                             <button
-                              className="accordion-button collapsed"
+                              className="accordion-button collapsed p-2 "
                               type="button"
                               data-bs-toggle="collapse"
                               data-bs-target="#flush-collapseThree"
                               aria-expanded="false"
                               aria-controls="flush-collapseThree"
                             >
-                              Accordion Item #3
+                              {formData.chosenAssessment}
                             </button>
-                          </h2>
+                          </h6>
                           <div
                             id="flush-collapseThree"
                             className="accordion-collapse collapse"
                             data-bs-parent="#accordionFlushExample"
                           >
-                            <div className="accordion-body">
-                              <div className="container mt-3">
-                                <div className="mb-3">
+                            <div className="accordion-body ">
+
+                              {filterByKeyValue(allQuestions, "competencyType", formData.chosenAssessment).map((item, index) => (
+                                <div className="row border-bottom custom-dotted" key={index}>
+
                                   <label className="form-label">
-                                    1. How good are you with handling pressure?
+                                    {index + 1}. {item.question}
                                   </label>
-                                </div>
+                                  <div className="">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                      <i
+                                        key={star}
+                                        // className={`bi  ${star <= formData.rating ? 'bi-star-fill' : 'bi-star'}`}
+                                        // className={` bi ${star <= (choosedQuestionResponses[item.id]?.rating || 0) ? 'bi-star-fill selected' : 'bi-star'}`}
+                                        className={`bi ${star <= (hoveredRating[item.id] || choosedQuestionResponses[item.id]?.rating || 0) ? 'bi-star-fill' : 'bi-star'}`}
 
-                                {/* Star Rating */}
-                                <div className="mb-3">
-                                  {[1, 2, 3, 4, 5].map((star) => (
-                                    <i
-                                      key={star}
-                                      className={`bi ${star <= formData.rating ? 'bi-star-fill' : 'bi-star'}`}
-                                      style={{ color: '#f39c12', cursor: 'pointer' }}
-                                      onClick={() => handleRatingChange(star)}
-                                    />
-                                  ))}
-                                  <span className="ms-2">
-                                    <button
-                                      type="button"
-                                      className="btn btn-link"
-                                      onClick={toggleComments}
-                                    >
-                                      {formData.showComments ? 'Hide Comments' : 'Add Comments'}
-                                    </button>
-                                  </span>
-                                </div>
+                                        style={{ color: '#f39c12', cursor: 'pointer' }}
+                                        // onClick={() => handleRatingChange(star)}
+                                        onClick={() => handleRatingChange(item.id, star)}
+                                        onMouseEnter={() => handleMouseEnter(item.id, star)}
+                                        onMouseLeave={() => handleMouseLeave(item.id)}
 
-                                {/* Comments Section */}
-                                {formData.showComments && (
-                                  <div className="mb-3">
-                                    <textarea
-                                      className="form-control"
-                                      rows="4"
-                                      placeholder="Enter your comments here..."
-                                      name="comments"
-                                      value={formData.comments}
-                                      onChange={handleChange}
-                                    ></textarea>
+                                      />
+                                    ))}
+                                    <span className="ms-2">
+                                      <a
+                                        className="btn btn-link text-decoration-none fs-6"
+                                        // onClick={toggleComments}
+                                        onClick={() => toggleComments(item.id)}
+                                      >
+                                        {/* {formData.showComments ? 'Hide Comments' : 'Add Comments'} */}
+                                        {choosedQuestionResponses[item.id]?.showComments ? 'Hide Comments' : 'Add Comments'}
+
+                                      </a>
+                                    </span>
                                   </div>
-                                )}
-                              </div>
+
+                                  {/* {formData.showComments && ( */}
+                                  {choosedQuestionResponses[item.id]?.showComments && (
+
+                                    <div className="mb-1">
+                                      <textarea
+                                        className="form-control"
+                                        rows="2"
+                                        placeholder="Enter your comments here..."
+                                        name="comments"
+                                        // value={formData.comments}
+                                        value={choosedQuestionResponses[item.id]?.comments || ''}
+
+                                        // onChange={handleChange}
+                                        onChange={(e) => handleCommentChange(item.id, e.target.value)}
+
+                                      ></textarea>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+
                             </div>
                           </div>
                         </div>
@@ -391,8 +577,8 @@ const Tabs = () => {
                         >
 
                           <option value="">Choose Assessment</option>
-                          {allQuestions.map((option) => (
-                            <option key={option.value} value={option.value}>
+                          {statusCategories.map((option, index) => (
+                            <option key={index} value={option.value}>
                               {option.label}
                             </option>
                           ))}
@@ -403,22 +589,23 @@ const Tabs = () => {
 
                       {/* Overall Comments */}
                       <div className="mb-3">
-                        <label htmlFor="overallComments" className="form-label">
+                        <label htmlFor="overallCommentsForScreening" className="form-label">
                           Overall Comments
                         </label>
                         <textarea
                           className="form-control"
-                          id="overallComments"
-                          name="overallComments"
+                          id="overallCommentsForScreening"
+                          name="overallCommentsForScreening"
                           rows="4"
-                          value={formData.overallComments}
+                          value={formData.overallCommentsForScreening}
                           onChange={handleChange}
                           placeholder="Enter your comments here..."
                         ></textarea>
                       </div>
 
                       {/* Submit Button */}
-                      <button type="submit" className="btn btn-primary">
+                      <button type="submit" className="btn btn-primary"
+                        onClick={handleSubmit}>
                         Submit
                       </button>
                     </div>
@@ -429,8 +616,8 @@ const Tabs = () => {
             </div>
           </div>
         </div>
-      </form>
-    </div>
+      </form >
+    </div >
   );
 };
 
