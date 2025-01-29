@@ -346,14 +346,14 @@ const Tabs = () => {
 
                       <div className="mb-4">
                         <label htmlFor="candidateStatus" className="form-label">
-                          Candidate Status
+                          Candidate Status - General Review
                         </label>
                         <select
                           id="candidateStatus"
                           name="candidateStatus"
                           className="form-select"
                           value={formData.candidateStatus}
-                          onChange={handleChange}
+                          onChange={handleChange} required
                         >
                           <option value="" disabled>Select status</option>
                           <option value="Active">Active</option>
@@ -364,7 +364,7 @@ const Tabs = () => {
 
                       <div className="mb-4">
                         <label htmlFor="overallCommentsForGeneralReview" className="form-label">
-                          Overall Comments
+                          Overall Comments - General Review
                         </label>
                         <textarea
                           className="form-control"
@@ -373,7 +373,7 @@ const Tabs = () => {
                           rows="4"
                           placeholder="Write your comments here..."
                           value={formData.overallCommentsForGeneralReview}
-                          onChange={handleChange}
+                          onChange={handleChange} required
                         ></textarea>
                       </div>
 
@@ -400,16 +400,16 @@ const Tabs = () => {
                     <div>
                       <div className="mb-4">
                         <label htmlFor="selectType" className="form-label">
-                          Select Type
+                          Select Type - Screening Review
                         </label>
                         <select
                           id="selectType"
                           name="selectType"
                           className="form-select"
                           value={formData.selectType}
-                          onChange={handleChange}
+                          onChange={handleChange} required
                         >
-                          <option value="" disabled>Select Type</option>
+                          <option value="" >Select Type</option>
                           <option value="Technical">Technical</option>
                           <option value="HR">HR</option>
                           <option value="Managerial">Managerial</option>
@@ -418,15 +418,16 @@ const Tabs = () => {
 
                       <div className="mb-4">
                         <label htmlFor="chosenAssessment" className="form-label">
-                          Choose Assessments
+                          Choose Assessments - Screening Review
                         </label>
                         <select
                           id="chosenAssessment"
                           name="chosenAssessment"
                           className="form-select"
                           value={formData.chosenAssessment}
-                          onChange={handleChange}
+                          onChange={handleChange} required
                         >
+                          <option value="" >Select Type</option>
 
                           <option value="">Choose Assessment</option>
                           {questionTypes.map((option, index) => (
@@ -443,7 +444,9 @@ const Tabs = () => {
                         <button
                           type="button"
                           className="btn btn-secondary me-2"
-                          onClick={() => alert('Cancel clicked')}
+                          // onClick={() => alert('Cancel clicked')}
+                          onClick={() => handleTabChange('tab1')}
+
                         >
                           Cancel
                         </button>
@@ -451,6 +454,8 @@ const Tabs = () => {
                           type="button"
                           className="btn btn-primary"
                           onClick={() => handleTabChange('tab3')}
+                          disabled={!formData.selectType || !formData.chosenAssessment}
+
                         >
                           Proceed
                         </button>
@@ -551,7 +556,7 @@ const Tabs = () => {
 
                       {/* Overall Rating */}
                       <div className="mb-3">
-                        <label htmlFor="overallRating" className="form-label">Overall Rating</label>
+                        <label htmlFor="overallRating" className="form-label">Overall Rating - Screening Review </label>
                         <select
                           className="form-select"
                           id="overallRating"
@@ -570,7 +575,8 @@ const Tabs = () => {
 
                       {/* Status Dropdown */}
                       <div className="mb-3">
-                        <label htmlFor="overallStatus" className="form-label">Status</label>
+                        <label htmlFor="overallStatus" className="form-label">Status - Screening Review
+                        </label>
                         <select
                           className="form-select"
                           id="overallStatus"
@@ -594,7 +600,7 @@ const Tabs = () => {
                       {/* Overall Comments */}
                       <div className="mb-3">
                         <label htmlFor="overallCommentsForScreening" className="form-label">
-                          Overall Comments
+                          Overall Comments - Screening Review
                         </label>
                         <textarea
                           className="form-control"
@@ -604,12 +610,15 @@ const Tabs = () => {
                           value={formData.overallCommentsForScreening}
                           onChange={handleChange}
                           placeholder="Enter your comments here..."
+                          required
                         ></textarea>
                       </div>
 
                       {/* Submit Button */}
                       <button type="submit" className="btn btn-primary"
-                        onClick={handleSubmit}>
+                        onClick={handleSubmit}
+                        disabled={!formData.overallRating || !formData.overallStatus || !formData.overallCommentsForScreening}
+                      >
                         Submit
                       </button>
                     </div>
