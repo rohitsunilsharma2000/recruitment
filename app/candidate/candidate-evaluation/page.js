@@ -206,13 +206,15 @@ const Tabs = () => {
   // Helper function to generate status options
   // Flatten all status options and assign an id to each status
   const getAllStatusesOptions = (statusCategories) => {
-    return Object.entries(statusCategories).flatMap(([statuses]) =>
+    return Object.entries(statusCategories).flatMap(([category, statuses]) =>
       statuses.map((status, index) => ({
-        value: status, // Generate a unique ID (combining category and index)
+        value: `${status}`,  // Create a unique ID using category and index
+        // value: `${category}-${index}`,  // Create a unique ID using category and index
         label: status
       }))
     );
   };
+
 
 
   // Render the form (Add JSX for rendering form inputs as required)
@@ -222,12 +224,14 @@ const Tabs = () => {
     async function fetchJobApplicationsStatusData() {
       try {
         const response = await fetchJobApplicationsStatus();
-        // console.log("fetchJobApplicationsStatus ", response)
+        console.log("unfiltered fetchJobApplicationsStatus ", response)
         const allCategories = getAllStatusesOptions(response);
         console.log("fetchJobApplicationsStatus ", allCategories)
 
         setStatusCategories(allCategories); // Set the array of departments names into state
       } catch (error) {
+        console.log("fetchJobApplicationsStatus error ", error)
+
         setStatusCategories([]);
       }
     }
