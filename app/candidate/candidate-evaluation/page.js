@@ -1,24 +1,27 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import "./evaluation.css";
-import { fetchAllQuestion, fetchJobApplicationsStatus } from '@/utils/restClient';
+import {
+  fetchAllQuestion,
+  fetchJobApplicationsStatus,
+} from "@/utils/restClient";
 import { ValidationHelper } from "@/components/form-validator/ValidationHelper";
 
 const Tabs = () => {
   const [formData, setFormData] = useState({
-    activeTab: 'tab1',
-    candidateStatusGr: '',
-    selectType: 'Choose',
-    chosenAssessment: '',
+    activeTab: "tab1",
+    candidateStatus: "",
+    selectType: "Choose",
+    chosenAssessment: "",
     rating: 0,
     showComments: false,
-    comments: '',
+    comments: "",
     // Fields for the "final" rating submission
-    overallRating: '1',
-    overallStatus: 'active',
-    overallCommentsForGeneralReview: '',
-    overallCommentsForScreening: ''
+    overallRating: "1",
+    overallStatus: "active",
+    overallCommentsForGeneralReview: "",
+    overallCommentsForScreening: "",
   });
 
   const [allQuestions, setAllQuestion] = useState([]);
@@ -26,304 +29,252 @@ const Tabs = () => {
   const [choosedQuestionResponses, setchoosedQuestionResponses] = useState({});
   const [statusCategories, setStatusCategories] = useState([]);
   const [hoveredRating, setHoveredRating] = useState({});
-  const [evaluateCandidate, setevaluateCandidate] = useState({});
-
-  const [formErrors, setFormErrors] = useState({});
-  const [touchedFields, setTouchedFields] = useState({});
-
-  const handleFieldChange = (name, value) => {
-
-    // Mark the field as touched
-    setTouchedFields((prev) => ({ ...prev, [name]: true }));
-
-    // Validate the field using ValidationHelper
-    const error = ValidationHelper.validateField(name, value, typeof value);
-
-    // Update form errors with the validation result
-    setFormErrors((prev) => ({ ...prev, [name]: error }));
-  };
-
+  const [formErrors, setFormErrors] = useState({}); // Store validation errors
+  const [touchedFields, setTouchedFields] = useState({}); // Track touched fields
 
   const handleMouseEnter = (questionId, value) => {
     setHoveredRating((prev) => ({
       ...prev,
       [questionId]: value,
     }));
-
-    // Call handleFieldChange to mark the field as touched and validate it
-    handleFieldChange(`rating-${String(questionId)}`, value);
-
   };
 
   const handleMouseLeave = (questionId) => {
     setHoveredRating((prev) => ({
       ...prev,
-      [String(questionId)]: undefined, // Convert to string
+      [questionId]: undefined,
     }));
-
-
   };
   // Single handler for generic changes (text, select, checkbox, etc.)
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     // Log the event details
-    console.log('Event triggered:', { name, value, type, checked });
+    console.log("Event triggered:", { name, value, type, checked });
 
     setFormData((prevData) => {
       const updatedData = {
         ...prevData,
-        [name]: type === "checkbox" ? checked : value
+        [name]: type === "checkbox" ? checked : value,
       };
 
       // Log the updated form data
-      console.log('Updated formData:', updatedData);
-
-
-      // Call handleFieldChange to handle validation and touched state
-      handleFieldChange(name, type === "checkbox" ? checked : value);
+      console.log("Updated formData:", updatedData);
 
       return updatedData;
     });
   };
 
-
   // Helper to change the active tab
   const handleTabChange = (tabValue) => {
     setFormData((prevData) => ({
       ...prevData,
-      activeTab: tabValue
+      activeTab: tabValue,
     }));
   };
 
+  const handleRatingChange = (questionId, value) => {
+    setchoosedQuestionResponses((prevResponses) => ({
+      ...prevResponses,
+      [questionId]: {
+        ...prevResponses[questionId],
+        rating: value,
+      },
+    }));
 
-  const handleRatingChange = (questionBankTemplateId, value) => {
-    // Log the initial state before the update
-    console.log("Initial state (before update):", choosedQuestionResponses);
-
-    // Log the specific questionBankTemplateId and value we are updating
-    console.log("Updating rating for questionBankTemplateId:", questionBankTemplateId);
-    console.log("New rating value:", value);
-
-    // Perform the state update
-    setchoosedQuestionResponses((prevResponses) => {
-      // Log the previous state of the specific question before updating
-      console.log("Previous response for questionBankTemplateId:", questionBankTemplateId, prevResponses[questionBankTemplateId]);
-
-      // Create the updated responses
-      const updatedResponses = {
-        ...prevResponses,  // Spread the previous responses to maintain the other question data
-        [questionBankTemplateId]: {    // Update the specific question's response
-          ...prevResponses[questionBankTemplateId],  // Spread the previous response of that question
-          rating: value     // Update the rating
-        }
-      };
-
-      // Log the updated response for the specific question
-      console.log("Updated response for questionBankTemplateId:", questionBankTemplateId, updatedResponses[questionBankTemplateId]);
-
-      // Log the full updated state after the change
-      console.log("Updated state (after change):", updatedResponses);
-
-      // Call handleFieldChange to handle validation and touched state for rating field
-      const fieldName = `rating-${String(questionBankTemplateId)}`; // Ensure it's always a string
-      handleFieldChange(fieldName, value); // Pass fieldName as a string
-
-      return updatedResponses;  // Return the updated state
-    });
+    // Validate rating
+    const error = ValidationHelper.validateField("rating", value, "number");
+    setFormErrors((prev) => ({ ...prev, [questionId]: error }));
+    setTouchedFields((prev) => ({ ...prev, [questionId]: true })); // Ensure field is marked as touched
   };
 
-  const handleCommentChange = (questionBankTemplateId, value) => {
-    // Log the current state before the update
-    console.log("Initial state (before comment change):", choosedQuestionResponses);
+  const handleCommentChange = (questionId, value) => {
+    setchoosedQuestionResponses((prevResponses) => ({
+      ...prevResponses,
+      [questionId]: {
+        ...prevResponses[questionId],
+        comments: value,
+      },
+    }));
 
-    // Log the specific questionBankTemplateId and the new comment value
-    console.log("Updating comment for questionBankTemplateId:", questionBankTemplateId);
-    console.log("New comment value:", value);
-
-    // Perform the state update for comments
-    setchoosedQuestionResponses((prevResponses) => {
-      // Log the previous comment for the specific question before updating
-      console.log("Previous comment for questionBankTemplateId:", questionBankTemplateId, prevResponses[questionBankTemplateId]?.comments);
-
-      // Create the updated responses with the new comment
-      const updatedResponses = {
-        ...prevResponses,  // Spread the previous responses to preserve other data
-        [questionBankTemplateId]: {    // Update the specific question's response
-          ...prevResponses[questionBankTemplateId],  // Spread the previous response of that question
-          comments: value     // Update the comment
-        }
-      };
-
-      // Log the updated response for the specific question
-      console.log("Updated comment for questionBankTemplateId:", questionBankTemplateId, updatedResponses[questionBankTemplateId]?.comments);
-
-      // Log the full updated state after the change
-      console.log("Updated state (after comment change):", updatedResponses);
-
-      // Call handleFieldChange to handle validation and touched state for the comment field
-      handleFieldChange(questionBankTemplateId, value);
-
-
-      return updatedResponses;  // Return the updated state
-    });
+    // Validate comments
+    const error = ValidationHelper.validateField(
+      `comment-${questionId}`,
+      value,
+      "text"
+    );
+    setFormErrors((prev) => ({ ...prev, [`comment-${questionId}`]: error }));
+    setTouchedFields((prev) => ({ ...prev, [`comment-${questionId}`]: true })); // Mark comments as touched
   };
 
   const toggleComments = (questionBankTemplateId) => {
-    // Log the current state before the toggle action
-    console.log("Initial state (before toggling comments visibility):", choosedQuestionResponses);
-
-    // Log the specific questionBankTemplateId for which we're toggling the comments visibility
-    console.log("Toggling comments visibility for questionBankTemplateId:", questionBankTemplateId);
-
-    // Perform the state update for toggling comments visibility
     setchoosedQuestionResponses((prevResponses) => {
-      // Log the previous visibility of comments for the specific question before toggling
-      console.log("Previous comments visibility for questionBankTemplateId:", questionBankTemplateId, prevResponses[questionBankTemplateId]?.showComments);
-
-      // Create the updated responses with toggled visibility
       const updatedResponses = {
-        ...prevResponses,  // Spread the previous responses to preserve other data
-        [questionBankTemplateId]: {    // Update the specific question's response
-          ...prevResponses[questionBankTemplateId],  // Spread the previous response of that question
-          showComments: !prevResponses[questionBankTemplateId]?.showComments  // Toggle the visibility
-        }
+        ...prevResponses, // Spread the previous responses to preserve other data
+        [questionBankTemplateId]: {
+          // Update the specific question's response
+          ...prevResponses[questionBankTemplateId], // Spread the previous response of that question
+          showComments: !prevResponses[questionBankTemplateId]?.showComments, // Toggle the visibility
+        },
       };
-
-      // Log the updated visibility for the specific question
-      console.log("Updated comments visibility for questionBankTemplateId:", questionBankTemplateId, updatedResponses[questionBankTemplateId]?.showComments);
-
-      // Log the full updated state after the toggle
-      console.log("Updated state (after toggling comments visibility):", updatedResponses);
-
-      // Call handleFieldChange to handle validation and touched state for the showComments field
-      handleFieldChange(questionBankTemplateId, updatedResponses[questionBankTemplateId]?.showComments);
-
-      return updatedResponses;  // Return the updated state
+      return updatedResponses; // Return the updated state
     });
   };
 
-
+  /**
+   *
+   * 🔹 Step 2: Validate Comments on Submit (Even If "Show Comments" Wasn't Clicked)
+   *
+   *    Modify handleSubmit to ensure all comments are validated, even if they haven't been shown yet.
+   */
   const handleSubmit = (e) => {
     e.preventDefault();
     let valid = true;
     const newErrors = {};
-    const touched = {};
 
-    Object.keys(formData).forEach((field) => {
-      const error = ValidationHelper.validateField(field, formData[field], typeof formData[field]);
-      if (error) valid = false;
-      newErrors[field] = error;
-      touched[field] = true;
+    // Check for each question whether rating and comments are provided
+    Object.keys(choosedQuestionResponses).forEach((questionId) => {
+      const rating = choosedQuestionResponses[questionId]?.rating;
+      const comments = choosedQuestionResponses[questionId]?.comments;
+      const showComments = choosedQuestionResponses[questionId]?.showComments;
+
+      // Validate Rating (Ensure it's between 1 and 5)
+      if (!rating || rating < 1 || rating > 5) {
+        newErrors[questionId] =
+          "Please provide a valid rating between 1 and 5.";
+        valid = false;
+      }
+
+      // Validate Comments (Ensure non-empty if showComments is true)
+      if (showComments && (!comments || comments.trim() === "")) {
+        newErrors[`comment-${questionId}`] = "Comment cannot be empty.";
+        valid = false;
+      }
     });
 
+    // Update form errors and touched fields
     setFormErrors(newErrors);
-    setTouchedFields(touched);
+    setTouchedFields(
+      Object.keys(choosedQuestionResponses).reduce(
+        (acc, key) => ({ ...acc, [key]: true, [`comment-${key}`]: true }),
+        {}
+      )
+    );
 
+    // Final validation check before submission
     if (valid) {
+      console.log("✅ All ratings and comments are filled. Submitting form...");
 
-      const questionReviews = Object.keys(choosedQuestionResponses).map((questionBankTemplateId) => ({
-        questionBankTemplateId,
-        rating: choosedQuestionResponses[questionBankTemplateId]?.rating || 0,
-        comments: choosedQuestionResponses[questionBankTemplateId]?.comments || '',
-      }));
-      // Prepare the payload directly from questionResponses
+      const questionReviews = Object.keys(choosedQuestionResponses).map(
+        (questionBankTemplateId) => ({
+          questionBankTemplateId,
+          rating: choosedQuestionResponses[questionBankTemplateId]?.rating || 0,
+          comments:
+            choosedQuestionResponses[questionBankTemplateId]?.comments || "",
+        })
+      );
 
       const payload = {
-        "generalReview": {
-          "rating": 4,
-          "candidateStatus": formData.candidateStatus,
-          "overallComments": formData.overallCommentsForGeneralReview,
+        generalReview: {
+          rating: 4,
+          candidateStatus: formData.candidateStatus,
+          overallComments: formData.overallCommentsForGeneralReview,
         },
-        "screeningReviews": [
+        screeningReviews: [
           {
-            "reviewType": formData.chosenAssessment,
-            "overallRating": formData.overallRating,
-            "status": formData.overallStatus,
-            "overallComments": formData.overallCommentsForScreening,
-            "questionReviews": questionReviews
-          }
-        ]
-      }
-      console.log("payload :", payload);
-      console.log("Form submitted successfully!", formData);
+            reviewType: formData.chosenAssessment,
+            overallRating: formData.overallRating,
+            status: formData.overallStatus,
+            overallComments: formData.overallCommentsForScreening,
+            questionReviews: questionReviews,
+          },
+        ],
+      };
+
+      console.log("Form Data for submission:", payload);
+      alert("✅ Form is valid and ready to submit!");
     } else {
-      console.log("Form has validation errors.");
+      console.log(
+        "❌ Form has missing ratings or comments. Fix errors before submitting."
+      );
+      alert("⚠️ Some ratings or comments are missing. Please fill them in.");
     }
   };
-
-
 
   // Generic function to filter by any key and value
   const filterByKeyValue = (array, key, value) => {
     return array.filter((item) => item[key] === value);
   };
 
-
   // Helper function to generate status options
   // Flatten all status options and assign an id to each status
   const getAllStatusesOptions = (statusCategories) => {
     return Object.entries(statusCategories).flatMap(([category, statuses]) =>
       statuses.map((status, index) => ({
-        value: `${status}`,  // Create a unique ID using category and index
+        value: `${status}`, // Create a unique ID using category and index
         // value: `${category}-${index}`,  // Create a unique ID using category and index
-        label: status
+        label: status,
       }))
     );
   };
 
-
-
-  // Render the form (Add JSX for rendering form inputs as )
+  // Render the form (Add JSX for rendering form inputs as required)
   useEffect(() => {
-
-
     async function fetchJobApplicationsStatusData() {
       try {
         const response = await fetchJobApplicationsStatus();
-        console.log("unfiltered fetchJobApplicationsStatus ", response)
+        console.log("unfiltered fetchJobApplicationsStatus ", response);
         const allCategories = getAllStatusesOptions(response);
-        console.log("fetchJobApplicationsStatus ", allCategories)
-
+        console.log("fetchJobApplicationsStatus ", allCategories);
 
         setStatusCategories(allCategories); // Set the array of departments names into state
       } catch (error) {
-        console.log("fetchJobApplicationsStatus error ", error)
+        console.log("fetchJobApplicationsStatus error ", error);
 
         setStatusCategories([]);
       }
     }
 
-
-
-
     async function AllQuestionData() {
       try {
         const response = await fetchAllQuestion(); // Fetch data from the API
-        setAllQuestion(response)
+        setAllQuestion(response);
 
         // Extract unique competencyTypes and map to the desired format
-        const assessmentOptions = [...new Set(response.map(item => item.competencyType))].map(type => ({
+        const assessmentOptions = [
+          ...new Set(response.map((item) => item.competencyType)),
+        ].map((type) => ({
           value: type,
-          label: type
+          label: type,
         }));
 
         console.log(assessmentOptions);
         console.log("Fetched all question statuses:", assessmentOptions);
         setQuestionType(assessmentOptions);
 
+        /**
+         * 🔹 Step 1: Initialize Comments in State
+         * Modify your useEffect to pre-fill choosedQuestionResponses with default empty comments for each question.
+         * Initialize responses with empty comme
+         */
+        const initialResponses = {};
+        response.forEach((item) => {
+          initialResponses[item.id] = {
+            rating: 0, // Default rating
+            comments: "", // Ensure comments exist
+            showComments: false, // Default hidden
+          };
+        });
+
+        setchoosedQuestionResponses(initialResponses);
       } catch (error) {
         setQuestionType([]);
-        setAllQuestion([])
-
+        setAllQuestion([]);
       }
     }
     fetchJobApplicationsStatusData();
     AllQuestionData(); // Trigger the API call when the component mounts
   }, []);
-
-
-
 
   // const generalQuestions = filterByKeyValue(allQuestions, "competencyType", "General");
   // const leadershipQuestions = filterByKeyValue(allQuestions, "question", "How do you handle conflict?");
@@ -366,8 +317,8 @@ const Tabs = () => {
                       <input
                         className="form-check-input"
                         type="radio"
-                        checked={formData.activeTab === 'tab1'}
-                        onChange={() => handleTabChange('tab1')}
+                        checked={formData.activeTab === "tab1"}
+                        onChange={() => handleTabChange("tab1")}
                       />
                       <span className="ms-2">General Review</span>
                     </label>
@@ -377,8 +328,8 @@ const Tabs = () => {
                       <input
                         className="form-check-input"
                         type="radio"
-                        checked={formData.activeTab === 'tab2'}
-                        onChange={() => handleTabChange('tab2')}
+                        checked={formData.activeTab === "tab2"}
+                        onChange={() => handleTabChange("tab2")}
                       />
                       <span className="ms-2">Screening Review</span>
                     </label>
@@ -390,7 +341,8 @@ const Tabs = () => {
                 <div className="tab-content mt-3">
                   {/* TAB 1 */}
                   <div
-                    className={`tab-pane ${formData.activeTab === 'tab1' ? 'active' : ''}`}
+                    className={`tab-pane ${formData.activeTab === "tab1" ? "active" : ""
+                      }`}
                     id="tab1"
                   >
                     <div>
@@ -406,50 +358,50 @@ const Tabs = () => {
                       </div>
 
                       <div className="mb-4">
-                        <label htmlFor="candidateStatusGr" className="form-label">
+                        <label htmlFor="candidateStatus" className="form-label">
                           Candidate Status - General Review
                         </label>
                         <select
-                          id="candidateStatusGr"
-                          name="candidateStatusGr"
-                          className={`form-select ${ValidationHelper.getValidationClass("candidateStatusGr", touchedFields, formErrors)}`}
-                          value={formData.candidateStatusGr}
+                          id="candidateStatus"
+                          name="candidateStatus"
+                          className="form-select"
+                          value={formData.candidateStatus}
                           onChange={handleChange}
+                          required
                         >
-                          <option value="" disabled>Select status</option>
+                          <option value="" disabled>
+                            Select status
+                          </option>
                           <option value="Active">Active</option>
                           <option value="Inactive">Inactive</option>
                           <option value="On Hold">On Hold</option>
                         </select>
-                        <div className={ValidationHelper.getFeedbackClass("candidateStatusGr", touchedFields, formErrors)}>
-                          {ValidationHelper.getFeedbackMessage("candidateStatusGr", touchedFields, formErrors)}
-                        </div>
                       </div>
 
                       <div className="mb-4">
-                        <label htmlFor="overallCommentsForGeneralReview" className="form-label">
+                        <label
+                          htmlFor="overallCommentsForGeneralReview"
+                          className="form-label"
+                        >
                           Overall Comments - General Review
                         </label>
                         <textarea
-                          className={`form-control ${ValidationHelper.getValidationClass("overallCommentsForGeneralReview", touchedFields, formErrors)}`}
+                          className="form-control"
                           id="overallCommentsForGeneralReview"
                           name="overallCommentsForGeneralReview"
                           rows="4"
                           placeholder="Write your comments here..."
                           value={formData.overallCommentsForGeneralReview}
-                          onChange={(e) => handleChange(e)}  // This triggers the validation and state update
+                          onChange={handleChange}
+                          required
                         ></textarea>
-                        <div className={ValidationHelper.getFeedbackClass("overallCommentsForGeneralReview", touchedFields, formErrors)}>
-                          {ValidationHelper.getFeedbackMessage("overallCommentsForGeneralReview", touchedFields, formErrors)}
-                        </div>
                       </div>
-
 
                       <div className="text-center">
                         <button
                           type="button"
                           className="btn btn-secondary me-2"
-                          onClick={() => alert('Cancel clicked')}
+                          onClick={() => alert("Cancel clicked")}
                         >
                           Cancel
                         </button>
@@ -462,60 +414,54 @@ const Tabs = () => {
 
                   {/* TAB 2 */}
                   <div
-                    className={`tab-pane ${formData.activeTab === 'tab2' ? 'active' : ''}`}
+                    className={`tab-pane ${formData.activeTab === "tab2" ? "active" : ""
+                      }`}
                     id="tab2"
                   >
                     <div>
                       <div className="mb-4">
-
-                        <div className="mb-4">
-                          <label htmlFor="selectType" className="form-label">
-                            Select Type - Screening Review
-                          </label>
-                          <select
-                            id="selectType"
-                            name="selectType"
-                            className={`form-select ${ValidationHelper.getValidationClass("selectType", touchedFields, formErrors)}`}
-                            value={formData.selectType}
-                            onChange={handleChange}  // This triggers the validation and state update
-                          >
-                            <option value="">Select Type</option>
-                            <option value="Technical">Technical</option>
-                            <option value="HR">HR</option>
-                            <option value="Managerial">Managerial</option>
-                          </select>
-                          <div className={ValidationHelper.getFeedbackClass("selectType", touchedFields, formErrors)}>
-                            {ValidationHelper.getFeedbackMessage("selectType", touchedFields, formErrors)}
-                          </div>
-                        </div>
-
+                        <label htmlFor="selectType" className="form-label">
+                          Select Type - Screening Review
+                        </label>
+                        <select
+                          id="selectType"
+                          name="selectType"
+                          className="form-select"
+                          value={formData.selectType}
+                          onChange={handleChange}
+                          required
+                        >
+                          <option value="">Select Type</option>
+                          <option value="Technical">Technical</option>
+                          <option value="HR">HR</option>
+                          <option value="Managerial">Managerial</option>
+                        </select>
                       </div>
 
                       <div className="mb-4">
+                        <label
+                          htmlFor="chosenAssessment"
+                          className="form-label"
+                        >
+                          Choose Assessments - Screening Review
+                        </label>
+                        <select
+                          id="chosenAssessment"
+                          name="chosenAssessment"
+                          className="form-select"
+                          value={formData.chosenAssessment}
+                          onChange={handleChange}
+                          required
+                        >
+                          <option value="">Select Type</option>
 
-                        <div className="mb-4">
-                          <label htmlFor="chosenAssessment" className="form-label">
-                            Choose Assessment
-                          </label>
-                          <select
-                            id="chosenAssessment"
-                            name="chosenAssessment"
-                            className={`form-select ${ValidationHelper.getValidationClass("chosenAssessment", touchedFields, formErrors)}`}
-                            value={formData.chosenAssessment}
-                            onChange={handleChange}  // This triggers the validation and state update
-                          >
-                            <option value="">Choose Assessment</option>
-                            {questionTypes.map((option, index) => (
-                              <option key={index} value={option.value}>
-                                {option.label}
-                              </option>
-                            ))}
-                          </select>
-                          <div className={ValidationHelper.getFeedbackClass("chosenAssessment", touchedFields, formErrors)}>
-                            {ValidationHelper.getFeedbackMessage("chosenAssessment", touchedFields, formErrors)}
-                          </div>
-                        </div>
-
+                          <option value="">Choose Assessment</option>
+                          {questionTypes.map((option, index) => (
+                            <option key={index} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       <div className="text-center">
@@ -523,17 +469,17 @@ const Tabs = () => {
                           type="button"
                           className="btn btn-secondary me-2"
                           // onClick={() => alert('Cancel clicked')}
-                          onClick={() => handleTabChange('tab1')}
-
+                          onClick={() => handleTabChange("tab1")}
                         >
                           Cancel
                         </button>
                         <button
                           type="button"
                           className="btn btn-primary"
-                          onClick={() => handleTabChange('tab3')}
-                          disabled={!formData.selectType || !formData.chosenAssessment}
-
+                          onClick={() => handleTabChange("tab3")}
+                          disabled={
+                            !formData.selectType || !formData.chosenAssessment
+                          }
                         >
                           Proceed
                         </button>
@@ -543,11 +489,15 @@ const Tabs = () => {
 
                   {/* TAB 3 */}
                   <div
-                    className={`tab-pane ${formData.activeTab === 'tab3' ? 'active' : ''}`}
+                    className={`tab-pane ${formData.activeTab === "tab3" ? "active" : ""
+                      }`}
                     id="tab3"
                   >
                     <div className="mt-1">
-                      <div className="accordion accordion-flush mb-4 border" id="accordionFlushExample">
+                      <div
+                        className="accordion accordion-flush mb-4 border"
+                        id="accordionFlushExample"
+                      >
                         <div className="accordion-item ">
                           <h6 className="accordion-header">
                             <button
@@ -567,72 +517,121 @@ const Tabs = () => {
                             data-bs-parent="#accordionFlushExample"
                           >
                             <div className="accordion-body ">
+                              {filterByKeyValue(
+                                allQuestions,
+                                "competencyType",
+                                formData.chosenAssessment
+                              ).map((item, index) => (
+                                <div
+                                  className="row border-bottom custom-dotted"
+                                  key={index}
+                                >
+                                  <label className="form-label">
+                                    {index + 1}. {item.question}
+                                  </label>
 
-                              {filterByKeyValue(allQuestions, "competencyType", formData.chosenAssessment).map((item, index) => {
-                                const questionId = `rating-${String(item.id)}`; // Ensure it's a string
-                                const commentId = `comment-${String(item.id)}`; // Ensure it's a string
-                                return (
-                                  <div className="row border-bottom custom-dotted" key={index}>
-                                    {/* Question Label */}
-                                    <label className="form-label">{index + 1}. {item.question}</label>
-
-                                    {/* Rating Section */}
-                                    <div className="">
-                                      {[0, 1, 2, 3, 4, 5].map((star) => (
-                                        <i
-                                          key={star}
-                                          className={`bi ${star <= (hoveredRating[String(item.id)] || choosedQuestionResponses[String(item.id)]?.rating || 0) ? 'bi-star-fill' : 'bi-star'} 
-                                                  ${ValidationHelper.getValidationClass(`rating-${String(item.id)}`, touchedFields, formErrors) === 'is-invalid' ? 'invalid-rating' : ''}`}
-                                          style={{ color: '#f39c12', cursor: 'pointer' }}
-                                          onClick={() => handleRatingChange(String(item.id), star)}
-                                        // onMouseEnter={() => handleMouseEnter(String(item.id), star)}
-                                        // onMouseLeave={() => handleMouseLeave(String(item.id))}
-                                        />
-
-                                      ))}
-
-                                      {/* Show validation error if rating is missing */}
-                                      {touchedFields[`rating-${String(item.id)}`] && formErrors[`rating-${String(item.id)}`] && (
-                                        <div className="invalid-feedback d-block">
-                                          {ValidationHelper.getFeedbackMessage(`rating-${String(item.id)}`, touchedFields, formErrors)}
-                                        </div>
-                                      )}
-                                    </div>
-
-                                    {/* Toggle Comments */}
+                                  {/* Star Rating Input */}
+                                  <div>
+                                    {[0, 1, 2, 3, 4, 5].map((star) => (
+                                      <i
+                                        key={star}
+                                        className={`bi ${star <=
+                                            (hoveredRating[item.id] ||
+                                              choosedQuestionResponses[item.id]
+                                                ?.rating ||
+                                              0)
+                                            ? "bi-star-fill"
+                                            : "bi-star"
+                                          }`}
+                                        style={{
+                                          color: "#f39c12",
+                                          cursor: "pointer",
+                                        }}
+                                        onClick={() =>
+                                          handleRatingChange(item.id, star)
+                                        }
+                                        onMouseEnter={() =>
+                                          setHoveredRating((prev) => ({
+                                            ...prev,
+                                            [item.id]: star,
+                                          }))
+                                        }
+                                        onMouseLeave={() =>
+                                          setHoveredRating((prev) => ({
+                                            ...prev,
+                                            [item.id]: undefined,
+                                          }))
+                                        }
+                                      />
+                                    ))}
                                     <span className="ms-2">
-                                      <button
+                                      <a
                                         className="btn btn-link text-decoration-none fs-6"
                                         onClick={() => toggleComments(item.id)}
                                       >
-                                        {choosedQuestionResponses[item.id]?.showComments ? 'Hide Comments' : 'Add Comments'}
-                                      </button>
+                                        {choosedQuestionResponses[item.id]
+                                          ?.showComments
+                                          ? "Hide Comments"
+                                          : "Add Comments"}
+                                      </a>
                                     </span>
+                                  </div>
 
-                                    {/* Comment Section (Visible When Show Comments is True) */}
-                                    {choosedQuestionResponses[item.id]?.showComments && (
-                                      <div className="mb-1">
-                                        <textarea
-                                          className={`form-control ${ValidationHelper.getValidationClass(commentId, touchedFields, formErrors)}`}
-                                          rows="2"
-                                          placeholder="Enter your comments here..."
-                                          name="comments"
-                                          value={choosedQuestionResponses[item.id]?.comments || ''}
-                                          onChange={(e) => handleCommentChange(item.id, e.target.value)}
-                                        />
-                                        {/* Show validation error for comments if required */}
-                                        {touchedFields[commentId] && formErrors[commentId] && (
-                                          <div className={ValidationHelper.getFeedbackClass(commentId, touchedFields, formErrors)}>
-                                            {ValidationHelper.getFeedbackMessage(commentId, touchedFields, formErrors)}
-                                          </div>
-                                        )}
+                                  {/* Validation for Rating */}
+                                  {touchedFields[item.id] &&
+                                    formErrors[item.id] && (
+                                      <div
+                                        className="invalid-feedback"
+                                        style={{
+                                          display: "block",
+                                          color: "red",
+                                        }}
+                                      >
+                                        {formErrors[item.id]}
                                       </div>
                                     )}
-                                  </div>
-                                );
-                              })}
 
+                                  {/* Comments Section */}
+                                  {choosedQuestionResponses[item.id]
+                                    ?.showComments && (
+                                      <div className="mb-1">
+                                        <textarea
+                                          className={`form-control ${ValidationHelper.getValidationClass(
+                                            `comment-${item.id}`,
+                                            touchedFields,
+                                            formErrors
+                                          )}`}
+                                          rows="2"
+                                          placeholder="Enter your comments here..."
+                                          value={
+                                            choosedQuestionResponses[item.id]
+                                              ?.comments || ""
+                                          }
+                                          onChange={(e) =>
+                                            handleCommentChange(
+                                              item.id,
+                                              e.target.value
+                                            )
+                                          }
+                                        ></textarea>
 
+                                        {/* Validation for Comments */}
+                                        {touchedFields[`comment-${item.id}`] &&
+                                          formErrors[`comment-${item.id}`] && (
+                                            <div
+                                              className="invalid-feedback"
+                                              style={{
+                                                display: "block",
+                                                color: "red",
+                                              }}
+                                            >
+                                              {formErrors[`comment-${item.id}`]}
+                                            </div>
+                                          )}
+                                      </div>
+                                    )}
+                                </div>
+                              ))}
                             </div>
                           </div>
                         </div>
@@ -643,36 +642,37 @@ const Tabs = () => {
 
                       {/* Overall Rating */}
                       <div className="mb-3">
-                        <label htmlFor="overallRating" className="form-label">Overall Rating - Screening Review </label>
+                        <label htmlFor="overallRating" className="form-label">
+                          Overall Rating - Screening Review{" "}
+                        </label>
                         <select
-                          className={`form-select ${ValidationHelper.getValidationClass("overallRating", touchedFields, formErrors)}`}
+                          className="form-select"
                           id="overallRating"
                           name="overallRating"
                           value={formData.overallRating}
-                          onChange={handleChange}  // This triggers the validation and state update
+                          onChange={handleChange}
+                          required
                         >
-                          <option value="">Choose Rating</option>
                           <option value="1">1 - Poor</option>
                           <option value="2">2 - Fair</option>
                           <option value="3">3 - Good</option>
                           <option value="4">4 - Very Good</option>
                           <option value="5">5 - Excellent</option>
                         </select>
-                        <div className={ValidationHelper.getFeedbackClass("overallRating", touchedFields, formErrors)}>
-                          {ValidationHelper.getFeedbackMessage("overallRating", touchedFields, formErrors)}
-                        </div>
                       </div>
 
                       {/* Status Dropdown */}
                       <div className="mb-3">
-                        <label htmlFor="overallStatus" className="form-label">Status - Screening Review
+                        <label htmlFor="overallStatus" className="form-label">
+                          Status - Screening Review
                         </label>
                         <select
-                          className={`form-select ${ValidationHelper.getValidationClass("overallStatus", touchedFields, formErrors)}`}
+                          className="form-select"
                           id="overallStatus"
                           name="overallStatus"
                           value={formData.overallStatus}
-                          onChange={handleChange}  // This triggers the validation and state update
+                          onChange={handleChange}
+                          required
                         >
                           <option value="">Choose Assessment</option>
                           {statusCategories.map((option, index) => (
@@ -681,51 +681,51 @@ const Tabs = () => {
                             </option>
                           ))}
                         </select>
-                        <div className={ValidationHelper.getFeedbackClass("overallStatus", touchedFields, formErrors)}>
-                          {ValidationHelper.getFeedbackMessage("overallStatus", touchedFields, formErrors)}
-                        </div>
                       </div>
 
                       {/* Overall Comments */}
                       <div className="mb-3">
-                        <label htmlFor="overallCommentsForScreening" className="form-label">
+                        <label
+                          htmlFor="overallCommentsForScreening"
+                          className="form-label"
+                        >
                           Overall Comments - Screening Review
                         </label>
                         <textarea
-                          className={`form-control ${ValidationHelper.getValidationClass("overallCommentsForScreening", touchedFields, formErrors)}`}
+                          className="form-control"
                           id="overallCommentsForScreening"
                           name="overallCommentsForScreening"
                           rows="4"
                           value={formData.overallCommentsForScreening}
-                          onChange={handleChange}  // This triggers the validation and state update
+                          onChange={handleChange}
                           placeholder="Enter your comments here..."
+                          required
                         ></textarea>
-                        <div className={ValidationHelper.getFeedbackClass("overallCommentsForScreening", touchedFields, formErrors)}>
-                          {ValidationHelper.getFeedbackMessage("overallCommentsForScreening", touchedFields, formErrors)}
-                        </div>
                       </div>
 
                       {/* Submit Button */}
-                      <button
-                        type="submit"
-                        className="btn btn-primary"
-                        onClick={handleSubmit}
-                        disabled={Object.values(formErrors).some(error => error)} // Correct way to check errors
-                      >
-                        Submit + {Object.values(formErrors).filter(error => error).length}
-                      </button>
 
-                      {/* Show all validation errors below the button */}
-                      {Object.values(formErrors).some(error => error) && (
-                        <div className="mt-3">
-                          <ul className="text-danger">
-                            {Object.entries(formErrors).map(([field, message]) =>
-                              message ? <li key={field}>{message}</li> : null
-                            )}
-                          </ul>
-                        </div>
-                      )}
-
+                      <div className="text-center">
+                        <button
+                          type="button"
+                          className="btn btn-secondary me-2"
+                          onClick={() => handleTabChange("tab2")}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="btn btn-primary"
+                          onClick={handleSubmit}
+                          disabled={
+                            !formData.overallRating ||
+                            !formData.overallStatus ||
+                            !formData.overallCommentsForScreening
+                          }
+                        >
+                          Submit
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -734,8 +734,8 @@ const Tabs = () => {
             </div>
           </div>
         </div>
-      </form >
-    </div >
+      </form>
+    </div>
   );
 };
 
