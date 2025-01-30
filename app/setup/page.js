@@ -106,13 +106,24 @@ const SetupPage = () => {
         <div className="col">
           <div className="card h-100">
             <div className="card-body">
-              <h5 className="card-title">Customization</h5>
+              <h5 className="card-title">Job Management</h5>
               <ul className="list-unstyled mb-0">
-                <li>Modules</li>
-                <li>Templates</li>
-                <li>Hiring Pipeline</li>
-                <li>Copy Customization</li>
-                <li>Customize Home page</li>
+                <li>
+                  <Link
+                    href="/job-openings/all-job"
+                    className="text-decoration-none"
+                  >
+                    All Job Opening
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/job-openings/asssociate"
+                    className="text-decoration-none"
+                  >
+                    Associate Job Opening
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
@@ -122,10 +133,25 @@ const SetupPage = () => {
         <div className="col">
           <div className="card h-100">
             <div className="card-body">
-              <h5 className="card-title">Resume Management</h5>
+              <h5 className="card-title">Candaidate Management</h5>
               <ul className="list-unstyled mb-0">
-                <li>Resume Parser Mapping</li>
-                <li>Resume Inbox</li>
+                <li>
+                  <Link
+                    href="/candidate/all-candidate"
+                    className="text-decoration-none"
+                  >
+                    All Candaidate
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/candidate/create"
+                    className="text-decoration-none"
+                  >
+                    Create Candaidate
+                  </Link>
+                </li>
+
               </ul>
             </div>
           </div>

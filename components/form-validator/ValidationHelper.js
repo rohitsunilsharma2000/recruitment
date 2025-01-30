@@ -15,6 +15,10 @@ export const ValidationHelper = {
       "postingTitle", "departmentName", "title", "hiringManager",
       "assignedRecruiter", "skills", "city", "province",
       "postalCode", "jobDescription", "requirements", "benefits",
+
+
+      //Associate Job Application
+      "jobOpening",
     ];
 
     const requiredNumericFields = ["experience", "expectedSalary", "noOfPositions", "salary", "experienceInYears"

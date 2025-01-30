@@ -25,6 +25,8 @@ const Tabs = () => {
   const [choosedQuestionResponses, setchoosedQuestionResponses] = useState({});
   const [statusCategories, setStatusCategories] = useState([]);
   const [hoveredRating, setHoveredRating] = useState({});
+  const [evaluateCandidate, setevaluateCandidate] = useState({});
+
 
   const handleMouseEnter = (questionId, value) => {
     setHoveredRating((prev) => ({
@@ -228,6 +230,7 @@ const Tabs = () => {
         const allCategories = getAllStatusesOptions(response);
         console.log("fetchJobApplicationsStatus ", allCategories)
 
+
         setStatusCategories(allCategories); // Set the array of departments names into state
       } catch (error) {
         console.log("fetchJobApplicationsStatus error ", error)
@@ -235,6 +238,9 @@ const Tabs = () => {
         setStatusCategories([]);
       }
     }
+
+
+
 
     async function AllQuestionData() {
       try {
