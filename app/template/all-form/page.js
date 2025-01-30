@@ -5,6 +5,11 @@ import BootstrapFormHandler from "@/components/bootstrap/all-forms/BootstrapForm
 
 export default function Home() {
   return (
-    <><BootstrapFormHandler /><AllBootstrapComponents /></>
+    <>
+
+      <BootstrapFormHandler />
+      <AllBootstrapComponents />
+
+    </>
   );
 }

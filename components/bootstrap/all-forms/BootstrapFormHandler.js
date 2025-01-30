@@ -1,312 +1,343 @@
-"use client"
+'use client';
 
 import React, { useState } from 'react';
+import "./BootstrapFormHandler.css"
 
 const BootstrapFormHandler = () => {
   const [formData, setFormData] = useState({
     text: '',
     email: '',
     password: '',
-    textarea: '',
     select: '',
     checkbox: false,
     radio: '',
-    range: 50,
     file: null,
+    range: 50,
     date: '',
     time: '',
     datetime: '',
-    month: '',
-    week: '',
-    switch: false
+    textarea: '',
+    switch: false,
   });
-
-  // const handleChange = (e) => {
-  //   const { name, value, type, checked, files } = e.target;
-  //   if (type === 'checkbox' || type === 'radio') {
-  //     setFormData((prevState) => ({
-  //       ...prevState,
-  //       [name]: type === 'checkbox' ? checked : value
-  //     }));
-  //   } else if (type === 'file') {
-  //     setFormData((prevState) => ({
-  //       ...prevState,
-  //       [name]: files[0] // Only take the first file
-  //     }));
-  //   } else {
-  //     setFormData((prevState) => ({
-  //       ...prevState,
-  //       [name]: value
-  //     }));
-  //   }
-  // };
-
-
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-  
-    console.log("Handling change for:", name); // Logs the field name that triggered the change
-    console.log("Field type:", type); // Logs the type of input (checkbox, file, text, etc.)
-  
-    if (type === 'checkbox' ) {
-      console.log("Checkbox/Radio value:", checked); // Logs the new checked state for checkbox or radio button
-      setFormData((prevState) => {
-        const updatedState = { ...prevState, [name]: checked };
-        console.log("Updated formData after checkbox/radio change:", updatedState); // Logs formData after update
-        return updatedState;
-      });
-    } else if (type === 'file') {
-      console.log("File selected:", files[0]?.name); // Logs the name of the file selected
-      setFormData((prevState) => {
-        const updatedState = { ...prevState, [name]: files[0] };
-        console.log("Updated formData after file change:", updatedState); // Logs formData after update
-        return updatedState;
-      });
-    } else {
-      console.log("Text value:", value); // Logs the new text value for inputs like text, email, etc.
-      setFormData((prevState) => {
-        const updatedState = { ...prevState, [name]: value };
-        console.log("Updated formData after text change:", updatedState); // Logs formData after update
-        return updatedState;
-      });
-    }
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: type === 'checkbox' ? checked : type === 'file' ? files[0] : value,
+    }));
   };
-  
+
   const handleSubmit = (e) => {
-    
     e.preventDefault();
-    console.log("Form submitted with data:", formData); // Logs the entire form data when submitted
+    console.log('Form submitted with data:', formData);
   };
-  
 
   return (
-    <div className="container mt-5">  
-    <h1>Bootstrap Form Handler for all form component</h1>
-    <p>Using single state variable and single handler </p>
-    <form onSubmit={handleSubmit} className="p-4 card">
-      {/* Text Input */}
-      <div className="form-group mb-3 ">
-        <label htmlFor="text">Text Input</label>
-        <input
-          type="text"
-          className="form-control"
-          id="text"
-          name="text"
-          value={formData.text}
-          onChange={handleChange}
-        />
-      </div>
+    <div className="container mt-5">
+      <div className="card shadow-sm">
+        <div className="card-header bg-primary text-white">
+          <h3 className=" mb-0">Bootstrap Form Handler</h3>
+        </div>
+        <div className="card-body">
+          <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+            <div className="row g-3">
+              {/* Text Input */}
+              <div className="col-md-6">
+                <div className="d-flex align-items-center">
+                  <label className="form-label fixed-width-label">Text Input
+                    <span className="text-danger fs-5">*</span>
+                  </label>
+                  <div className="flex-grow-1">
+                    <input
+                      type="text"
+                      className="form-control fixed-width-input"
+                      name="text"
+                      value={formData.text}
+                      onChange={handleChange}
+                      required
+                    />
+                    <div className="valid-feedback">Looks good!</div>
+                    <div className="invalid-feedback">Please enter text.</div>
+                  </div>
+                </div>
+              </div>
+              {/* Text Input */}
+              <div className="col-md-6">
+                <div className="d-flex align-items-center">
+                  <label className="form-label fixed-width-label">Text Input2</label>
+                  <div className="flex-grow-1">
+                    <div className="form-check form-switch">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        name="switch"
+                        checked={formData.switch}
+                        onChange={handleChange}
+                      />
+                      <label className="form-check-label">Enable feature</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-      {/* Email Input */}
-      <div className="form-group mb-3">
-        <label htmlFor="email">Email</label>
-        <input
-          type="email"
-          className="form-control"
-          id="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-        />
-      </div>
+              {/* Email Input */}
+              <div className="col-md-6">
+                <div className="d-flex align-items-center">
+                  <label className="form-label fixed-width-label">Email</label>
+                  <div className="flex-grow-1">
+                    <input
+                      type="email"
+                      className="form-control fixed-width-input"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
+                    <div className="valid-feedback">Looks good!</div>
+                    <div className="invalid-feedback">Please enter a valid email.</div>
+                  </div>
+                </div>
+              </div>
 
-      {/* Password Input */}
-      <div className="form-group mb-3">
-        <label htmlFor="password">Password</label>
-        <input
-          type="password"
-          className="form-control"
-          id="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-        />
-      </div>
+              {/* Password Input */}
+              <div className="col-md-6">
+                <div className="d-flex align-items-center">
+                  <label className="form-label fixed-width-label">Password</label>
+                  <div className="flex-grow-1">
+                    <input
+                      type="password"
+                      className="form-control fixed-width-input"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                    />
 
-      {/* Textarea */}
-      <div className="form-group mb-3">
-        <label htmlFor="textarea">Textarea</label>
-        <textarea
-          className="form-control"
-          id="textarea"
-          name="textarea"
-          value={formData.textarea}
-          onChange={handleChange}
-        ></textarea>
-      </div>
+                    <div className="valid-feedback">Looks good!</div>
+                    <div className="invalid-feedback">Please enter a password.</div>
+                  </div>
+                </div>
+              </div>
 
-      {/* Select Dropdown */}
-      <div className="form-group mb-3">
-        <label htmlFor="select">Select</label>
-        <select
-          className="form-control"
-          id="select"
-          name="select"
-          value={formData.select}
-          onChange={handleChange}
-        >
-          <option value="">Choose...</option>
-          <option value="option1">Option 1</option>
-          <option value="option2">Option 2</option>
-        </select>
-      </div>
+              {/* Select Dropdown */}
+              <div className="col-md-6">
+                <div className="d-flex align-items-center">
+                  <label className="form-label fixed-width-label">Select Option</label>
+                  <div className="flex-grow-1">
+                    <select
+                      className="form-select fixed-width-input"
+                      name="select"
+                      value={formData.select}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Choose...</option>
+                      <option value="option1">Option 1</option>
+                      <option value="option2">Option 2</option>
+                    </select>
+                    <div className="valid-feedback">Looks good!</div>
+                    <div className="invalid-feedback">Please select an option.</div>
+                  </div>
+                </div>
+              </div>
 
-      {/* Checkbox */}
-      <div className="form-check mb-3">
-        <input
-          type="checkbox"
-          className="form-check-input"
-          id="checkbox"
-          name="checkbox"
-          checked={formData.checkbox}
-          onChange={handleChange}
-        />
-        <label className="form-check-label" htmlFor="checkbox">
-          Check this box
-        </label>
-      </div>
+              {/* Checkbox */}
+              <div className="col-md-6">
+                <div className="d-flex align-items-center">
+                  <label className="form-label fixed-width-label">Checkbox</label>
+                  <div className="flex-grow-1">
+                    <div className="form-check">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        name="checkbox"
+                        checked={formData.checkbox}
+                        onChange={handleChange}
+                      />
+                      <label className="form-check-label">Agree to terms</label>
+                    </div>
+                    <div className="valid-feedback">Looks good!</div>
+                    <div className="invalid-feedback">You must agree to the terms.</div>
+                  </div>
+                </div>
+              </div>
 
-      {/* Radio Buttons */}
-      <div className="form-check mb-3">
-        <input
-          type="radio"
-          className="form-check-input"
-          id="radio1"
-          name="radio"
-          value="option1"
-          checked={formData.radio === 'option1'}
-          onChange={handleChange}
-        />
-        <label className="form-check-label" htmlFor="radio1">
-          Option 1
-        </label>
-      </div>
-      <div className="form-check mb-3">
-        <input
-          type="radio"
-          className="form-check-input"
-          id="radio2"
-          name="radio"
-          value="option2"
-          checked={formData.radio === 'option2'}
-          onChange={handleChange}
-        />
-        <label className="form-check-label" htmlFor="radio2">
-          Option 2
-        </label>
-      </div>
+              {/* Radio Buttons */}
+              <div className="col-md-6">
+                <div className="d-flex align-items-center">
+                  <label className="form-label fixed-width-label">Radio Options</label>
+                  <div className="flex-grow-1">
+                    <div className="d-flex align-items-center">
+                      <div className="form-check me-3">
+                        <input
+                          type="radio"
+                          className="form-check-input"
+                          name="radio"
+                          value="option1"
+                          checked={formData.radio === 'option1'}
+                          onChange={handleChange}
+                        />
+                        <label className="form-check-label">Option 1</label>
+                      </div>
+                      <div className="form-check">
+                        <input
+                          type="radio"
+                          className="form-check-input"
+                          name="radio"
+                          value="option2"
+                          checked={formData.radio === 'option2'}
+                          onChange={handleChange}
+                        />
+                        <label className="form-check-label">Option 2</label>
+                      </div>
+                    </div>
+                    <div className="valid-feedback">Looks good!</div>
+                    <div className="invalid-feedback">Please select an option.</div>
+                  </div>
 
-      {/* Range Slider */}
-      <div className="form-group mb-3">
-        <label htmlFor="range">Range Input</label>
-        <input
-          type="range"
-          className="form-control-range"
-          id="range"
-          name="range"
-          min="0"
-          max="100"
-          value={formData.range}
-          onChange={handleChange}
-        />
-      </div>
+                </div>
+              </div>
 
-      {/* File Input */}
-      <div className="form-group mb-3">
-        <label htmlFor="file">File Input</label>
-        <input
-          type="file"
-          className="form-control-file"
-          id="file"
-          name="file"
-          onChange={handleChange}
-        />
-      </div>
+              {/* File Input */}
+              <div className="col-md-6">
+                <div className="d-flex align-items-center">
+                  <label className="form-label fixed-width-label">File Upload</label>
+                  <div className="flex-grow-1">
+                    <input
+                      type="file"
+                      className="form-control fixed-width-input"
+                      name="file"
+                      onChange={handleChange}
+                    />
+                    <div className="valid-feedback">Looks good!</div>
+                    <div className="invalid-feedback">Please select a file.</div>
+                  </div>
+                </div>
+              </div>
 
-      {/* Date Input */}
-      <div className="form-group mb-3">
-        <label htmlFor="date">Date</label>
-        <input
-          type="date"
-          className="form-control"
-          id="date"
-          name="date"
-          value={formData.date}
-          onChange={handleChange}
-        />
-      </div>
 
-      {/* Time Input */}
-      <div className="form-group mb-3">
-        <label htmlFor="time">Time</label>
-        <input
-          type="time"
-          className="form-control"
-          id="time"
-          name="time"
-          value={formData.time}
-          onChange={handleChange}
-        />
-      </div>
 
-      {/* DateTime Local Input */}
-      <div className="form-group mb-3">
-        <label htmlFor="datetime">Datetime</label>
-        <input
-          type="datetime-local"
-          className="form-control"
-          id="datetime"
-          name="datetime"
-          value={formData.datetime}
-          onChange={handleChange}
-        />
-      </div>
+              {/* Date Input */}
+              <div className="col-md-4">
+                <div className="d-flex align-items-center">
+                  <label className="form-label fixed-width-label">Date</label>
+                  <div className="flex-grow-1">
+                    <input
+                      type="date"
+                      className="form-control fixed-width-input"
+                      name="date"
+                      value={formData.date}
+                      onChange={handleChange}
+                      required
+                    />
+                    <div className="valid-feedback">Looks good!</div>
+                    <div className="invalid-feedback">Please select a date.</div>
+                  </div>
+                </div>
+              </div>
 
-      {/* Month Input */}
-      <div className="form-group mb-3">
-        <label htmlFor="month">Month</label>
-        <input
-          type="month"
-          className="form-control"
-          id="month"
-          name="month"
-          value={formData.month}
-          onChange={handleChange}
-        />
-      </div>
+              {/* Time Input */}
+              <div className="col-md-4">
+                <div className="d-flex align-items-center">
+                  <label className="form-label fixed-width-label">Time</label>
+                  <div className="flex-grow-1">
+                    <input
+                      type="time"
+                      className="form-control fixed-width-input"
+                      name="time"
+                      value={formData.time}
+                      onChange={handleChange}
+                      required
+                    />
+                    <div className="valid-feedback">Looks good!</div>
+                    <div className="invalid-feedback">Please select a time.</div>
+                  </div>
+                </div>
+              </div>
 
-      {/* Week Input */}
-      <div className="form-group mb-3">
-        <label htmlFor="week">Week</label>
-        <input
-          type="week"
-          className="form-control"
-          id="week"
-          name="week"
-          value={formData.week}
-          onChange={handleChange}
-        />
-      </div>
+              {/* Datetime Input */}
+              <div className="col-md-4">
+                <div className="d-flex align-items-center">
+                  <label className="form-label fixed-width-label">Datetime</label>
+                  <div className="flex-grow-1">
+                    <input
+                      type="datetime-local"
+                      className="form-control fixed-width-input"
+                      name="datetime"
+                      value={formData.datetime}
+                      onChange={handleChange}
+                      required
+                    />
+                    <div className="valid-feedback">Looks good!</div>
+                    <div className="invalid-feedback">Please select a datetime.</div>
+                  </div>
+                </div>
+              </div>
 
-      {/* Switch Input */}
-      <div className="form-check form-switch mb-3">
-        <input
-          type="checkbox"
-          className="form-check-input"
-          id="switch"
-          name="switch"
-          checked={formData.switch}
-          onChange={handleChange}
-        />
-        <label className="form-check-label" htmlFor="switch">
-          Switch Input
-        </label>
-      </div>
+              {/* Textarea */}
+              <div className="col-md-12">
+                <div className="d-flex align-items-center">
+                  <label className="form-label fixed-width-label">Textarea</label>
+                  <div className="flex-grow-1">
+                    <textarea
+                      className="form-control fixed-width-input"
+                      name="textarea"
+                      value={formData.textarea}
+                      onChange={handleChange}
+                      rows="4"
+                      required
+                    />
+                    <div className="valid-feedback">Looks good!</div>
+                    <div className="invalid-feedback">Please provide text.</div>
+                  </div>
+                </div>
+              </div>
+              <div className="col-md-12">
+                <div className="d-flex align-items-center">
+                  <label className="form-label fixed-width-label">Textarea</label>
+                  <div className="flex-grow-1">
+                    <textarea
+                      className="form-control fixed-width-input"
+                      name="textarea"
+                      value={formData.textarea}
+                      onChange={handleChange}
+                      rows="4"
+                      required
+                    />
+                    <div className="valid-feedback">Looks good!</div>
+                    <div className="invalid-feedback">Please provide text.</div>
+                  </div>
+                </div>
+              </div>
+              {/* Range Input */}
+              <div className="col-md-6">
+                <div className="d-flex align-items-center">
+                  <label className="form-label fixed-width-label">Range Input</label>
+                  <div className="flex-grow-1">
+                    <input
+                      type="range"
+                      className=" fixed-width-input"
+                      name="range"
+                      value={formData.range}
+                      onChange={handleChange}
+                      min="0"
+                      max="100"
+                    />
+                    <div className="valid-feedback">Looks good!</div>
+                    <div className="invalid-feedback">Please adjust the range.</div>
+                  </div>
+                </div>
+              </div>
 
-      {/* Submit Button */}
-      <button type="submit" className="btn btn-primary">Submit</button>
-    </form>
+              {/* Submit Button */}
+              <div className="col-12">
+                <button type="submit" className="btn btn-primary ">Submit</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };
