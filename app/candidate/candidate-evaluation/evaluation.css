@@ -29,6 +29,10 @@
   padding: 0.2rem;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
+.invalid-rating {
+  color: red !important; /* Changes rating color to red for validation error */
+  font-weight: bold;
+}
 
 .custom-dotted {
   border-bottom: 1px solid rgb(238, 237, 237) !important;

@@ -3,6 +3,13 @@ export const ValidationHelper = {
   validateField: (fieldName, value, type) => {
     let error = ""; // Default no error
 
+
+
+    if (typeof fieldName !== "string") {
+      console.error("Expected fieldName to be a string, but got:", fieldName);
+      fieldName = String(fieldName);
+    }
+
     // Define required text fields
     const requiredTextFields = [
       // General fields
@@ -19,6 +26,11 @@ export const ValidationHelper = {
 
       //Associate Job Application
       "jobOpening",
+      //candidate evaluation
+      // "candidateStatus", "overallCommentsForGeneralReview","selectType", 
+      "chosenAssessment",
+      "overallRating", "overallStatus", "overallCommentsForScreening", "overallStatus"
+
     ];
 
     const requiredNumericFields = ["experience", "expectedSalary", "noOfPositions", "salary", "experienceInYears"
@@ -69,7 +81,13 @@ export const ValidationHelper = {
       }
     }
     // Custom prefix validation (educational and experience fields)
-    else if (fieldName.startsWith("edu-") || fieldName.startsWith("exp-")) {
+    else if (fieldName.startsWith("edu-") || fieldName.startsWith("exp-") || fieldName.startsWith("rating-")
+      || fieldName.startsWith("comment-")) {
+
+      if (!value || value <= 0) {
+        error = `${fieldName.replace(/([A-Z])/g, " $1")} is required.`;
+
+      }
       if (typeof value === "string" && value.trim() === "") {
         error = `${fieldName.replace(/([A-Z])/g, " $1")} is required.`;
       }

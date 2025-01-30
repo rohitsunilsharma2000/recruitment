@@ -41,7 +41,7 @@ export default function AssociateJobOpening() {
     if (valid) {
       console.log("Form submitted successfully!", formData);
     } else {
-      console.log("Form has validation errors.");
+      console.log("Form has validation errors.", formErrors);
     }
   };
   return (
