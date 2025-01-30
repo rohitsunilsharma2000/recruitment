@@ -136,7 +136,9 @@ const TypeAheadDropdown = ({
           <input
             ref={inputRef}
             type="text"
-            className="form-control search-input border"
+            // className="form-control search-input border"
+            className="form-control search-input border position-sticky top-0 z-3"
+
             placeholder="Search..."
             value={search}
             onChange={handleSearchChange}

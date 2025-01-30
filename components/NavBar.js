@@ -29,9 +29,17 @@ export default function NavBar() {
               <li className="nav-item">
                 <Link className="nav-link fs-0-point-7 fw-700" href="/job-openings/all-job">Job Openings</Link>
               </li>
-              <li className="nav-item">
-                <Link className="nav-link fs-0-point-7 fw-700" href="/candidate/create">Candidates</Link>
+              <li className="nav-item dropdown">
+                <Link className="nav-link dropdown-toggle fs-0-point-7 fw-700" href="/candidate/create" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Candidates
+                </Link>
+                <ul className="dropdown-menu " aria-labelledby="navbarDropdown">
+                  <li><Link className="dropdown-item" href="/candidate/all-candidate">Applications</Link></li>
+                  <li><Link className="dropdown-item" href="/candidate/all-candidate">Applications</Link></li>
+                  <li><Link className="dropdown-item" href="/candidate/all-candidate">Applications</Link></li>
+                </ul>
               </li>
+
               <li className="nav-item">
                 <a className="nav-link fs-0-point-7 fw-700" href="#">About</a>
               </li>

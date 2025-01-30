@@ -12,13 +12,17 @@ export const ValidationHelper = {
       "twitter", "facebook", "candidateStatus", "candidateOwner",
 
       // Create Job Opening fields
-      "postingTitle", "departmentName", "title", "hiringManager", "jobOpeningStatus", "jobType",
-      "assignedRecruiter", "industry", "skills", "city", "province",
+      "postingTitle", "departmentName", "title", "hiringManager",
+      "assignedRecruiter", "skills", "city", "province",
       "postalCode", "jobDescription", "requirements", "benefits",
     ];
 
-    const requiredNumericFields = ["experience", "expectedSalary", "noOfPositions", "salary", "workExperience"];
-    const requiredFileFields = ["resume", "coverLetter", "others", "offer", "contracts", "jobSummary", "otherAttachments"];
+    const requiredNumericFields = ["experience", "expectedSalary", "noOfPositions", "salary", "experienceInYears"
+      // , "workExperience"
+    ];
+    const requiredFileFields = ["resume", "coverLetter", "others", "offer", "contracts",
+      "jobSummary", "otherAttachments"
+    ];
     const requiredDateFields = ["targetDate", "dateOpened"];
 
     // Text field validation

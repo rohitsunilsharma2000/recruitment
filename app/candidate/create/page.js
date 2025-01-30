@@ -1,8 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../candidate.css";
 import { ValidationHelper } from "@/components/form-validator/ValidationHelper";
-
+import { createCandidate, fetchjobApplications, fetchJobApplicationsStatus, fetchJobResourceList, fetchLeads } from "@/utils/restClient";
+import TypeAheadDropdown from "@/components/TypeAheadDropdown/TypeAheadDropdown";
+import StatusMessage from "@/components/status-message/StatusMessage";
 const CreateCandidateForm = () => {
   // Initial state for form data
   const initialState = {
@@ -18,9 +20,10 @@ const CreateCandidateForm = () => {
     city: "",
     postalCode: "",
     country: "",
-    experience: "",
+    // experience: "",
     currentJobTitle: "",
     expectedSalary: "",
+    currentSalary: "",
     skillSet: "",
     skypeId: "",
     linkedin: "",
@@ -34,12 +37,49 @@ const CreateCandidateForm = () => {
     others: null,
     offer: null,
     contracts: null,
+    currentJobTitle: "",
+    currentEmployer: "",
+    highestQualificationHeld: "",
+    additionalInfo: "",
+    source: "",//Job Reference Sources
+    experienceInYears: ""
   };
+
+  const educationalQualificationsList = [
+    { "id": 1, "listValue": "High School Diploma" },
+    { "id": 2, "listValue": "Bachelor of Arts in History" },
+    { "id": 3, "listValue": "Bachelor of Science in Biology" },
+    { "id": 4, "listValue": "Master of Science in Physics" },
+    { "id": 5, "listValue": "Master of Arts in English" },
+    { "id": 6, "listValue": "Doctor of Philosophy in Psychology" },
+    { "id": 7, "listValue": "Associate Degree in Nursing" },
+    { "id": 8, "listValue": "Diploma in Graphic Design" },
+    { "id": 9, "listValue": "Bachelor of Business Administration" },
+    { "id": 10, "listValue": "Master of Business Administration (MBA)" },
+    { "id": 11, "listValue": "Bachelor of Engineering in Civil" },
+    { "id": 12, "listValue": "Master of Technology in Computer Science" },
+    { "id": 13, "listValue": "Certificate in Digital Marketing" },
+    { "id": 14, "listValue": "Postgraduate Diploma in Management" },
+    { "id": 15, "listValue": "Bachelor of Fine Arts" },
+    { "id": 16, "listValue": "Doctor of Medicine (MD)" },
+    { "id": 17, "listValue": "Bachelor of Science in Nursing" },
+    { "id": 18, "listValue": "Master of Science in Environmental Science" },
+    { "id": 19, "listValue": "Master of Arts in Political Science" },
+    { "id": 20, "listValue": "Bachelor of Science in Information Technology" }
+  ]
+
 
   const [formData, setFormData] = useState(initialState);
   const [formErrors, setFormErrors] = useState({});
   const [touchedFields, setTouchedFields] = useState({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [candidateOwnerOptions, setCandidateOwner] = useState([]);
+  const [statusCategories, setStatusCategories] = useState([]);
+  const [searchToolboxData, setSearchToolboxData] = useState([]);
+  const [jobResourceListData, setJobResourceListData] = useState([]);
+  const [attachments, setAttachments] = useState([]);
+
+
+  const [showErrorModal, setShowErrorModal] = useState(false); // State for controlling modal visibility
 
   // State for educational details
   const [educationalDetails, setEducationalDetails] = useState([
@@ -61,14 +101,22 @@ const CreateCandidateForm = () => {
       occupation: "",
       company: "",
       summary: "",
-      workDuration: "",
+      // workDuration: "",
+
       workStartMonth: "",
       workStartYear: "",
+
       workEndMonth: "",
       workEndYear: "",
+
       currentlyWorking: false,
     },
   ]);
+
+
+
+
+
 
   // Helper function to get validation classes for fields
   const getValidationClass = (fieldName) => {
@@ -94,13 +142,40 @@ const CreateCandidateForm = () => {
     return formErrors[fieldName] || "Looks good!";
   };
 
+
   // Handler for changes in educational details
   const handleEducationChange = (index, field, value) => {
-    console.log(`Updating educational detail at index ${index}, field ${field} with value: ${value}`);
-    const updatedDetails = educationalDetails.map((detail, idx) =>
-      idx === index ? { ...detail, [field]: value } : detail
+    console.log(
+      `Updating educational detail at index ${index}, field ${field} with value: ${value}`
     );
-    setEducationalDetails(updatedDetails);
+
+    // const updatedDetails = educationalDetails.map((detail, idx) =>
+    //   idx === index ? { ...detail, [field]: value } : detail
+    // );
+    // setEducationalDetails(updatedDetails);
+
+    // Update educational details (asynchronously)
+    setEducationalDetails((prevDetails) => {
+      const updatedDetails = prevDetails.map((detail, idx) =>
+        idx === index ? { ...detail, [field]: value } : detail
+      );
+
+      // Log the updated value based on field and index
+      if (typeof value === "object" && value !== null) {
+        // If value is an object (including arrays), stringify and log it
+        console.log(
+          `${field} at index ${index} : ${JSON.stringify(value, null, 2)}`
+        );
+      } else {
+        // If value is a primitive (string, number, or boolean), log it directly
+        console.log(`${field} at index ${index} : ${value}`);
+      }
+
+      // Log the updated educational details inside the setEducationalDetails callback
+      console.log("Updated educationalDetails: ", updatedDetails);
+
+      return updatedDetails;
+    });
 
     const fieldKey = `edu-${index}-${field}`;
     setTouchedFields((prev) => ({ ...prev, [fieldKey]: true }));
@@ -110,16 +185,49 @@ const CreateCandidateForm = () => {
   };
 
   // Handler for changes in experience details
+  // const handleExperienceDetailsChange = (index, field, value) => {
+  //   console.log(
+  //     `Updating experience detail at index ${index}, field ${field} with value: ${value}`
+  //   );
+  //   const updatedDetails = experienceDetails.map((detail, idx) =>
+  //     idx === index ? { ...detail, [field]: value } : detail
+  //   );
+  //   setExperienceDetails(updatedDetails);
+
+  //   const fieldKey = `exp-${index}-${field}`;
+  //   setTouchedFields((prev) => ({ ...prev, [fieldKey]: true }));
+
+  //   const error = ValidationHelper.validateField(fieldKey, value, typeof value);
+  //   setFormErrors((prev) => ({ ...prev, [fieldKey]: error }));
+  // };
   const handleExperienceDetailsChange = (index, field, value) => {
-    console.log(`Updating experience detail at index ${index}, field ${field} with value: ${value}`);
+    // Log the change of the field and its value
+    if (typeof value === "object" && value !== null) {
+      // If value is an object (including arrays), stringify and log it
+      console.log(
+        `${field} at index ${index} : ${JSON.stringify(value, null, 2)}`
+      );
+    } else {
+      // If value is a primitive (string, number, or boolean), log it directly
+      console.log(`${field} at index ${index} : ${value}`);
+    }
+
+    // Update experience details
     const updatedDetails = experienceDetails.map((detail, idx) =>
       idx === index ? { ...detail, [field]: value } : detail
     );
+
+    // Log the updated experience details
+    console.log("Updated experienceDetails: ", updatedDetails);
+
+    // Set the updated experience details state
     setExperienceDetails(updatedDetails);
 
+    // Update the touched fields state
     const fieldKey = `exp-${index}-${field}`;
     setTouchedFields((prev) => ({ ...prev, [fieldKey]: true }));
 
+    // Validate the field and log any errors
     const error = ValidationHelper.validateField(fieldKey, value, typeof value);
     setFormErrors((prev) => ({ ...prev, [fieldKey]: error }));
   };
@@ -141,6 +249,67 @@ const CreateCandidateForm = () => {
       },
     ]);
   };
+
+
+
+  // Function to convert month name to a number (e.g., January -> 01)
+  function convertMonthToNumber(month) {
+    const months = {
+      "January": "01",
+      "February": "02",
+      "March": "03",
+      "April": "04",
+      "May": "05",
+      "June": "06",
+      "July": "07",
+      "August": "08",
+      "September": "09",
+      "October": "10",
+      "November": "11",
+      "December": "12"
+    };
+    return months[month];
+  }
+
+  // Function to transform the education data
+  function transformEducationData(data) {
+    return data.map(item => {
+      const startDate = `${item.startYear}-${convertMonthToNumber(item.startMonth)}`;
+      const endDate = `${item.endYear}-${convertMonthToNumber(item.endMonth)}`;
+
+      return {
+        institute: item.institute,
+        major: item.major,
+        degree: item.degree,
+        currentlyPursuing: item.currentlyPursuing,
+        durationFrom: startDate,
+        durationTo: endDate
+      };
+    });
+  }
+
+  function transformExperienceData(data) {
+    return data.map(item => {
+      const startDate = `${item.workStartYear}-${convertMonthToNumber(item.workStartMonth)}`;
+      const endDate = `${item.workEndYear}-${convertMonthToNumber(item.workEndMonth)}`;
+
+      return {
+        occupation: item.occupation,
+        company: item.company,
+        summary: item.currentlyPursuing,
+        currentlyWorkingHere: item.currentlyWorkingHere,
+        durationFrom: startDate,
+        durationTo: endDate
+      };
+    });
+  }
+
+  // Call the function to transform the data
+  // const transformedData = transformEducationData(educationData);
+
+  // // Log the transformed data
+  // console.log(transformedData);
+
 
   // Add a new experience detail entry
   const addExperienceDetail = () => {
@@ -173,19 +342,117 @@ const CreateCandidateForm = () => {
     setEducationalDetails(educationalDetails.filter((_, idx) => idx !== index));
   };
 
+
+
   // Handle changes in general form inputs
   const handleInputChange = (e) => {
     const { name, value, type, checked, files } = e.target;
     const newValue =
-      type === "checkbox" ? checked : type === "file" ? files : value;
+      type === "file"
+        ? files
+          ? files[0]
+          : null // Retrieve the first file
+        : type === "checkbox"
+          ? checked
+          : value;
 
-    console.log(`Updating form field ${name} with value: ${newValue}`);
-    setFormData((prev) => ({ ...prev, [name]: newValue }));
+    // Log the new value (based on input type)
+    if (type === "file" && files && files.length > 0) {
+      const file = files[0]; // Get the selected file (assuming single file)
+      console.log(name + " : " + file.name);  // Log the file name
+
+      // Use setAttachments with the correct syntax
+      setAttachments(prevAttachments => [
+        ...prevAttachments,  // Keep the previous attachments
+        {
+          attachmentType: name,  // Dynamic name (e.g., "resume")
+          filePath: "/attachments/resume/"  //for now HardCoded
+        }
+      ]);
+    }
+    else if (typeof newValue === "object" && newValue !== null) {
+      // If newValue is an object (including arrays), stringify and log it
+      console.log(name + " : " + JSON.stringify(newValue, null, 2));
+    } else {
+      // If newValue is a primitive (string, number, or boolean), log it directly
+      console.log(name + " : " + newValue);
+    }
+
+    // setFormData((prev) => ({ ...prev, [name]: newValue }));
+
+    // Update form data (asynchronously)
+    setFormData((prev) => {
+      const updatedFormData = { ...prev, [name]: newValue };
+      // Log the updated form data inside the setFormData callback to see the result
+      console.log("Updated formData: ", updatedFormData);
+      return updatedFormData;
+    });
+
     setTouchedFields((prev) => ({ ...prev, [name]: true }));
 
     const error = ValidationHelper.validateField(name, newValue, type);
     setFormErrors((prev) => ({ ...prev, [name]: error }));
   };
+
+  // async function createCandidateData() {
+  //   try {
+  //     const createCandidateOptions = await createCandidate();
+  //     // Call the fetchCountries function
+
+  //     console.log(
+  //       "createCandidateOptionsWithId ",
+  //       createCandidateOptionsWithId
+  //     );
+  //     setworkExperienceOptions(createCandidateOptionsWithId);
+  //   } catch (error) {
+  //     console.error("Failed to create Candidate:", error);
+  //     setworkExperienceOptions([]);
+  //     // Default to an empty array in case of error
+  //   }
+  // }
+
+  // Submission state (you can use this to show a success message, etc.)
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [status, setStatus] = useState(''); // State to track status (loading, success, error)
+  const [errorMessage, setErrorMessage] = useState('');
+
+
+  async function createCandidateData(payload) {
+    setStatus('loading');
+    try {
+      const createCandidateResponse = await createCandidate(payload);
+      setStatus('success');
+      console.log("createCandidateOptionsWithId ", createCandidateResponse);
+    } catch (error) {
+
+      const errorMessage =
+        error.response && error.response.data && error.response.data.message
+          ? error.response.data.message
+          : 'An unexpected error occurred';
+      console.error("Failed to create Candidate:", errorMessage);
+      setStatus('error');
+      setErrorMessage(errorMessage);
+    } finally {
+      // setTimeout(() => {
+      //   setStatus('');
+      //   setErrorMessage('');
+      // }, 10000);
+    }
+  }
+
+  // Helper function to get all invalid feedback messages
+  const getInvalidFeedbackMessages = () => {
+    return Object.keys(formErrors).reduce((messages, fieldName) => {
+      // If the field has an error, get the feedback message
+      if (formErrors[fieldName]) {
+        messages.push(getFeedbackMessage(fieldName)); // Collect the feedback message
+      }
+      return messages;
+    }, []);
+  };
+
+  const invalidMessages = getInvalidFeedbackMessages();
+
 
   // Handle form submission
   const handleSubmit = (e) => {
@@ -210,6 +477,8 @@ const CreateCandidateForm = () => {
 
     setFormErrors(newErrors);
     setTouchedFields(touched);
+    const payload = buildCreateCandidatePayload();
+    console.log("payload ", payload);
 
     if (valid) {
       const finalData = {
@@ -217,22 +486,180 @@ const CreateCandidateForm = () => {
         educationalDetails,
         experienceDetails,
       };
+      // Build the payload dynamically using the helper function
+      createCandidateData(payload);
+
       console.log("Form submitted successfully with data:", finalData);
       alert("Form submitted successfully!");
-      setIsSubmitted(true);
     } else {
-      console.log("Form submission failed due to validation errors.", newErrors);
-      alert("Please fix the errors in the form.");
+      // Usage example:
+      // console.log("Invalid Feedback Messages:", invalidMessages);
+
+      console.log(
+        "Form submission failed due to validation errors.",
+        invalidMessages
+      );
+      // If validation fails, show the error modal
+      setShowErrorModal(true); // Display the modal
+
     }
   };
 
+  const buildCreateCandidatePayload = () => {
+    // Initialize the payload object
+    const payload = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      secondaryEmail: formData.secondaryEmail,
+      phone: formData.phone,
+      mobile: formData.mobile,
+      fax: "123-456-789",
+      website: formData.website,
+      addressInformation: {
+        city: formData.city,
+        province: formData.province,
+        country: formData.country,
+        postalCode: formData.postalCode,
+      },
+      experienceInYears: formData.experienceInYears,
+      currentJobTitle: formData.currentJobTitle,
+      expectedSalary: formData.expectedSalary,
+      currentSalary: formData.currentSalary,
+      currentEmployer: formData.currentEmployer,
+      highestQualificationHeld: formData.highestQualificationHeld.listValue,
+      additionalInfo: formData.additionalInfo,
+      skypeId: formData.skypeId,
+      skillSet: [...formData.skillSet],
+      linkedIn: formData.linkedin,
+      twitter: formData.twitter,
+      facebook: formData.facebook,
+      candidateStatus: formData.candidateStatus.listValue,
+      candidateOwnerId: formData.candidateOwner.id,
+      source: formData.source.listValue,
+      optOut: formData.optOut,
+      educationalDetails: transformEducationData(educationalDetails),
+      experienceDetails: transformExperienceData(experienceDetails),
+      attachments: attachments,
+    };
+
+    return payload;
+  };
+
+
+  // Helper function to generate status options
+  // Flatten all status options and assign an id to each status
+  const getAllStatusesOptions = (statusCategories) => {
+    return Object.entries(statusCategories).flatMap(([category, statuses]) =>
+      statuses.map((status, index) => ({
+        id: `${category}-${index}`, // Generate a unique ID (combining category and index)
+        listValue: status
+      }))
+    );
+  };
+
   // Render the form (Add JSX for rendering form inputs as required)
+  useEffect(() => {
 
 
+    async function fetchJobApplicationsStatusData() {
+      try {
+        const response = await fetchJobApplicationsStatus();
+        // console.log("fetchJobApplicationsStatus ", response)
+        const allCategories = getAllStatusesOptions(response);
+        setStatusCategories(allCategories); // Set the array of departments names into state
+      } catch (error) {
+        setStatusCategories([]);
+      }
+    }
+
+    async function fetchCandidateOwnerData() {
+      try {
+        const response = await fetchLeads();
+        console.log("Extracted candidate Owner   response : ", response);
+
+        const recruters = response
+          .filter((user) => user.role.name === ("Recruiter" || "Hiring Manager"))
+          .map((user) => ({
+            id: user.id,
+            listValue: user.firstName + " " + user.lastName
+          }));
+        // console.log("Extracted candidate Owner data : ", recruters);
+        setCandidateOwner(recruters); // Set the array of departments names into state
+        console.log("Candidate Owner have been set into state");
+        console.log("Extracted candidate Owner data : ", recruters);
+
+      } catch (error) {
+        console.error("Failed to fetch  candidate Owner data :", error);
+        setCandidateOwner([]);
+        console.log("Setting empty recruiters array due to error");
+      }
+    }
+
+    async function fetchJobResourceListData() {
+      try {
+        const response = await fetchJobResourceList(); // Fetch data from the API
+        const resourceList = response
+          .map((resource, index) => ({
+            id: index + 1,
+            listValue: resource
+          }));
+        console.log("fetched job resource list data:", response); // Log the response for debugging
+        setJobResourceListData(resourceList); // Store the response data in state
+      } catch (error) {
+        setJobResourceListData([]); // Set an empty array in case of error
+      }
+    }
+
+    fetchJobResourceListData();
+
+    fetchCandidateOwnerData();
+    fetchJobApplicationsStatusData();
+
+  }, []);
   return (
     <div className="container ">
 
-      <nav className="navbar navbar-expand-lg p-3" style={{ backgroundColor: "#e3f2fd" }}>
+
+      <nav
+        className="navbar navbar-expand-lg p-3"
+        style={{ backgroundColor: "#e3f2fd" }}
+      >
+
+
+        {/* Bootstrap Modal for errors */}
+        {showErrorModal && (
+          <div className="modal fade show" tabIndex="-1" role="dialog" style={{ display: 'block' }} aria-hidden="false">
+            <div className="modal-dialog" role="document">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Validation Errors</h5>
+                  <button type="button" className="close" onClick={() => setShowErrorModal(false)} aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div className="modal-body">
+                  <ul>
+                    {invalidMessages.length > 0 ? (
+                      invalidMessages.map((msg, index) => (
+                        <li key={index}>{msg}</li>
+                      ))
+                    ) : (
+                      <li>No validation errors found.</li>
+                    )}
+                  </ul>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowErrorModal(false)}>Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+
+
+
         <div className="container-fluid">
           <span className="navbar-brand">
             <b> Create Candidate</b>
@@ -265,12 +692,12 @@ const CreateCandidateForm = () => {
             </div>
           </div>
         </div>
+
       </nav>
-
-
+      {/* Use the StatusMessage component */}
+      <StatusMessage status={status} errorMessage={errorMessage} />
       <div className="row">
         <div className="col-md-12">
-
           <form onSubmit={handleSubmit}>
             {/* ACTIONS */}
 
@@ -569,20 +996,24 @@ const CreateCandidateForm = () => {
                   </td>
                   <td className="border-0">
                     <input
-                      type="country"
+                      type="number"
                       className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                        "experience"
+                        "experienceInYears"
                       )}`}
-                      id="experience"
-                      name="experience"
-                      placeholder="experience"
-                      value={formData.experience}
+                      id="experienceInYears"
+                      name="experienceInYears"
+                      placeholder="experienceInYears"
+                      value={formData.experienceInYears}
                       onChange={handleInputChange}
                     />
-                    <div className={getFeedbackClass("experience")}>
-                      {getFeedbackMessage("experience")}
+                    <div className={getFeedbackClass("experienceInYears")}>
+                      {getFeedbackMessage("experienceInYears")}
                     </div>
                   </td>
+
+
+
+
                   <td className="border-0 text-end">
                     <label htmlFor="currentJobTitle" className="form-label">
                       Current Job Title
@@ -613,7 +1044,7 @@ const CreateCandidateForm = () => {
                   </td>
                   <td className="border-0">
                     <input
-                      type="text"
+                      type="number"
                       className={`form-control form-control-sm small-placeholder ${getValidationClass(
                         "expectedSalary"
                       )}`}
@@ -672,9 +1103,120 @@ const CreateCandidateForm = () => {
                       {getFeedbackMessage("skypeId")}
                     </div>
                   </td>
-                  <td className="border-0"></td>
-                  <td className="border-0"></td>
+                  <td className="border-0 text-end">
+                    <label htmlFor="currentSalary" className="form-label">
+                      currentSalary
+                    </label>
+                  </td>
+                  <td className="border-0">
+                    <input
+                      type="number"
+                      className={`form-control form-control-sm small-placeholder ${getValidationClass(
+                        "currentSalary"
+                      )}`}
+                      id="currentSalary"
+                      name="currentSalary"
+                      placeholder=" currentSalary"
+                      value={formData.currentSalary}
+                      onChange={handleInputChange}
+                    />
+                    <div className={getFeedbackClass("currentSalary")}>
+                      {getFeedbackMessage("currentSalary")}
+                    </div>
+                  </td>
                 </tr>
+                {/* Start  */}
+                <tr className="border-0">
+
+                  {/* left input */}
+                  <td className="border-0 text-end">
+                    <label htmlFor="skypeId" className="form-label">
+                      Current Employer
+                    </label>
+                  </td>
+                  <td className="border-0">
+                    <input
+                      type="text"
+                      className={`form-control form-control-sm small-placeholder ${getValidationClass(
+                        "currentEmployer"
+                      )}`}
+                      id="currentEmployer"
+                      name="currentEmployer"
+                      placeholder=" currentEmployer"
+                      value={formData.currentEmployer}
+                      onChange={handleInputChange}
+                    />
+                    <div className={getFeedbackClass("currentEmployer")}>
+                      {getFeedbackMessage("currentEmployer")}
+                    </div>
+                  </td>
+
+                  {/* right input */}
+                  <td className="border-0 text-end">
+                    <label htmlFor="skypeId" className="form-label">
+                      Highest Qualification held
+                    </label>
+                  </td>
+                  <td className="border-0">
+                    {/* <input
+                      type="number"
+                      className={`form-control form-control-sm small-placeholder ${getValidationClass(
+                        "highestQualificationHeld"
+                      )}`}
+                      id="highestQualificationHeld"
+                      name="highestQualificationHeld"
+                      placeholder=" highestQualificationHeld"
+                      value={formData.highestQualificationHeld}
+                      onChange={handleInputChange}
+                    /> */}
+                    <TypeAheadDropdown
+                      id="highestQualificationHeld"
+                      name="highestQualificationHeld"
+                      options={educationalQualificationsList}
+                      selectedValue={formData.highestQualificationHeld}
+                      placeholder="Choose a Qualification"
+                      onSelect={(selectedOption) => setFormData((prev) => ({
+                        ...prev,
+                        highestQualificationHeld: selectedOption,
+                      }))}
+                      value={formData.highestQualificationHeld}
+                      onChange={handleInputChange}
+                      className={`form-select form-select-sm small-placeholder ${getValidationClass(
+                        "highestQualificationHeld"
+                      )}`}
+                      getValidationclassName={getValidationClass} />
+                    <div className={getFeedbackClass("highestQualificationHeld")}>
+                      {getFeedbackMessage("highestQualificationHeld")}
+                    </div>
+                  </td>
+
+                </tr>
+
+                <tr className="border-0">
+                  <td className="border-0 text-end">
+                    <label htmlFor="skypeId" className="form-label">
+                      Additional Info
+                    </label>
+                  </td>
+                  <td className="border-0">
+                    <input
+                      type="text"
+                      className={`form-control form-control-sm small-placeholder ${getValidationClass(
+                        "additionalInfo"
+                      )}`}
+                      id="additionalInfo"
+                      name="additionalInfo"
+                      placeholder=" additionalInfo"
+                      value={formData.additionalInfo}
+                      onChange={handleInputChange}
+                    />
+                    <div className={getFeedbackClass("additionalInfo")}>
+                      {getFeedbackMessage("additionalInfo")}
+                    </div>
+                  </td>
+                </tr>
+
+                {/* end */}
 
                 <tr className="border-0">
                   <th colSpan="4" className="border-bottom">
@@ -763,7 +1305,7 @@ const CreateCandidateForm = () => {
                     </label>
                   </td>
                   <td className="border-0">
-                    <input
+                    {/* <input
                       type="text"
                       className={`form-control form-control-sm small-placeholder ${getValidationClass(
                         "candidateStatus"
@@ -773,7 +1315,24 @@ const CreateCandidateForm = () => {
                       placeholder=" candidateStatus"
                       value={formData.candidateStatus}
                       onChange={handleInputChange}
-                    />
+                    /> */}
+                    <TypeAheadDropdown
+                      id="candidateStatus"
+                      name="candidateStatus"
+                      options={statusCategories}
+                      selectedValue={formData.candidateStatus}
+                      placeholder="Choose a candidateStatus"
+                      onSelect={(selectedOption) => setFormData((prev) => ({
+                        ...prev,
+                        candidateStatus: selectedOption,
+                      }))}
+                      value={formData.candidateStatus}
+                      onChange={handleInputChange}
+                      className={`form-select form-select-sm small-placeholder ${getValidationClass(
+                        "candidateStatus"
+                      )}`}
+                      getValidationclassName={getValidationClass} />
+
                     <div className={getFeedbackClass("candidateStatus")}>
                       {getFeedbackMessage("candidateStatus")}
                     </div>
@@ -784,22 +1343,62 @@ const CreateCandidateForm = () => {
                     </label>
                   </td>
                   <td className="border-0">
-                    <input
-                      type="text"
-                      className={`form-control form-control-sm small-placeholder ${getValidationClass(
-                        "candidateOwner"
-                      )}`}
+
+
+                    <TypeAheadDropdown
                       id="candidateOwner"
                       name="candidateOwner"
-                      placeholder=" Candidate Owner"
+                      options={candidateOwnerOptions}
+                      selectedValue={formData.candidateOwner}
+                      placeholder="Choose a candidateOwner"
+                      onSelect={(selectedOption) => setFormData((prev) => ({
+                        ...prev,
+                        candidateOwner: selectedOption,
+                      }))}
                       value={formData.candidateOwner}
                       onChange={handleInputChange}
-                    />
+                      className={`form-select form-select-sm small-placeholder ${getValidationClass(
+                        "candidateOwner"
+                      )}`}
+                      getValidationclassName={getValidationClass} />
+
                     <div className={getFeedbackClass("candidateOwner")}>
                       {getFeedbackMessage("candidateOwner")}
                     </div>
                   </td>
                 </tr>
+
+
+                <tr className="border-0">
+                  <td className="border-0 text-end">
+                    <label htmlFor="skypeId" className="form-label">
+                      Source / Job Search Toolbox
+                    </label>
+                  </td>
+                  <td className="border-0">
+                    <TypeAheadDropdown
+                      id="source"
+                      name="source"
+                      options={jobResourceListData}
+                      selectedValue={formData.source}
+                      placeholder="Choose a source"
+                      onSelect={(selectedOption) => setFormData((prev) => ({
+                        ...prev,
+                        source: selectedOption,
+                      }))}
+                      value={formData.source}
+                      onChange={handleInputChange}
+                      className={`form-select form-select-sm small-placeholder ${getValidationClass(
+                        "source"
+                      )}`}
+                      getValidationclassName={getValidationClass} />
+
+                    <div className={getFeedbackClass("source")}>
+                      {getFeedbackMessage("source")}
+                    </div>
+                  </td>
+                </tr>
+
                 <tr className="border-0">
                   <td className="border-0 text-end">
                     <label htmlFor="emailOptOut" className="form-label">
@@ -925,7 +1524,9 @@ const CreateCandidateForm = () => {
                             )
                           }
                         />
-                        <div className={getFeedbackClass(`edu-${index}-institute`)}>
+                        <div
+                          className={getFeedbackClass(`edu-${index}-institute`)}
+                        >
                           {getFeedbackMessage(`edu-${index}-institute`)}
                         </div>
                       </td>
@@ -948,7 +1549,11 @@ const CreateCandidateForm = () => {
                           placeholder="Major"
                           value={detail.major}
                           onChange={(e) =>
-                            handleEducationChange(index, "major", e.target.value)
+                            handleEducationChange(
+                              index,
+                              "major",
+                              e.target.value
+                            )
                           }
                         />
                         <div className={getFeedbackClass(`edu-${index}-major`)}>
@@ -986,10 +1591,16 @@ const CreateCandidateForm = () => {
                           placeholder="Degree"
                           value={detail.degree}
                           onChange={(e) =>
-                            handleEducationChange(index, "degree", e.target.value)
+                            handleEducationChange(
+                              index,
+                              "degree",
+                              e.target.value
+                            )
                           }
                         />
-                        <div className={getFeedbackClass(`edu-${index}-degree`)}>
+                        <div
+                          className={getFeedbackClass(`edu-${index}-degree`)}
+                        >
                           {getFeedbackMessage(`edu-${index}-degree`)}
                         </div>
                       </td>
@@ -1056,7 +1667,9 @@ const CreateCandidateForm = () => {
                               <option>2022</option>
                             </select>
                             <div
-                              className={getFeedbackClass(`edu-${index}-startYear`)}
+                              className={getFeedbackClass(
+                                `edu-${index}-startYear`
+                              )}
                             >
                               {getFeedbackMessage(`edu-${index}-startYear`)}
                             </div>
@@ -1084,7 +1697,9 @@ const CreateCandidateForm = () => {
                               <option>March</option>
                             </select>
                             <div
-                              className={getFeedbackClass(`edu-${index}-endMonth`)}
+                              className={getFeedbackClass(
+                                `edu-${index}-endMonth`
+                              )}
                             >
                               {getFeedbackMessage(`edu-${index}-endMonth`)}
                             </div>
@@ -1111,7 +1726,9 @@ const CreateCandidateForm = () => {
                               <option>2022</option>
                             </select>
                             <div
-                              className={getFeedbackClass(`edu-${index}-endYear`)}
+                              className={getFeedbackClass(
+                                `edu-${index}-endYear`
+                              )}
                             >
                               {getFeedbackMessage(`edu-${index}-endYear`)}
                             </div>
@@ -1243,7 +1860,9 @@ const CreateCandidateForm = () => {
                           }
                         />
                         <div
-                          className={getFeedbackClass(`exp-${index}-occupation`)}
+                          className={getFeedbackClass(
+                            `exp-${index}-occupation`
+                          )}
                         >
                           {getFeedbackMessage(`exp-${index}-occupation`)}
                         </div>
@@ -1273,7 +1892,9 @@ const CreateCandidateForm = () => {
                             )
                           }
                         />
-                        <div className={getFeedbackClass(`exp-${index}-company`)}>
+                        <div
+                          className={getFeedbackClass(`exp-${index}-company`)}
+                        >
                           {getFeedbackMessage(`exp-${index}-company`)}
                         </div>
                       </td>
@@ -1302,7 +1923,9 @@ const CreateCandidateForm = () => {
                             )
                           }
                         />
-                        <div className={getFeedbackClass(`exp-${index}-summary`)}>
+                        <div
+                          className={getFeedbackClass(`exp-${index}-summary`)}
+                        >
                           {getFeedbackMessage(`exp-${index}-summary`)}
                         </div>
                       </td>
@@ -1317,15 +1940,15 @@ const CreateCandidateForm = () => {
                         <div className="d-flex">
                           <select
                             className={`form-control form-control-sm ${getValidationClass(
-                              `exp-${index}-startMonth`
+                              `exp-${index}-workStartMonth`
                             )}`}
-                            id={`exp-${index}-startMonth`}
-                            name="startMonth"
+                            id={`exp-${index}-workStartMonth`}
+                            name="workStartMonth"
                             value={formData.startMonth}
                             onChange={(e) =>
                               handleExperienceDetailsChange(
                                 index,
-                                "startMonth",
+                                "workStartMonth",
                                 e.target.value
                               )
                             }
@@ -1384,7 +2007,9 @@ const CreateCandidateForm = () => {
                           </select>
 
                           <div
-                            className={getFeedbackClass(`edu-${index}-endMonth`)}
+                            className={getFeedbackClass(
+                              `edu-${index}-endMonth`
+                            )}
                           >
                             {getFeedbackMessage(`edu-${index}-endMonth`)}
                           </div>
@@ -1419,23 +2044,26 @@ const CreateCandidateForm = () => {
 
                     <tr className="border-0">
                       <td className="text-end border-0">
-                        <label htmlFor="currentlyWorking" className="form-label">
+                        <label
+                          htmlFor="currentlyWorkingHere"
+                          className="form-label"
+                        >
                           I currently work here
                         </label>
                       </td>
                       <td className="border-0" colSpan="3">
                         <input
                           className={`form-check-input ${getValidationClass(
-                            "currentlyWorking"
+                            "currentlyWorkingHere"
                           )}`}
                           type="checkbox"
-                          id="currentlyWorking"
-                          name="currentlyWorking"
-                          checked={formData.currentlyWorking}
+                          id="currentlyWorkingHere"
+                          name="currentlyWorkingHere"
+                          checked={formData.currentlyWorkingHere}
                           onChange={handleExperienceDetailsChange}
                         />
-                        <div className={getFeedbackClass("currentlyWorking")}>
-                          {getFeedbackMessage("currentlyWorking")}
+                        <div className={getFeedbackClass("currentlyWorkingHere")}>
+                          {getFeedbackMessage("currentlyWorkingHere")}
                         </div>
                       </td>
                     </tr>
@@ -1554,11 +2182,15 @@ const CreateCandidateForm = () => {
                     </div>
                   </td>
                 </tr>
+
+
+
+
               </tbody>
             </table>
           </form>
-        </div></div>
-
+        </div>
+      </div>
     </div>
   );
 };

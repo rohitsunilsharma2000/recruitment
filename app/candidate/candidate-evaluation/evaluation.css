@@ -1,0 +1,35 @@
+/* Rating icons styling */
+.star-icon {
+  font-size: 1.5rem;
+  color: #f39c12; /* Yellow color */
+  margin-right: 5px;
+}
+
+.star-icon:hover {
+  cursor: pointer;
+}
+
+/* Rating icons styling */
+.star-icon {
+  font-size: 1.5rem;
+  color: #f39c12; /* Yellow color */
+  margin-right: 5px;
+  transition: all 0.2s ease;
+}
+
+.star-icon:hover {
+  cursor: pointer;
+  transform: scale(1.1);
+}
+
+/* Apply a background color to selected stars */
+.star-icon.selected {
+  background-color: #f39c12; /* Yellow background */
+  border-radius: 50%;
+  padding: 0.2rem;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.custom-dotted {
+  border-bottom: 1px solid rgb(238, 237, 237) !important;
+}
