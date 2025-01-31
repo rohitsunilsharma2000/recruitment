@@ -266,7 +266,7 @@ const Tabs = () => {
           };
         });
 
-        setchoosedQuestionResponses(initialResponses);
+        // setchoosedQuestionResponses(initialResponses);
       } catch (error) {
         setQuestionType([]);
         setAllQuestion([]);
@@ -536,12 +536,12 @@ const Tabs = () => {
                                       <i
                                         key={star}
                                         className={`bi ${star <=
-                                            (hoveredRating[item.id] ||
-                                              choosedQuestionResponses[item.id]
-                                                ?.rating ||
-                                              0)
-                                            ? "bi-star-fill"
-                                            : "bi-star"
+                                          (hoveredRating[item.id] ||
+                                            choosedQuestionResponses[item.id]
+                                              ?.rating ||
+                                            0)
+                                          ? "bi-star-fill"
+                                          : "bi-star"
                                           }`}
                                         style={{
                                           color: "#f39c12",
