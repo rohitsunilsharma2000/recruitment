@@ -362,4 +362,64 @@ export const fetchAllQuestion = async () => {
   }
 };
 
+export const evaluateCandidate = async (candidateId, payload) => {
+  try {
+    const response = await restClient.post(`/api/candidate-evaluations/${candidateId}`, payload);
+    return response.data; // Return the response data if the request is successful
+  } catch (error) {
+    console.error('Error evaluating candidate:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+};
+
+
+
+export const createBulkJobApplications = async (payload) => {
+  try {
+    const response = await restClient.post('/api/job-applications/bulk', payload);
+    return response.data; // Return the response data if the request is successful
+  } catch (error) {
+    console.error('Error creating bulk job applications:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+};
+
+
+
+export const createInterview = async (payload) => {
+  try {
+    const response = await restClient.post('/api/interviews', payload);
+    return response.data; // Return the response data if the request is successful
+  } catch (error) {
+    console.error('Error creating interview:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+};
+
+
+
+export const updateInterview = async (interviewId, payload) => {
+  try {
+    const response = await restClient.put(`/api/interviews/${interviewId}`, payload);
+    return response.data; // Return the response data if the request is successful
+  } catch (error) {
+    console.error('Error updating interview:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+};
+
+export const deleteInterview = async (interviewId) => {
+  try {
+    const response = await restClient.delete(`/api/interviews/${interviewId}`);
+    return response.data; // Return the response data if the request is successful
+  } catch (error) {
+    console.error('Error deleting interview:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+};
+
+
+
+
+
 export default restClient;

@@ -25,6 +25,17 @@ export const ValidationHelper = {
     ];
     const requiredDateFields = ["targetDate", "dateOpened"];
 
+    console.log("fieldName ",fieldName)
+    console.log("value ",value)
+
+    // Validate Rating (Ensure it's between 1 and 5)
+    if (fieldName === "rating") {
+      if (!value || isNaN(value) || value < 1 || value > 5) {
+        error = "Please provide a valid rating between 1 and 5.";
+      }
+    }
+  
+
     // Text field validation
     if (requiredTextFields.includes(fieldName)) {
 
@@ -65,11 +76,13 @@ export const ValidationHelper = {
       }
     }
     // Custom prefix validation (educational and experience fields)
-    else if (fieldName.startsWith("edu-") || fieldName.startsWith("exp-")) {
+    else if (fieldName.startsWith("edu-") || fieldName.startsWith("exp-") || fieldName.startsWith("comment-")) {
       if (typeof value === "string" && value.trim() === "") {
         error = `${fieldName.replace(/([A-Z])/g, " $1")} is required.`;
       }
     }
+
+    
 
     return error;
   },
