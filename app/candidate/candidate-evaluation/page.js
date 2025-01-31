@@ -18,10 +18,11 @@ const Tabs = () => {
     showComments: false,
     comments: "",
     // Fields for the "final" rating submission
-    overallRating: "1",
+    overallRating: 0,
     overallStatus: "active",
     overallCommentsForGeneralReview: "",
     overallCommentsForScreening: "",
+    generalRating:0
   });
 
   const [allQuestions, setAllQuestion] = useState([]);
@@ -74,18 +75,32 @@ const Tabs = () => {
   };
 
   const handleRatingChange = (questionId, value) => {
-    setchoosedQuestionResponses((prevResponses) => ({
-      ...prevResponses,
-      [questionId]: {
-        ...prevResponses[questionId],
-        rating: value,
-      },
-    }));
-
-    // Validate rating
-    const error = ValidationHelper.validateField("rating", value, "number");
-    setFormErrors((prev) => ({ ...prev, [questionId]: error }));
-    setTouchedFields((prev) => ({ ...prev, [questionId]: true })); // Ensure field is marked as touched
+    if (questionId === "generalRating") {
+      // Handle overall rating change
+      setFormData((prevData) => ({
+        ...prevData,
+        generalRating: value, // Update the generalRating in formData
+      }));
+  
+      // Validate the generalRating
+      const error = ValidationHelper.validateField("rating", value, "number");
+      setFormErrors((prev) => ({ ...prev, generalRating: error }));
+      setTouchedFields((prev) => ({ ...prev, generalRating: true })); // Ensure field is marked as touched
+    } else {
+      // Handle rating for specific questions
+      setchoosedQuestionResponses((prevResponses) => ({
+        ...prevResponses,
+        [questionId]: {
+          ...prevResponses[questionId],
+          rating: value,
+        },
+      }));
+  
+      // Validate rating for specific question
+      const error = ValidationHelper.validateField("rating", value, "number");
+      setFormErrors((prev) => ({ ...prev, [questionId]: error }));
+      setTouchedFields((prev) => ({ ...prev, [questionId]: true })); // Ensure field is marked as touched
+    }
   };
 
   const handleCommentChange = (questionId, value) => {
@@ -164,32 +179,38 @@ const Tabs = () => {
     // Final validation check before submission
     if (valid) {
       console.log("✅ All ratings and comments are filled. Submitting form...");
+// Constructing the questionReviews array for each question
+const questionReviews = Object.keys(choosedQuestionResponses).map(
+  (questionBankTemplateId) => ({
+    questionBankTemplateId: parseInt(questionBankTemplateId, 10), // Convert to integer
+    rating: parseInt(choosedQuestionResponses[questionBankTemplateId]?.rating || 0, 10), // Convert to integer
+    comments: choosedQuestionResponses[questionBankTemplateId]?.comments || "",
+  })
+);
 
-      const questionReviews = Object.keys(choosedQuestionResponses).map(
-        (questionBankTemplateId) => ({
-          questionBankTemplateId,
-          rating: choosedQuestionResponses[questionBankTemplateId]?.rating || 0,
-          comments:
-            choosedQuestionResponses[questionBankTemplateId]?.comments || "",
-        })
-      );
-
-      const payload = {
-        generalReview: {
-          rating: 4,
-          candidateStatus: formData.candidateStatus,
-          overallComments: formData.overallCommentsForGeneralReview,
+// Constructing the payload with the required structure
+const payload = {
+  generalReview: {
+    rating: parseInt(formData.generalRating, 10), // Convert to integer
+    candidateStatus: formData.candidateStatus,
+    overallComments: formData.overallCommentsForGeneralReview,
+  },
+  screeningReviews: 
+    {
+      overallRating: parseInt(formData.overallRating, 10), // Convert to integer
+      status: formData.overallStatus,
+      overallComments:formData.overallCommentsForScreening,
+      CandidateGeneralAssessment: [
+        {
+          competencyType: formData.chosenAssessment, // Assuming this is the competencyType for the review
+          questionReviews: questionReviews,
         },
-        screeningReviews: [
-          {
-            reviewType: formData.chosenAssessment,
-            overallRating: formData.overallRating,
-            status: formData.overallStatus,
-            overallComments: formData.overallCommentsForScreening,
-            questionReviews: questionReviews,
-          },
-        ],
-      };
+      ],
+    },
+  
+};
+
+
 
       console.log("Form Data for submission:", payload);
       alert("✅ Form is valid and ready to submit!");
@@ -215,6 +236,28 @@ const Tabs = () => {
         // value: `${category}-${index}`,  // Create a unique ID using category and index
         label: status,
       }))
+    );
+  };
+
+  const StarRating = ({ id, rating, hoveredRating, onRatingChange, onHoverChange }) => {
+    return (
+      <div>
+        {[0, 1, 2, 3, 4, 5].map((star) => (
+          <i
+            key={star}
+            className={`bi ${
+              star <= (hoveredRating[id] || rating || 0) ? "bi-star-fill" : "bi-star"
+            }`}
+            style={{
+              color: "#f39c12",
+              cursor: "pointer",
+            }}
+            onClick={() => onRatingChange(id, star)}
+            onMouseEnter={() => onHoverChange(id, star)}
+            onMouseLeave={() => onHoverChange(id, undefined)}
+          />
+        ))}
+      </div>
     );
   };
 
@@ -348,13 +391,13 @@ const Tabs = () => {
                     <div>
                       <div className="mb-4">
                         <label className="form-label">Rating</label>
-                        <div className="d-flex align-items-center">
-                          <i className="bi bi-star-fill star-icon"></i>
-                          <i className="bi bi-star-fill star-icon"></i>
-                          <i className="bi bi-star-fill star-icon"></i>
-                          <i className="bi bi-star-fill star-icon"></i>
-                          <i className="bi bi-star-fill star-icon"></i>
-                        </div>
+                        <StarRating
+                      id="generalRating" // Pass the unique id for generalRating
+                      rating={formData.generalRating} // Use formData.generalRating as the value
+                      hoveredRating={hoveredRating}
+                      onRatingChange={(id, value) => handleRatingChange(id, value)} // Update the generalRating on rating change
+                      onHoverChange={(id, value) => setHoveredRating((prev) => ({ ...prev, [id]: value }))}
+                    />
                       </div>
 
                       <div className="mb-4">
@@ -532,38 +575,15 @@ const Tabs = () => {
 
                                   {/* Star Rating Input */}
                                   <div>
-                                    {[0, 1, 2, 3, 4, 5].map((star) => (
-                                      <i
-                                        key={star}
-                                        className={`bi ${star <=
-                                          (hoveredRating[item.id] ||
-                                            choosedQuestionResponses[item.id]
-                                              ?.rating ||
-                                            0)
-                                          ? "bi-star-fill"
-                                          : "bi-star"
-                                          }`}
-                                        style={{
-                                          color: "#f39c12",
-                                          cursor: "pointer",
-                                        }}
-                                        onClick={() =>
-                                          handleRatingChange(item.id, star)
-                                        }
-                                        onMouseEnter={() =>
-                                          setHoveredRating((prev) => ({
-                                            ...prev,
-                                            [item.id]: star,
-                                          }))
-                                        }
-                                        onMouseLeave={() =>
-                                          setHoveredRating((prev) => ({
-                                            ...prev,
-                                            [item.id]: undefined,
-                                          }))
-                                        }
-                                      />
-                                    ))}
+                                  <StarRating
+      id={item.id}
+      rating={choosedQuestionResponses[item.id]?.rating || 0}
+      hoveredRating={hoveredRating}
+      onRatingChange={handleRatingChange}
+      onHoverChange={(id, value) =>
+        setHoveredRating((prev) => ({ ...prev, [id]: value }))
+      }
+    />
                                     <span className="ms-2">
                                       <a
                                         className="btn btn-link text-decoration-none fs-6"
