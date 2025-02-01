@@ -3,10 +3,12 @@ import React, { useEffect, useState } from "react";
 import SidebarBarJobFilter from "@/components/setup-side-bar-job-filter/SidebarBarJobFilter";
 import Link from "next/link";
 import { fetchAllCandidates } from "@/utils/restClient";
+import AssociateJobOpening from "@/app/job-openings/asssociate/page";
 
 export default function AllCandidates() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [candidates, setCandidates] = useState([]);
+  const [seletedCandidateIds, setseletedCandidateIds] = useState([]);
 
   useEffect(() => {
     async function fetchAllCandidatesData() {
@@ -68,6 +70,27 @@ export default function AllCandidates() {
   };
 
 
+   // Method to handle checkbox change
+   const handleCheckboxChange = (candidateId) => {
+    setseletedCandidateIds((prevCandidateIds) => {
+      let updatedCandidateIds;
+  
+      if (prevCandidateIds.includes(candidateId)) {
+        // If candidateId already exists, remove it
+        updatedCandidateIds = prevCandidateIds.filter(id => id !== candidateId);
+        console.log(`Removing candidateId: ${candidateId}`);
+      } else {
+        // If candidateId doesn't exist, add it
+        updatedCandidateIds = [...prevCandidateIds, candidateId];
+        console.log(`Adding candidateId: ${candidateId}`);
+      }
+  
+      console.log(`All selected Candidate Ids:`, updatedCandidateIds); // Log the updated list
+      return updatedCandidateIds;
+    });
+  };
+  
+
   return (
     <div className="container-fluid">
       <nav className="navbar navbar-expand-lg p-3" style={{ backgroundColor: "#e3f2fd" }}>
@@ -76,9 +99,12 @@ export default function AllCandidates() {
             <button className="btn-sm btn btn-light" onClick={toggleSidebar}>
               <i className="bi bi-funnel"></i>
             </button>
-            <b> All Job Openings</b>
+            <b> All Candidates</b>
+            
           </span>
+          
           <div className="d-flex justify-content-end gap-3 mt-1">
+             <AssociateJobOpening/>
             <button type="button" className="btn-sm btn btn-secondary">
               Cancel
             </button>
@@ -93,7 +119,7 @@ export default function AllCandidates() {
         {showSidebar && (
           <div className="col-md-2 bg-light p-3">
 
-            <div className="row bg-danger">Left</div>
+            <div className="row ">Filters</div>
             {/* <SidebarBarJobFilter
               filters={filters}
               onFilterChange={handleFilterChange}
@@ -110,7 +136,7 @@ export default function AllCandidates() {
               <thead>
                 <tr>
                   <th scope="col">#</th>
-
+                  <th scope="col">Asociate</th>
                   <th scope="col">Rating</th>
                   <th scope="col">Candidate Name</th>
                   <th scope="col">City</th>
@@ -126,6 +152,13 @@ export default function AllCandidates() {
                 {candidates.map((candidate) => (
                   <tr key={candidate.id}>
                     <th scope="row">{candidate.id}</th>
+                    <td >            
+                      <input
+                        type="checkbox"
+                        onChange={() => handleCheckboxChange(candidate.id)}
+                      />
+                    </td>
+
                     <td >
                       <Link href="/candidate/candidate-evaluation" passHref>
                         <button type="button" className="btn btn-sm btn-outline-secondary">

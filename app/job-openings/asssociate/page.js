@@ -46,10 +46,15 @@ export default function AssociateJobOpening() {
   };
   return (
     <div>
-      <div className="container mt-4">
-        <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#jobApplicationModal">
+      <div className="container ">
+        {/* <button className="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#jobApplicationModal">
           Open Job Application
-        </button>
+        </button> */}
+
+
+        <button type="button" className="btn-sm btn btn-success" data-bs-toggle="modal" data-bs-target="#jobApplicationModal">
+       Associate Now
+            </button>
       </div>
 
       <div className="modal fade" id="jobApplicationModal" tabIndex="-1" aria-labelledby="jobApplicationModalLabel" aria-hidden="true">

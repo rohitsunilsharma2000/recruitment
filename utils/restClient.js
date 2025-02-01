@@ -420,6 +420,26 @@ export const deleteInterview = async (interviewId) => {
 
 
 
+export const fetchAllJobs = async () => {
+  try {
+    const response = await restClient.get('/api/job-openings');
+    return response.data;
+  } catch (error) {
+    console.error('Error in  fetch All jobs  :', error);
+    throw error;
+  }
+};
+
+
+export const fetchJobOpeningById = async (jobId) => {
+  try {
+    const response = await restClient.get(`/api/job-openings/${jobId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error in fetching job opening with ID ${jobId}:`, error);
+    throw error;
+  }
+};
 
 
 export default restClient;
