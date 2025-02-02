@@ -2,7 +2,7 @@
 
 
 import React, { useState } from 'react';
-import "./TokenizedTagInput.css"
+// import "./TokenizedTagInput.css"
 
 const TokenizedTagInput = () => {
   // Predefined list of suggestions for demonstration

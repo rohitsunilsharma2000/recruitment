@@ -3,12 +3,12 @@ import React, { useState, useEffect } from "react";
 
 import { fetchDepartments, fetchLeads } from "@/utils/restClient";
 
-export default function AddDepartmentModal({ initialData, onClose, onSave }) {
+export default function AddDepartmentModal({  onClose, onSave }) {
   const [formData, setFormData] = useState({
-    departmentName: initialData.departmentName || "",
-    parentDepartmentId: initialData.parentDepartmentId?.id || "",
-    departmentLead: initialData.departmentLead?.id || "",
-    attachmentPath: initialData.attachmentPath || "",
+    departmentName:  "",
+    parentDepartmentId: "",
+    departmentLead: "",
+    attachmentPath: "",
   });
 
   const [departments, setDepartments] = useState([]);
@@ -18,12 +18,7 @@ export default function AddDepartmentModal({ initialData, onClose, onSave }) {
 
   // Dynamically set form values when the component mounts
   useEffect(() => {
-    setFormData({
-      departmentName: initialData.departmentName || "",
-      parentDepartmentId: initialData.parentDepartmentId?.id || "",
-      departmentLead: initialData.departmentLead?.id || "",
-      attachmentPath: initialData.attachmentPath || "",
-    });
+
 
     async function fetchDepartmentsData() {
       try {
@@ -68,7 +63,7 @@ export default function AddDepartmentModal({ initialData, onClose, onSave }) {
 
     fetchLeadsData();
     fetchDepartmentsData(); // Call the function
-  }, [initialData]);
+  }, []);
 
   // Filter departments based on search query
   useEffect(() => {
@@ -84,15 +79,31 @@ export default function AddDepartmentModal({ initialData, onClose, onSave }) {
 
   const handleSave = (e) => {
     e.preventDefault();
-    alert("Call depart create API");
+    // alert("Call depart create API");
     onSave(formData);
     onClose();
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+    const handleChange = (e) => {
+      const { name, value } = e.target;
+    
+      if (name === "parentDepartmentId") {
+        // Look up the selected department using its id.
+        const selectedDepartment = departments.find(
+          (dept) => String(dept.id) === value
+        );
+        setFormData({
+          ...formData,
+          [name]: value,
+          // Update departmentName with the selected department's name,
+          // or set it to an empty string if not found.
+          departmentName: selectedDepartment ? selectedDepartment.departmentName : "",
+        });
+      } else {
+        setFormData({ ...formData, [name]: value });
+      }
+    };
+  
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value); // Update search query state on input change
@@ -147,12 +158,14 @@ export default function AddDepartmentModal({ initialData, onClose, onSave }) {
                   {filteredDepartments.map((department) => (
                     <tr key={department.id}>
                       <th scope="row">
-                        <input
-                          type="radio"
-                          name="parentDepartmentId"
-                          value={department.id}
-                          onClick={(e) => handleChange(e)} // Update form data
-                        />
+                      <input
+                        type="radio"
+                        name="parentDepartmentId"
+                        value={department.id}
+                        checked={String(formData.parentDepartmentId) === String(department.id)}
+                        onChange={handleChange}
+                      />
+
                       </th>
                       <td>{department.departmentName}</td>
                       <td>{department.departmentLeadName}</td>

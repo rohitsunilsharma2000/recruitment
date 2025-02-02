@@ -87,3 +87,12 @@ select::placeholder {
 .form-switch .form-check-input:checked:before {
   transform: translateX(1em);
 }
+
+/* Fixed width for labels and inputs */
+.fixed-width-label {
+  width: 150px; /* Adjust the width as needed */
+}
+
+.fixed-width-input {
+  width: 100%; /* Ensures input takes the remaining space */
+}

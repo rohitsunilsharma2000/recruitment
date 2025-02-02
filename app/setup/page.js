@@ -39,11 +39,16 @@ const SetupPage = () => {
             <div className="card-body">
               <h5 className="card-title">General</h5>
               <ul className="list-unstyled mb-0">
-                <li>Personal Settings</li>
-                <li>Company Details</li>
-                <li>Calendar Settings <span className="badge bg-warning text-dark">✨</span></li>
-                <li>Email Settings</li>
-                <li>Notification Settings</li>
+               
+                <li>
+                <Link
+                    href="/candidate/interviews"
+                    className="text-decoration-none"
+                  >
+                    Schedule Interview 
+                  </Link>
+                  <span className="badge bg-warning text-dark">✨</span></li>
+              
               </ul>
             </div>
           </div>

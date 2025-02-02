@@ -5,11 +5,11 @@ import React from "react";
 function InterviewTable() {
    
     return (
-      <div className="table-responsive mb-5">
-        <table className="table table-bordered table-striped align-middle">
-          <thead className="table-light">
+      <div className="table-responsive mb-1">
+        <table className="table ">
+          <thead >
             <tr>
-              <th>File Name</th>
+              <th >File Name</th>
               <th>Candidate Name</th>
               <th>Posting Title</th>
               <th>Department Name</th>

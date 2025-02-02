@@ -27,21 +27,6 @@ function JobAccordion() {
     fetchJobOpeningByIdData(); // Trigger the API call when the component mounts
   }, []);
 
-  // useEffect(() => {
-  //   // Fetch data from API
-  //   const fetchJobOpeningByIdData = async (id) => {
-  //     try {
-  //       console.log("fetchCandidateData id  ", id);
-  //       const response = await fetchJobOpeningById(id);
-  //       console.log(" response ", response);
-  //       setJobOpeningData(response);
-  //     } catch (err) {
-  //       setError(err.message);
-  //     }
-  //   };
-
-  //   if (id) fetchJobOpeningByIdData(id);
-  // }, [id]);
 
   if (error) return <p>Error: {error}</p>;
   if (!jobOpeningData) return <p>Loading....</p>;
@@ -129,8 +114,7 @@ function JobAccordion() {
             <div className="col-md-6">
               <strong>Job Type:</strong> Full time  {jobOpeningData.jobType}
             </div>
-          </div>
-          <div className="row mb-3">
+            <div className="row mb-3">
             <div className="col-md-6">
               <strong>Work Experience:</strong> Fresher   {jobOpeningData.workExperience}
             </div>
@@ -164,10 +148,12 @@ function JobAccordion() {
           </div>
           <div className="row">
             <div className="col">
-              <strong>Job Description:</strong> {jobOpeningData.jobDescription}
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+              <strong>Job Description:</strong>
+              <p> {jobOpeningData.jobDescription}</p>
             </div>
           </div>
+          </div>
+          
 
         </div>
 
