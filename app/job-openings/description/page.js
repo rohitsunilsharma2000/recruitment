@@ -27,10 +27,15 @@ function JobDescription() {
 
       {/* Interview Details Section */}
       <div className="d-flex justify-content-end gap-2 mb-3">
-        <button type="button" className="btn btn-sm btn-primary">
-          Generate Offer Letter 
-        </button>
-
+        {/* <button type="button" className="btn btn-sm btn-primary">
+          Generate Offer Letter  candidate/offer-letter
+        </button> */}
+        <Link
+          href="/candidate/offer-letter"
+          className="btn btn-sm btn-primary"
+        >
+         Generate Offer Letter  
+        </Link>
         <Link
           href="/candidate/interviews"
           className="btn  btn-sm btn-secondary"
