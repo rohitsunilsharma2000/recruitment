@@ -7,18 +7,18 @@ import AssociateJobOpening from "@/app/job-openings/asssociate/page";
 import { useRouter } from 'next/navigation';
 
 
-export default function AllCandidates() {
-  const [showSidebar, setShowSidebar] = useState(true);
+export default function AllJobOpening() {
+  const [showSidebar, setShowSidebar] = useState(false);
   const [candidates, setCandidates] = useState([]);
   const [seletedCandidateIds, setseletedCandidateIds] = useState([]);
 
   const router = useRouter();
-const handleNavigate = (id) => {
-  console.log('Navigating to:', id);  // This should log only when the button is clicked
-  router.push(`/job-openings/description?id=${id}`);
-};
+  const handleNavigate = (id) => {
+    console.log('Navigating to:', id);  // This should log only when the button is clicked
+    router.push(`/job-openings/description?id=${id}`);
+  };
 
-  
+
   useEffect(() => {
     async function fetchAllCandidatesData() {
       try {
@@ -58,11 +58,11 @@ const handleNavigate = (id) => {
   };
 
 
-   // Method to handle checkbox change
-   const handleCheckboxChange = (candidateId) => {
+  // Method to handle checkbox change
+  const handleCheckboxChange = (candidateId) => {
     setseletedCandidateIds((prevCandidateIds) => {
       let updatedCandidateIds;
-  
+
       if (prevCandidateIds.includes(candidateId)) {
         // If candidateId already exists, remove it
         updatedCandidateIds = prevCandidateIds.filter(id => id !== candidateId);
@@ -72,12 +72,12 @@ const handleNavigate = (id) => {
         updatedCandidateIds = [...prevCandidateIds, candidateId];
         console.log(`Adding candidateId: ${candidateId}`);
       }
-  
+
       console.log(`All selected Candidate Ids:`, updatedCandidateIds); // Log the updated list
       return updatedCandidateIds;
     });
   };
-  
+
 
   return (
     <div className="container-fluid">
@@ -88,11 +88,11 @@ const handleNavigate = (id) => {
               <i className="bi bi-funnel"></i>
             </button>
             <b> All Job Opening</b>
-            
+
           </span>
-          
+
           <div className="d-flex justify-content-end gap-3 mt-1">
-             <AssociateJobOpening/>
+            <AssociateJobOpening />
             <button type="button" className="btn-sm btn btn-secondary">
               Cancel
             </button>
@@ -108,7 +108,7 @@ const handleNavigate = (id) => {
           <div className="col-md-2 bg-light p-3">
 
             <div className="row ">Filters</div>
-     
+
           </div>
         )}
         <div className={`col-md-${showSidebar ? "10" : "12"} p-3`}>
@@ -118,15 +118,19 @@ const handleNavigate = (id) => {
             <table className="table">
               <thead>
                 <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Asociate</th>
-                  <th scope="col">Rating</th>
-                  <th scope="col">Candidate Name</th>
-                  <th scope="col">City</th>
-                  <th scope="col">Candidate Stage</th>
-                  <th scope="col">Modified Time</th>
-                  <th scope="col">Source</th>
-                  <th scope="col">Candidate Owner</th>
+                  <th scope="col">ID</th>
+                  <th scope="col">Posting Title</th>
+                  <th scope="col">Assigned Recruiter</th>
+                  <th scope="col">Target Date</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Industry</th>
+                  <th scope="col">Salary</th>
+                  <th scope="col">Created By</th>
+                  <th scope="col">Created On</th>
+                  <th scope="col">Department</th>
+                  <th scope="col">Hiring Manager</th>
+                  <th scope="col">Positions</th>
+                  <th scope="col">Date Opened</th>
 
                 </tr>
               </thead>
@@ -135,19 +139,22 @@ const handleNavigate = (id) => {
                 {candidates.map((candidate) => (
                   <tr key={candidate.id}>
                     <th scope="row">{candidate.id}</th>
-                    <td >            
-                      <input
-                        type="checkbox"
-                        onChange={() => handleCheckboxChange(candidate.id)}
-                      />
-                    </td>
-                    <td></td>
-                    <td>
-                      <button onClick={() => handleNavigate(candidate.id)}>
+                    <td scope="row">
+                      <button onClick={() => handleNavigate(candidate.id)} className="btn btn-sm btn-primary">
                         {candidate.postingTitle}
                       </button>
                     </td>
-
+                    <td scope="row">{candidate.assignedRecruiter}</td>
+                    <td scope="row">{candidate.targetDate}</td>
+                    <td scope="row">{candidate.jobOpeningStatus}</td>
+                    <td scope="row">{candidate.industry}</td>
+                    <td scope="row">{candidate.salary}</td>
+                    <td scope="row">{candidate.createdBy}</td>
+                    <td scope="row">{candidate.departmentName}</td>
+                    <td scope="row">{candidate.hiringManager}</td>
+                    <td scope="row">{candidate.hiringManager}</td>
+                    <td scope="row">{candidate.postingTitle}</td>
+                    <td scope="row">{candidate.dateOpened}</td>
                   </tr>
                 ))}
               </tbody>
