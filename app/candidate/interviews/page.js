@@ -89,10 +89,12 @@ const InterviewFormHandler = () => {
           onSave={handleSaveData}
         />
       )}
-      <div className="card shadow-sm">
-        <div className="card-header bg-primary text-white">
-          <h3 className=" mb-0">Interview Information</h3>
+      <div className="card shadow-sm ">
+        <div className="card-header bg-white text-secondary d-flex justify-content-between align-items-center">
+          <h3 className="mb-0">Interview Information</h3>
+          <button type="button" class="btn btn-sm btn-primary">Submit</button>
         </div>
+
         <div className="card-body">
           <form onSubmit={handleSubmit} className="needs-validation" noValidate>
             <div className="row g-3">
@@ -300,7 +302,7 @@ const InterviewFormHandler = () => {
                       name="scheduleComments"
                       value={formData.scheduleComments}
                       onChange={handleChange}
-                      
+
                     />
                   </div>
                 </div>
@@ -346,12 +348,7 @@ const InterviewFormHandler = () => {
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <div className="col-12">
-                <button type="submit" className="btn btn-primary ">
-                  Submit
-                </button>
-              </div>
+
             </div>
           </form>
         </div>

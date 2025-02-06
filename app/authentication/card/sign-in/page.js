@@ -39,7 +39,7 @@ export default function SignInPage() {
         console.log("Login successful, redirecting to dashboard...");
 
         // Store token in cookies (for server-side use) with 1-hour expiry
-        setCookie("token", token, { maxAge: 1, path: "/" });//5 sec
+        setCookie("token", token, { maxAge: 60 * 1, path: "/" });//5 sec
 
         // Remember username if "Remember Me" is checked
         if (rememberMe) {
@@ -56,7 +56,7 @@ export default function SignInPage() {
           setCookie("token", "", { maxAge: -1, path: "/" });
           // Deletes the "token" cookie   
           console.log("localStorage and cookie cleared after 5 minutes");
-        }, 10000); // 300000 milliseconds = 5 minutes
+        }, 300000); // 300000 milliseconds = 5 minutes
 
 
 

@@ -35,8 +35,8 @@ const OfferLetterForm = () => {
         type === 'checkbox'
           ? checked
           : type === 'file'
-          ? files[0]
-          : value,
+            ? files[0]
+            : value,
     }));
   };
 
@@ -48,8 +48,11 @@ const OfferLetterForm = () => {
   return (
     <div className="container mt-5">
       <div className="card shadow-sm">
-        <div className="card-header bg-primary text-white">
+
+
+        <div className="card-header bg-white text-secondary d-flex justify-content-between align-items-center">
           <h3 className="mb-0">Offer Letter Generation</h3>
+          <button type="button" class="btn btn-sm btn-primary">Submit</button>
         </div>
         <div className="card-body">
           <form onSubmit={handleSubmit} className="needs-validation" noValidate>
@@ -367,10 +370,7 @@ const OfferLetterForm = () => {
                   </div>
                 </div>
               </div>
-              {/* Submit Button */}
-              <div className="col-12">
-                <button type="submit" className="btn btn-primary">Submit</button>
-              </div>
+
             </div>
           </form>
         </div>

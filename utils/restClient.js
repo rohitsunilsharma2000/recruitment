@@ -454,4 +454,13 @@ export const fetchJobOpeningById = async (jobId) => {
   }
 };
 
+export const fetchCandidateDetailsById = async (id) => {
+  try {
+    const response = await restClient.get(`/api/candidates/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error in fetching candidates with ID ${id}:`, error);
+    throw error;
+  }
+};
 export default restClient;

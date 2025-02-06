@@ -10,6 +10,7 @@ import {
 import { ValidationHelper } from "@/components/form-validator/ValidationHelper";
 import { useSearchParams } from "next/navigation";
 import StatusMessage from "@/components/status-message/StatusMessage";
+import CandidateDetailsApp from "./CandidateDetailsApp";
 
 const Tabs = () => {
   const [formData, setFormData] = useState({
@@ -378,19 +379,12 @@ const Tabs = () => {
         <div className="row mt-2">
           {/* Left Column: Application Details */}
           <div className="col-md-6">
-            <h6>Application Details</h6>
             <div className="card">
               <div className="card-body">
-                <h5 className="card-title">Form</h5>
+                <h5 className="card-title">Application Details
+                </h5>
                 <div className="row">
-                  <div className="col-md-6">
-                    <label className="form-label">Email</label>
-                    <p>text</p>
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label">Password</label>
-                    <p>text</p>
-                  </div>
+                  <CandidateDetailsApp />
                 </div>
               </div>
             </div>
@@ -398,9 +392,10 @@ const Tabs = () => {
 
           {/* Right Column: Evaluation */}
           <div className="col-md-6">
-            <h6>Evaluation</h6>
             <div className="card">
               <div className="card-body">
+                <h5 className="card-title">Evaluation
+                </h5>
                 {/* Tab Navigation with radio inputs */}
                 <ul className="nav nav-pills">
                   <li className="nav-item">

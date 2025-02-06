@@ -7,7 +7,7 @@ import AssociateJobOpening from "@/app/job-openings/asssociate/page";
 import { useRouter } from 'next/navigation';
 
 export default function AllCandidates() {
-  const [showSidebar, setShowSidebar] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(false);
   const [candidates, setCandidates] = useState([]);
   const [seletedCandidateIds, setseletedCandidateIds] = useState([]);
 
@@ -95,8 +95,8 @@ export default function AllCandidates() {
             <button type="button" className="btn-sm btn btn-secondary">
               Cancel
             </button>
-            <Link className="btn-sm btn btn-primary me-2" href="/job-openings/create">
-              Create Job Opening
+            <Link className="btn-sm btn btn-primary me-2" href="/candidate/create">
+              Create Candidate
             </Link>
           </div>
         </div>
@@ -147,7 +147,7 @@ export default function AllCandidates() {
                     </td>
 
                     <td >
-                      <button onClick={() => handleNavigate(candidate.id)} className="btn btn-sm btn-light">
+                      <button onClick={() => handleNavigate(candidate.id)} className="btn btn-outline-secondary btn-sm">
                         5.4 <i className="bi bi-star text-warning"></i>
                       </button>
 
