@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const StatusMessage = ({ status, errorMessage }) => {
+  const [isAlertVisible, setAlertVisible] = useState(true);
+
+  const handleCloseAlert = () => {
+    setAlertVisible(false);
+  };
+
   return (
-    <div>
-      {status}
+    <div className="col-md-12 d-flex justify-content-center align-items-center">
       {/* Loading Spinner */}
       {status === 'loading' && (
         <div
@@ -20,14 +25,21 @@ const StatusMessage = ({ status, errorMessage }) => {
       )}
 
       {/* Success Message */}
-      {status === 'success' && (
-        <div className="alert alert-success" role="alert">
-          Job opening created successfully!
+      {status?.toLowerCase().includes('success') && isAlertVisible && (
+        <div className="alert alert-success alert-dismissible fade show" role="alert">
+          <strong>{status}</strong> .
+          <button
+            type="button"
+            className="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Close"
+            onClick={handleCloseAlert} // Close the alert on button click
+          ></button>
         </div>
       )}
 
       {/* Error Message */}
-      {status === 'error' && (
+      {status === 'error' && isAlertVisible && (
         <div className="alert alert-danger mt-3">
           <strong>Error!</strong> {errorMessage}
         </div>

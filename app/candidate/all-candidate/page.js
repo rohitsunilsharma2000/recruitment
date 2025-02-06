@@ -4,6 +4,7 @@ import SidebarBarJobFilter from "@/components/setup-side-bar-job-filter/SidebarB
 import Link from "next/link";
 import { fetchAllCandidates } from "@/utils/restClient";
 import AssociateJobOpening from "@/app/job-openings/asssociate/page";
+import { useRouter } from 'next/navigation';
 
 export default function AllCandidates() {
   const [showSidebar, setShowSidebar] = useState(true);
@@ -23,27 +24,13 @@ export default function AllCandidates() {
     fetchAllCandidatesData(); // Trigger the API call when the component mounts
   }, []);
 
+  const router = useRouter();
+  const handleNavigate = (id) => {
+    console.log('Navigating to:', id);  // This should log only when the button is clicked
+    router.push(`/candidate/candidate-evaluation?id=${id}`);
+  };
 
-  const jobData = [
-    {
-      "Job Opening ID": "ZR_5_JOB",
-      "Posting Title": "Operations Manager",
-      "Assigned Recruiter(s)": "recruiter5@example.com",
-      "Target Date": "01/17/2025",
-      "Job Opening Status": "Overdue",
-      "City": "Miami",
-      "Department Name": "Operations",
-      "Hiring Manager": "manager5@example.com",
-      "Job Type": "Full time",
-      "Number of Applications": "0",
-      "To Do's": "Pending documentation approval",
-      "Last Activity Time": "01/06/2025 02:00 PM",
-      "Date Opened": "12/16/2024",
-      "Province": "Florida",
-      "Country": "United States",
-      "Number of Positions": "2"
-    },
-  ];
+
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
   };
@@ -70,11 +57,11 @@ export default function AllCandidates() {
   };
 
 
-   // Method to handle checkbox change
-   const handleCheckboxChange = (candidateId) => {
+  // Method to handle checkbox change
+  const handleCheckboxChange = (candidateId) => {
     setseletedCandidateIds((prevCandidateIds) => {
       let updatedCandidateIds;
-  
+
       if (prevCandidateIds.includes(candidateId)) {
         // If candidateId already exists, remove it
         updatedCandidateIds = prevCandidateIds.filter(id => id !== candidateId);
@@ -84,12 +71,12 @@ export default function AllCandidates() {
         updatedCandidateIds = [...prevCandidateIds, candidateId];
         console.log(`Adding candidateId: ${candidateId}`);
       }
-  
+
       console.log(`All selected Candidate Ids:`, updatedCandidateIds); // Log the updated list
       return updatedCandidateIds;
     });
   };
-  
+
 
   return (
     <div className="container-fluid">
@@ -100,11 +87,11 @@ export default function AllCandidates() {
               <i className="bi bi-funnel"></i>
             </button>
             <b> All Candidates</b>
-            
+
           </span>
-          
+
           <div className="d-flex justify-content-end gap-3 mt-1">
-             <AssociateJobOpening/>
+            <AssociateJobOpening />
             <button type="button" className="btn-sm btn btn-secondary">
               Cancel
             </button>
@@ -152,7 +139,7 @@ export default function AllCandidates() {
                 {candidates.map((candidate) => (
                   <tr key={candidate.id}>
                     <th scope="row">{candidate.id}</th>
-                    <td >            
+                    <td >
                       <input
                         type="checkbox"
                         onChange={() => handleCheckboxChange(candidate.id)}
@@ -160,11 +147,9 @@ export default function AllCandidates() {
                     </td>
 
                     <td >
-                      <Link href="/candidate/candidate-evaluation" passHref>
-                        <button type="button" className="btn btn-sm btn-outline-secondary">
-                          5.4 <i className="bi bi-star text-warning"></i>
-                        </button>
-                      </Link>
+                      <button onClick={() => handleNavigate(candidate.id)} className="btn btn-sm btn-light">
+                        5.4 <i className="bi bi-star text-warning"></i>
+                      </button>
 
                     </td>
                     <td>{candidate.firstName} {candidate.lastName}</td>

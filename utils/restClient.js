@@ -357,10 +357,23 @@ export const fetchAllQuestion = async () => {
     const response = await restClient.get('/api/question-bank');
     return response.data; // Return the response data
   } catch (error) {
-    console.error('Error fetching job applications:', error);
+    console.error('Error fetching questions:', error);
     throw error; // Throw the error for further handling
   }
 };
+
+export const fetchQuestionsByCompetency = async (competencyType) => {
+  try {
+    const response = await restClient.get(`/api/question-bank/by-competency`, {
+      params: { competencyType }, // Pass competencyType as a query param
+    });
+    return response.data; // Return the response data
+  } catch (error) {
+    console.error('Error fetching questions:', error);
+    throw error; // Throw the error for further handling
+  }
+};
+
 
 export const evaluateCandidate = async (candidateId, payload) => {
   try {
@@ -440,6 +453,5 @@ export const fetchJobOpeningById = async (jobId) => {
     throw error;
   }
 };
-
 
 export default restClient;
