@@ -58,8 +58,11 @@ export default function AllCandidates() {
 
 
   // Method to handle checkbox change
+  const [selectedCandidateIds, setSelectedCandidateIds] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+
   const handleCheckboxChange = (candidateId) => {
-    setseletedCandidateIds((prevCandidateIds) => {
+    setSelectedCandidateIds((prevCandidateIds) => {
       let updatedCandidateIds;
 
       if (prevCandidateIds.includes(candidateId)) {
@@ -73,6 +76,13 @@ export default function AllCandidates() {
       }
 
       console.log(`All selected Candidate Ids:`, updatedCandidateIds); // Log the updated list
+
+
+      // Show modal if no candidates are selected
+      if (updatedCandidateIds.length === 0) {
+        setShowModal(true);
+      }
+
       return updatedCandidateIds;
     });
   };
@@ -91,7 +101,19 @@ export default function AllCandidates() {
           </span>
 
           <div className="d-flex justify-content-end gap-3 mt-1">
-            <AssociateJobOpening />
+            {selectedCandidateIds.length === 0 ? (
+              <p style={{ color: "red", margin: '0' }}>
+                Please select at least one candidate for Associate Job Opening.
+              </p>
+            ) : (
+              <div> {/* Wrap inside a div */}
+
+                <AssociateJobOpening selectedCandidateIds={selectedCandidateIds} />
+
+              </div>
+            )}
+
+
             <button type="button" className="btn-sm btn btn-secondary">
               Cancel
             </button>

@@ -15,6 +15,10 @@ export const ValidationHelper = {
       "postingTitle", "departmentName", "title", "hiringManager",
       "assignedRecruiter", "skills", "city", "province",
       "postalCode", "jobDescription", "requirements", "benefits",
+
+      //Associate Job Opening fields
+      "jobOpening", "status", "comments"
+
     ];
 
     const requiredNumericFields = ["experience", "expectedSalary", "noOfPositions", "salary", "experienceInYears"
@@ -25,8 +29,8 @@ export const ValidationHelper = {
     ];
     const requiredDateFields = ["targetDate", "dateOpened"];
 
-    console.log("fieldName ",fieldName)
-    console.log("value ",value)
+    console.log("fieldName ", fieldName)
+    console.log("value ", value)
 
     // Validate Rating (Ensure it's between 1 and 5)
     if (fieldName === "rating") {
@@ -34,7 +38,7 @@ export const ValidationHelper = {
         error = "Please provide a valid rating between 1 and 5.";
       }
     }
-  
+
 
     // Text field validation
     if (requiredTextFields.includes(fieldName)) {
@@ -82,7 +86,7 @@ export const ValidationHelper = {
       }
     }
 
-    
+
 
     return error;
   },

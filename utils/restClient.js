@@ -389,7 +389,7 @@ export const evaluateCandidate = async (candidateId, payload) => {
 
 export const createBulkJobApplications = async (payload) => {
   try {
-    const response = await restClient.post('/api/job-applications/bulk', payload);
+    const response = await restClient.post('/api/job-applications', payload);
     return response.data; // Return the response data if the request is successful
   } catch (error) {
     console.error('Error creating bulk job applications:', error);
@@ -463,4 +463,6 @@ export const fetchCandidateDetailsById = async (id) => {
     throw error;
   }
 };
+
+
 export default restClient;
