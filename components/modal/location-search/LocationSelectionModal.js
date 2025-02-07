@@ -1,105 +1,100 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { fetchAllCandidates, fetchCountries } from "@/utils/restClient"; // Assuming this function fetches candidates
+import { fetchCountries } from "@/utils/restClient"; // Function to fetch countries
 
-export default function LocationSelectionModal({
-  onClose,
-  onSave,
-}) {
-  // Now even if no initialData is passed, you'll fall back to {}
-  // Initialize formData to hold countryId and countryName
-  const [formData, setFormData] = useState({
-    countryName: "", // Default to initialData.countryName if provided
-  });
-
-  const [countries, setCountry] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(""); // New state to track search input
-  const [filteredCountries, setFilteredCountries] = useState([]); // New state for filtered candidates
+export default function LocationSelectionModal({ onClose, onSave }) {
+  const [formData, setFormData] = useState({ countryName: "" });
+  const [countries, setCountries] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredCountries, setFilteredCountries] = useState([]);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 5; // Number of countries per page
-  // Fetch candidates on component mount
+  const pageSize = 5; // Number of countries displayed per page
+
+  // Fetch countries on component mount
   useEffect(() => {
-    async function fetchCandidatesData() {
+    async function fetchCountriesData() {
       try {
-        console.log("Fetching candidates data...");
         const response = await fetchCountries();
-
-
-
-        const countryNames = response.map((country, index) =>
-        (
-          {
-            countryId: index + 1,  // Adding an id starting from 1
-            countryName: country.name
-          }
-        )
-        );
-        console.log("fetchCandidatesData response:", countryNames);
-
-        setCountry(countryNames);
-        setFilteredCountries(countryNames); // Set initial filtered candidates to all candidates
-        console.log("Candidates have been set into state");
+        const countryNames = response.map((country, index) => ({
+          countryId: index + 1,
+          countryName: country.name,
+        }));
+        setCountries(countryNames);
+        setFilteredCountries(countryNames);
       } catch (error) {
-        console.error("Failed to fetch candidates:", error);
-        setCountry([]);
-        setFilteredCountries([]); // Handle error by setting empty array
+        console.error("Failed to fetch countries:", error);
+        setCountries([]);
+        setFilteredCountries([]);
       }
     }
 
-    fetchCandidatesData(); // Call the function to fetch candidates
+    fetchCountriesData();
   }, []);
 
-  // Filter candidates based on search query
+  // Filter countries based on search query
   useEffect(() => {
     if (searchQuery) {
-      const filtered = countries.filter((candidate) =>
-        candidate.countryName.toLowerCase().includes(searchQuery.toLowerCase())
+      const filtered = countries.filter((country) =>
+        country.countryName.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      setFilteredCountries(filtered); // Update filtered candidates state
+      setFilteredCountries(filtered);
+      setCurrentPage(1); // Reset to the first page on search
     } else {
-      setFilteredCountries(countries); // If no search query, show all candidates
+      setFilteredCountries(countries);
     }
   }, [searchQuery, countries]);
 
-  // Handle save (pass selected candidate data to onSave)
+  // Save selected country
   const handleSave = (e) => {
     e.preventDefault();
-    console.log("formData ", formData)
-    onSave(formData); // Pass the current form data to onSave
+    onSave(formData);
     onClose();
   };
+
+  // Handle selection change
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name === "country") {
-      // Look up the selected candidate using its id.
-      const selectedCandidate = countries.find(
-        (country) => String(country.countryName) === value
+      const selectedCountry = countries.find(
+        (country) => country.countryName === value
       );
       setFormData({
         ...formData,
-        countryName: selectedCandidate ? selectedCandidate.countryName : "", // Use "" if not found
+        countryName: selectedCountry ? selectedCountry.countryName : "",
       });
-    } else {
-      setFormData({ ...formData, [name]: value });
     }
   };
 
   const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value); // Update search query state on input change
+    setSearchQuery(e.target.value);
+  };
+
+  // Pagination Logic
+  const totalPages = Math.ceil(filteredCountries.length / pageSize);
+  const currentCountries = filteredCountries.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   return (
-    <div
-      className="modal show"
-      style={{ display: "block" }}
-      tabIndex="-1"
-      role="dialog"
-    >
+    <div className="modal show" style={{ display: "block" }} tabIndex="-1" role="dialog">
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content">
+       
           <div className="modal-header">
             <h5 className="modal-title">Select Candidate :</h5>
 
@@ -134,43 +129,58 @@ export default function LocationSelectionModal({
               onClick={onClose}
             />
           </div>
+
           <div className="modal-body">
             <form onSubmit={handleSave}>
               <table className="table table-striped">
                 <thead>
                   <tr>
-                    <th scope="col"></th>
-                    <th scope="col">Country Name </th>
-
+                    <th></th>
+                    <th>Country ID</th>
+                    <th>Country Name</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredCountries.map((country) => (
+                  {currentCountries.map((country) => (
                     <tr key={country.countryId}>
-                      <th scope="row">
+                      <td>
                         <input
                           type="radio"
                           name="country"
                           value={country.countryName}
-                          checked={
-                            String(formData.countryName) ===
-                            String(country.countryName)
-                          }
+                          checked={formData.countryName === country.countryName}
                           onChange={handleChange}
                         />
-                      </th>
+                      </td>
                       <td>{country.countryId}</td>
                       <td>{country.countryName}</td>
-
-
-
                     </tr>
                   ))}
                 </tbody>
               </table>
 
-              <div className="modal-footer">
+              {/* Pagination Controls */}
+              <div className="d-flex justify-content-between align-items-center mt-3">
+                <button
+                  type="button"
+                  className="btn btn-sm btn-primary"
+                  disabled={currentPage === 1}
+                  onClick={handlePrevPage}
+                >
+                  Previous
+                </button>
+                <span>Page {currentPage} of {totalPages}</span>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-primary"
+                  disabled={currentPage === totalPages}
+                  onClick={handleNextPage}
+                >
+                  Next
+                </button>
+              </div>
 
+              <div className="modal-footer">
                 <button
                   type="button"
                   className="btn-sm btn btn-secondary"
@@ -179,19 +189,14 @@ export default function LocationSelectionModal({
                   Close
                 </button>
 
-                {/* filteredCountries */}
                 {filteredCountries.length === 0 || !formData.countryName ? (
-                  <p style={{ color: "red", margin: '0' }}>
-                    Please select  one country.
+                  <p style={{ color: "red", margin: 0 }}>
+                    Please select one country.
                   </p>
                 ) : (
-                  <div> {/* Wrap inside a div */}
-
-                    <button type="submit" className="btn-sm btn btn-primary">
-                      Save Selection
-                    </button>
-
-                  </div>
+                  <button type="submit" className="btn-sm btn btn-primary">
+                    Save Selection
+                  </button>
                 )}
               </div>
             </form>
