@@ -2,6 +2,8 @@
 
 import AddDepartmentModal from "@/components/modal/add-department/add-department";
 import CandidateSelectionModal from "@/components/modal/candidate-selection/CandidateSelectionModal";
+import LocationSelectionModal from "@/components/modal/location-search/LocationSelectionModal";
+import PostingTitleSearchModel from "@/components/modal/posting-title-search/PostingTitleSearchModel";
 import React, { useState } from "react";
 
 const InterviewFormHandler = () => {
@@ -15,6 +17,7 @@ const InterviewFormHandler = () => {
     candidateId: "",
     candidateName: "",
     postingTitle: "",
+    postingId: "",
     to: "",
     interviewOwner: "",
     scheduleComments: "",
@@ -66,12 +69,23 @@ const InterviewFormHandler = () => {
     // Optionally set formData again if needed when saving
     setFormData((prevFormData) => ({
       ...prevFormData,
-      departmentName: updatedData.departmentName || prevFormData.departmentName || "",
-      parentDepartmentId: updatedData.parentDepartmentId || prevFormData.parentDepartmentId || "",
-      // If updatedData contains candidate data, set it to the form data
-      candidateId: updatedData.candidateId || prevFormData.candidateId || "",
-      candidateName: updatedData.candidateName || prevFormData.candidateName || "",
+
+      // Ensure department data updates only if it's provided
+      departmentName: updatedData.departmentName !== undefined ? updatedData.departmentName : prevFormData.departmentName,
+      parentDepartmentId: updatedData.parentDepartmentId !== undefined ? updatedData.parentDepartmentId : prevFormData.parentDepartmentId,
+
+      // Ensure candidate data updates only if it's provided
+      candidateId: updatedData.candidateId !== undefined ? updatedData.candidateId : prevFormData.candidateId,
+      candidateName: updatedData.candidateName !== undefined ? updatedData.candidateName : prevFormData.candidateName,
+
+      // Ensure location updates only if it's provided
+      location: updatedData.countryName !== undefined ? updatedData.countryName : prevFormData.location,
+
+      // Ensure posting data updates only if it's provided
+      postingTitle: updatedData.postingTitle !== undefined ? updatedData.postingTitle : prevFormData.postingTitle,
+      postingId: updatedData.postingId !== undefined ? updatedData.postingId : prevFormData.postingId,
     }));
+
   };
 
   return (
@@ -89,10 +103,25 @@ const InterviewFormHandler = () => {
           onSave={handleSaveData}
         />
       )}
+      {showModal === "location" && (
+        <LocationSelectionModal
+          onClose={handleCloseModal}
+          onSave={handleSaveData}
+        />
+      )}
+      {showModal === "postingTitle" && (
+        <PostingTitleSearchModel
+          onClose={handleCloseModal}
+          onSave={handleSaveData}
+        />
+      )}
+
+
+
       <div className="card shadow-sm ">
         <div className="card-header bg-white text-secondary d-flex justify-content-between align-items-center">
           <h3 className="mb-0">Interview Information</h3>
-          <button type="button" class="btn btn-sm btn-primary">Submit</button>
+          <button type="button" className="btn btn-sm btn-primary">Submit</button>
         </div>
 
         <div className="card-body">
@@ -192,8 +221,9 @@ const InterviewFormHandler = () => {
 
               {/* Location */}
               <div className="col-md-6">
-                <div className="d-flex align-items-center">
+                <div className="d-flex align-items-center position-relative">
                   <label className="form-label fixed-width-label">
+
                     Location
                   </label>
                   <div className="flex-grow-1">
@@ -205,6 +235,18 @@ const InterviewFormHandler = () => {
                       onChange={handleChange}
                     />
                   </div>
+                  <button
+                    className="btn  btn-light  py-0 position-absolute top-50 end-0 translate-middle-y "
+                    style={{
+                      whiteSpace: "nowrap",
+                      height: "33.1px",
+                      marginRight: "0.8px",
+                      borderRadius: "0px 3.2px 3.2px 0px",
+                    }}
+                    onClick={() => handleOpenModal("location")}
+                  >
+                    <i className="bi bi-buildings fs-6 "></i>
+                  </button>
                 </div>
               </div>
 
@@ -240,7 +282,7 @@ const InterviewFormHandler = () => {
 
               {/* Posting Title */}
               <div className="col-md-6">
-                <div className="d-flex align-items-center">
+                <div className="d-flex align-items-center position-relative">
                   <label className="form-label fixed-width-label">
                     Posting Title
                   </label>
@@ -253,6 +295,18 @@ const InterviewFormHandler = () => {
                       onChange={handleChange}
                     />
                   </div>
+                  <button
+                    className="btn  btn-light  py-0 position-absolute top-50 end-0 translate-middle-y "
+                    style={{
+                      whiteSpace: "nowrap",
+                      height: "33.1px",
+                      marginRight: "0.8px",
+                      borderRadius: "0px 3.2px 3.2px 0px",
+                    }}
+                    onClick={() => handleOpenModal("postingTitle")}
+                  >
+                    <i className="bi bi-buildings fs-6 "></i>
+                  </button>
                 </div>
               </div>
 
@@ -310,7 +364,8 @@ const InterviewFormHandler = () => {
 
               {/* Assessment Name */}
               <div className="col-md-6">
-                <div className="d-flex align-items-center">
+                <div className="d-flex align-items-center position-relative">
+
                   <label className="form-label fixed-width-label">
                     Assessment Name
                   </label>
@@ -323,6 +378,18 @@ const InterviewFormHandler = () => {
                       onChange={handleChange}
                     />
                   </div>
+                  <button
+                    className="btn  btn-light  py-0 position-absolute top-50 end-0 translate-middle-y "
+                    style={{
+                      whiteSpace: "nowrap",
+                      height: "33.1px",
+                      marginRight: "0.8px",
+                      borderRadius: "0px 3.2px 3.2px 0px",
+                    }}
+                    onClick={() => handleOpenModal("assessmentName")}
+                  >
+                    <i className="bi bi-buildings fs-6 "></i>
+                  </button>
                 </div>
               </div>
 

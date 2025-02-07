@@ -96,3 +96,11 @@ select::placeholder {
 .fixed-width-input {
   width: 100%; /* Ensures input takes the remaining space */
 }
+
+.small-td {
+  width: 5px; /* Adjust as needed */
+}
+
+.medium-td {
+  width: 200px;
+}

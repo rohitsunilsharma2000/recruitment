@@ -52,7 +52,7 @@ const OfferLetterForm = () => {
 
         <div className="card-header bg-white text-secondary d-flex justify-content-between align-items-center">
           <h3 className="mb-0">Offer Letter Generation</h3>
-          <button type="button" class="btn btn-sm btn-primary">Submit</button>
+          <button type="button" className="btn btn-sm btn-primary">Submit</button>
         </div>
         <div className="card-body">
           <form onSubmit={handleSubmit} className="needs-validation" noValidate>
