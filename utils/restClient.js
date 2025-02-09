@@ -464,5 +464,14 @@ export const fetchCandidateDetailsById = async (id) => {
   }
 };
 
+export const getAllInterviews = async () => {
+  try {
+    const response = await restClient.get(`/api/interviews`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error in fetching all interviews:`, error);
+    throw error;
+  }
+};
 
 export default restClient;

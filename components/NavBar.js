@@ -46,9 +46,7 @@ export default function NavBar() {
             </ul>
             <form className="d-flex" role="search">
               <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                <li className="nav-item">
-                  <a className="nav-link fs-0-point-7 fw-700 active" aria-current="page" href="#">Home</a>
-                </li>
+
                 <li className="nav-item">
                   <a className="nav-link fs-0-point-7 fw-700" href="#">Features</a>
                 </li>

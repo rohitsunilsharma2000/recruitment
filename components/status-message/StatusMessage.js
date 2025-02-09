@@ -26,7 +26,7 @@ const StatusMessage = ({ status, errorMessage }) => {
 
       {/* Success Message */}
       {status?.toLowerCase().includes('success') && isAlertVisible && (
-        <div className="alert alert-success alert-dismissible fade show" role="alert">
+        <div className="alert alert-success alert-dismissible fade show  z-3 position-absolute mt-5 rounded-3" role="alert">
           <strong>{status}</strong> .
           <button
             type="button"
@@ -40,8 +40,16 @@ const StatusMessage = ({ status, errorMessage }) => {
 
       {/* Error Message */}
       {status === 'error' && isAlertVisible && (
-        <div className="alert alert-danger mt-3">
+        <div className="alert alert-danger alert-dismissible fade show  z-3 position-absolute mt-5 rounded-3" role="alert">
+
           <strong>Error!</strong> {errorMessage}
+          {/* <button
+            type="button"
+            className="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Close"
+            onClick={handleCloseAlert} // Close the alert on button click
+          ></button> */}
         </div>
       )}
     </div>
