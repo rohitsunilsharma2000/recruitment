@@ -17,7 +17,11 @@ export const ValidationHelper = {
       "postalCode", "jobDescription", "requirements", "benefits",
 
       //Associate Job Opening fields
-      "jobOpening", "status", "comments"
+      "jobOpening", "status", "comments",
+
+      //Interview Information fields
+      "interviewName", "from", "assessmentName",
+      , "interviewers", "to", "scheduleComments", "reminder",
 
     ];
 
