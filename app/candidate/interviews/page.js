@@ -6,7 +6,8 @@ import CandidateSelectionModal from "@/components/modal/candidate-selection/Cand
 import LocationSelectionModal from "@/components/modal/location-search/LocationSelectionModal";
 import PostingTitleSearchModel from "@/components/modal/posting-title-search/PostingTitleSearchModel";
 import MultiSelectSearch from "@/components/multi-select-search/MultiSelectSearch";
-import { fetchAllQuestion, fetchUsers } from "@/utils/restClient";
+import StatusMessage from "@/components/status-message/StatusMessage";
+import { fetchAllQuestion, fetchUsers, scheduleInterview } from "@/utils/restClient";
 import React, { useEffect, useState } from "react";
 
 
@@ -17,7 +18,7 @@ const InterviewFormHandler = () => {
     parentDepartmentId: "",
     departmentName: "",
     from: "",
-    interviewers: "",
+    interviewers: [],
     location: "",
     candidateId: "",
     candidateName: "",
@@ -46,9 +47,14 @@ const InterviewFormHandler = () => {
   const [showModal, setShowModal] = useState(null);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [interviewOwners, setInterviewOwners] = useState([]);
-  const [formErrors, setFormErrors] = useState({});
-  const [touchedFields, setTouchedFields] = useState({});
 
+
+
+  const [formErrors, setFormErrors] = useState({});//track if any form validation error
+  const [touchedFields, setTouchedFields] = useState({});//track if any fields touched 
+
+  const [status, setStatus] = useState(''); // State to track status (loading, success, error) from api response 
+  const [errorMessage, setErrorMessage] = useState('');//api error
 
   // Function to open the modal with a specific modal type
   const handleOpenModal = (modalType) => {
@@ -86,7 +92,18 @@ const InterviewFormHandler = () => {
     const newErrors = {};
     const touched = {};
 
+    if (!formData) {
+      console.error("❌ formData is undefined");
+      alert("❌ formData is undefined");
+      return;
+    }
+
     Object.keys(formData).forEach((field) => {
+      if (formData[field] === undefined || formData[field] === null) {
+        console.warn(`Field ${field} is undefined/null`);
+        alert(`❌ Field ${field} is undefined/null`);
+
+      }
       const error = ValidationHelper.validateField(field, formData[field], typeof formData[field]);
       if (error) valid = false;
       newErrors[field] = error;
@@ -97,33 +114,89 @@ const InterviewFormHandler = () => {
     setTouchedFields(touched);
 
     if (valid) {
+      console.log("✅ All input fields are filled. Submitting form...");
       // Constructing the payload with the required structure
-      const payload = {
-        generalReview: {
-          rating: parseInt(formData.generalRating, 10), // Convert to integer
-          candidateStatus: formData.candidateStatus,
-          overallComments: formData.overallCommentsForGeneralReview,
-        },
-        screeningReviews:
-        {
-          overallRating: parseInt(formData.overallRating, 10), // Convert to integer
-          status: formData.overallStatus,
-          overallComments: formData.overallCommentsForScreening,
-          CandidateGeneralAssessment: [
-            {
-              competencyType: formData.chosenAssessment, // Assuming this is the competencyType for the review
-              questionReviews: questionReviews,
-            },
-          ],
-        },
-
-      };
+      const payload =
+      {
+        "interviewName": formData.interviewName,
+        "departmentName": formData.departmentName,
+        "fromDateTime": new Date(formData.from).toISOString().slice(0, 19),
+        "toDateTime": new Date(formData.to).toISOString().slice(0, 19),
+        "interviewerIds": formData.interviewers.map(item => item.id),
+        "location": formData.location,
+        "candidateId": formData.candidateId,
+        "postingTitle": formData.postingTitle,
+        "interviewOwnerId": formData.interviewOwner[0]?.id,
+        "scheduleComments": formData.scheduleComments,
+        "assessmentName": formData.assessmentName,
+        "reminder": formData.reminder,
+        "attachments": [
+          {
+            "attachmentType": "Interview Guide",
+            "filePath": "/attachments/technical_interview_guide.pdf",
+            "interviewId": 5
+          }
+        ]
+      }
+        ;
+      // Constructing the payload with the required structure
+      createInterview(payload);
+      alert("✅ Form is valid and ready to submit!");
+      console.log("Form Payload for submission:", payload);
       console.log("Form submitted successfully!", formData);
     } else {
+      console.log(
+        "❌ Form has missing inputs fields. Fix errors before submitting."
+      );
+      alert("⚠️ Some  input fields are missing. Please fill them in.");
       console.log("Form has validation errors.");
     }
   };
+  async function createInterview(payload) {
+    setStatus('loading');
+    try {
+      const createInterviewResponse = await scheduleInterview(payload);
+      setStatus('success -  Internal created successfully!');
+      console.log("Create Interview Response ", createInterviewResponse);
 
+      setFormData((prev) => ({
+        ...prev,
+        interviewName: "",
+        parentDepartmentId: "",
+        departmentName: "",
+        from: "",
+        interviewers: [],
+        location: "",
+        candidateId: "",
+        candidateName: "",
+        postingTitle: "",
+        postingId: "",
+        to: "",
+        interviewOwner: [],
+        scheduleComments: "",
+        assessmentName: "",
+        reminder: "",
+      }));
+
+    } catch (error) {
+
+      const errorMessage =
+        error.response && error.response.data && error.response.data.message
+          ? error.response.data.message
+          : 'An unexpected error occurred';
+
+      console.error("Failed to evalute Candidate:", errorMessage);
+      setStatus('error');
+      setErrorMessage(errorMessage);
+
+    } finally {
+      // setTimeout(() => {
+      //   setStatus('');
+      //   setErrorMessage('');
+      // }, 10000);
+    }
+
+  }
   const handleSaveData = (updatedData) => {
     setData(updatedData);
     console.log("updatedData", updatedData);
@@ -221,7 +294,10 @@ const InterviewFormHandler = () => {
 
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-3">
+      {/* Use the StatusMessage component */}
+      <StatusMessage status={status} errorMessage={errorMessage} />
+
       {/* Conditionally render modals based on the showModal state */}
       {showModal === "department" && (
         <AddDepartmentModal
@@ -314,6 +390,7 @@ const InterviewFormHandler = () => {
                       borderRadius: "0px 3.2px 3.2px 0px",
                     }}
                     onClick={() => handleOpenModal("department")}
+                    type="button"
                   >
                     <i className="bi bi-buildings fs-6 "></i>
                   </button>
@@ -345,16 +422,21 @@ const InterviewFormHandler = () => {
                     Interviewer(s)
                   </label>
                   <div className="flex-grow-1">
-                    <input
+                    {/* <input
                       type="text"
-                      className={`form-control ${ValidationHelper.getValidationClass("interviewers", touchedFields, formErrors)}`}
+                      className="form-control"
+                      // className={`form-control ${ValidationHelper.getValidationClass("interviewers", touchedFields, formErrors)}`}
                       name="interviewers"
                       value={formData.interviewers}
                       onChange={handleInputChange}
-                    />
-                    <div className={ValidationHelper.getFeedbackClass("interviewers", touchedFields, formErrors)}>
+                    /> */}
+                    {/* <div className={ValidationHelper.getFeedbackClass("interviewers", touchedFields, formErrors)}>
                       {ValidationHelper.getFeedbackMessage("interviewers", touchedFields, formErrors)}
-                    </div>
+                    </div> */}
+
+                    <MultiSelectSearch options={interviewOwners} name="interviewers" formData={formData} handleChange={handleInputChange} clearSelection={clearSelection}
+                    />
+
                   </div>
                 </div>
               </div>
@@ -388,6 +470,8 @@ const InterviewFormHandler = () => {
                       borderRadius: "0px 3.2px 3.2px 0px",
                     }}
                     onClick={() => handleOpenModal("location")}
+                    type="button"
+
                   >
                     <i className="bi bi-buildings fs-6 "></i>
                   </button>
@@ -422,6 +506,8 @@ const InterviewFormHandler = () => {
                       borderRadius: "0px 3.2px 3.2px 0px",
                     }}
                     onClick={() => handleOpenModal("candidate")}
+                    type="button"
+
                   >
                     <i className="bi bi-buildings fs-6 "></i>
                   </button>
@@ -456,6 +542,8 @@ const InterviewFormHandler = () => {
                       borderRadius: "0px 3.2px 3.2px 0px",
                     }}
                     onClick={() => handleOpenModal("postingTitle")}
+                    type="button"
+
                   >
                     <i className="bi bi-buildings fs-6 "></i>
                   </button>
@@ -490,11 +578,8 @@ const InterviewFormHandler = () => {
                   <div className="flex-grow-1">
 
                     <MultiSelectSearch options={interviewOwners} name="interviewOwner" formData={formData} handleChange={handleInputChange} clearSelection={clearSelection}
-                    // className={` ${ValidationHelper.getValidationClass("interviewOwner", touchedFields, formErrors)}`}
                     />
-                    {/* <div className={ValidationHelper.getFeedbackClass("interviewOwner", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("interviewOwner", touchedFields, formErrors)}
-                    </div> */}
+
                   </div>
                 </div>
               </div>

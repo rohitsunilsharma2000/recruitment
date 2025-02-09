@@ -399,7 +399,7 @@ export const createBulkJobApplications = async (payload) => {
 
 
 
-export const createInterview = async (payload) => {
+export const scheduleInterview = async (payload) => {
   try {
     const response = await restClient.post('/api/interviews', payload);
     return response.data; // Return the response data if the request is successful
