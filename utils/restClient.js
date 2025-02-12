@@ -496,14 +496,37 @@ export const GetAllUsers = async () => {
 };
 
 // Function to generate an offer letter
+// export const generateOfferLetter = async (offerPayload) => {
+//   try {
+//     const response = await restClient.post('/api/offer-letter/generate', offerPayload);
+//     return response.data; // Return the response data if the request is successful
+//   } catch (error) {
+//     console.error('Error generating offer letter:', error);
+//     throw error; // Re-throw the error to be handled by the caller
+//   }
+// };
+
 export const generateOfferLetter = async (offerPayload) => {
   try {
-    const response = await restClient.post('/api/offer-letter/generate', offerPayload);
-    return response.data; // Return the response data if the request is successful
+    const response = await restClient.post('/api/offer-letter/generate', offerPayload, {
+      responseType: 'arraybuffer',  // Ensure we treat the response as binary data for PDFs
+      headers: {
+        'Accept': 'application/pdf',  // Inform the backend that we expect a PDF response
+        'Content-Type': 'application/json'  // Ensure we're sending JSON data
+      }
+    });
+
+    // Convert the binary data into a Blob for frontend use
+    const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+
+    // Return the Blob to the caller for display or download
+    return pdfBlob;
+
   } catch (error) {
     console.error('Error generating offer letter:', error);
-    throw error; // Re-throw the error to be handled by the caller
+    throw error;  // Re-throw to allow further handling by the caller
   }
 };
+
 
 export default restClient;

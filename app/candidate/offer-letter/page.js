@@ -1,7 +1,8 @@
 'use client';
 
 import { ValidationHelper } from '@/components/form-validator/ValidationHelper';
-import { fetchAllCandidates, fetchJobTypes, GetAllJobOpenings, GetAllUsers } from '@/utils/restClient';
+import StatusMessage from '@/components/status-message/StatusMessage';
+import { fetchAllCandidates, fetchJobTypes, generateOfferLetter, GetAllJobOpenings, GetAllUsers } from '@/utils/restClient';
 import React, { useEffect, useState } from 'react';
 // import "./OfferLetterForm.css"; // Optional: add your CSS file for styling
 
@@ -10,9 +11,7 @@ const OfferLetterForm = () => {
     companyAddress: "123 Tech Street",
     companyCity: "Bangalore",
     companyState: "Karnataka",
-    companyZip: "560001",/* The above code is a snippet of a React component that handles form data for
-    generating an offer letter. Here is a breakdown of what the code is doing: */
-
+    companyZip: "560001",
     companyName: "Google",
     candidateName: "",
     candidateAddress: "",
@@ -32,10 +31,15 @@ const OfferLetterForm = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [touchedFields, setTouchedFields] = useState({});
+
+  const [status, setStatus] = useState(''); // State to track status (loading, success, error) from api response 
+  const [errorMessage, setErrorMessage] = useState('');//api error
+
   const [employmentTypes, setEmploymentTypes] = useState([]);
   const [jobTitles, setjobTitle] = useState([]);
   const [hiringManagers, setHiringManager] = useState([]);
   const [candidateNames, setCandidates] = useState([]);
+  const [pdfUrl, setPdfUrl] = useState(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -53,12 +57,6 @@ const OfferLetterForm = () => {
             candidateAddress: selectedCandidate.candidateAddress,
             candidateState: selectedCandidate.candidateState,
             candidateZip: selectedCandidate.candidateZip,
-
-            // candidateAddress: `${item.addressInformation.city}, ${item.addressInformation.province}, ${item.addressInformation.country}, ${item.addressInformation.postalCode}`,
-            // candidateState: "Bengaluru",
-            // candidateZip: "897865",
-
-
           }
         ))
       }
@@ -112,6 +110,34 @@ const OfferLetterForm = () => {
 
     if (valid) {
       console.log("✅ All input fields are filled. Submitting form...", formData);
+      // Constructing the payload with the required structure
+      const payload =
+      {
+        "companyAddress": formData.companyAddress,
+        "companyCity": "Bangalore",
+        "companyState": "Karnataka",
+        "companyZip": "560001",
+        "companyName": "Google",
+        "candidateName": "Ravi Kumar",
+        "candidateAddress": "456 Candidate Road",
+        "candidateCity": "Chennai",
+        "candidateState": "Tamil Nadu",
+        "candidateZip": "600001",
+        "jobTitle": "Software Engineer",
+        "startDate": "2025-02-01",
+        "employmentType": "Full-Time",
+        "salary": "750000",
+        "salaryType": "Yearly",
+        "equity": "2%",
+        "benefits": "Health Insurance, 401(k)",
+        "deadlineDate": "2025-02-15",
+        "hiringManagerName": "Alice Johnson",
+        "hiringManagerPosition": "Hiring Manager"
+      };
+      generateOfferLetterDocument(payload);
+      alert("✅ Form is valid and ready to submit!");
+      console.log("Form Payload for submission:", payload);
+      console.log("Form submitted successfully!", formData)
     } else {
       console.log(
         "❌ Form has missing inputs fields. Fix errors before submitting."
@@ -120,7 +146,61 @@ const OfferLetterForm = () => {
       console.log("Form has validation errors.");
     }
   }
+  // generateOfferLetterDocument
+  async function generateOfferLetterDocument(payload) {
+    setStatus('loading');
+    try {
+      const createOfferLetterDocumentResponse = await generateOfferLetter(payload);
+      // Create a URL for the Blob to be used in the iframe
+      const pdfUrl = URL.createObjectURL(createOfferLetterDocumentResponse);
+      setPdfUrl(pdfUrl);
 
+      console.log("Offer Letter successfully generated and downloaded!", pdfUrl);
+      setStatus('success - Offer Letter generated successfully and is being downloaded.');
+
+      setFormData((prev) => ({
+        ...prev,
+        companyAddress: "",
+        companyCity: "",
+        companyState: "",
+        companyZip: "",
+        companyName: "",
+        candidateName: "",
+        candidateAddress: "",
+        candidateCity: "",
+        candidateState: "",
+        candidateZip: "",
+        jobTitle: "",
+        startDate: "",
+        employmentType: "",
+        salary: "",
+        salaryType: "",
+        equity: "",
+        perksAndbenefits: "",
+        deadlineDate: "",
+        hiringManagerName: "",
+        hiringManagerPosition: ""
+      }));
+
+    } catch (error) {
+
+      const errorMessage =
+        error.response && error.response.data && error.response.data.message
+          ? error.response.data.message
+          : 'An unexpected error occurred';
+
+      console.error("Failed to evalute Candidate:", errorMessage);
+      setStatus('error');
+      setErrorMessage(errorMessage);
+
+    } finally {
+      // setTimeout(() => {
+      //   setStatus('');
+      //   setErrorMessage('');
+      // }, 10000);
+    }
+
+  }
   useEffect(() => {
     async function employmentTypeData() {
       try {
@@ -204,427 +284,447 @@ const OfferLetterForm = () => {
       .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter of each word
   };
   return (
-    <div className="container mt-5">
-      <div className="card shadow-sm">
-        <div className="card-header bg-white text-secondary d-flex justify-content-between align-items-center">
-          <h3 className="mb-0">Offer Letter Generation</h3>
-          <button type="button"
-            onClick={handleSubmit}
-            className="btn btn-sm btn-primary">Submit</button>
-        </div>
-        <div className="card-body">
-          <form onSubmit={handleSubmit} className="needs-validation" noValidate>
-            <div className="row g-3">
-              {/* Company Address */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">
-                    Company Address<span className="text-danger fs-5">*</span>
-                  </label>
-                  <div className="flex-grow-1">
-                    <input
-                      type="text"
-                      className={`form-control ${ValidationHelper.getValidationClass("companyAddress", touchedFields, formErrors)}`}
-                      name="companyAddress"
-                      value={formData.companyAddress || ""}
-                      onChange={handleChange}
-                      required
-                    />
-                    {/* <div className="valid-feedback">Looks good!</div>
+    <div className="container mt-5 p-0">
+      {/* Use the StatusMessage component */}
+      <StatusMessage status={status} errorMessage={errorMessage} />
+
+
+      <div className='row'>
+        <div className='col-md-7'>
+          <div className="card shadow-sm">
+            <div className="card-header bg-white text-secondary d-flex justify-content-between align-items-center">
+              <h3 className="mb-0">Offer Letter Generation</h3>
+              <button type="button"
+                onClick={handleSubmit}
+                className="btn btn-sm btn-primary">Submit</button>
+            </div>
+            <div className="card-body">
+              <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+                <div className="row g-3">
+                  {/* Company Address */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">
+                        Company Address<span className="text-danger fs-5">*</span>
+                      </label>
+                      <div className="flex-grow-1">
+                        <input
+                          type="text"
+                          className={`form-control ${ValidationHelper.getValidationClass("companyAddress", touchedFields, formErrors)}`}
+                          name="companyAddress"
+                          value={formData.companyAddress || ""}
+                          onChange={handleChange}
+                          required
+                        />
+                        {/* <div className="valid-feedback">Looks good!</div>
                     <div className="invalid-feedback">Please enter the company address.</div> */}
-                    <div className={ValidationHelper.getFeedbackClass("companyAddress", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("companyAddress", touchedFields, formErrors)}
+                        <div className={ValidationHelper.getFeedbackClass("companyAddress", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("companyAddress", touchedFields, formErrors)}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              {/* Company City */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Company City</label>
-                  <div className="flex-grow-1">
-                    <input
-                      type="text"
-                      className={`form-control ${ValidationHelper.getValidationClass("companyCity", touchedFields, formErrors)}`}
-                      name="companyCity"
-                      value={formData.companyCity || ""}
-                      onChange={handleChange}
-                    />
-                    <div className={ValidationHelper.getFeedbackClass("companyCity", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("companyCity", touchedFields, formErrors)}
+                  {/* Company City */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Company City</label>
+                      <div className="flex-grow-1">
+                        <input
+                          type="text"
+                          className={`form-control ${ValidationHelper.getValidationClass("companyCity", touchedFields, formErrors)}`}
+                          name="companyCity"
+                          value={formData.companyCity || ""}
+                          onChange={handleChange}
+                        />
+                        <div className={ValidationHelper.getFeedbackClass("companyCity", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("companyCity", touchedFields, formErrors)}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              {/* Company State */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Company State</label>
-                  <div className="flex-grow-1">
-                    <input
-                      type="text"
-                      className={`form-control ${ValidationHelper.getValidationClass("companyState", touchedFields, formErrors)}`}
-                      name="companyState"
-                      value={formData.companyState || ""}
-                      onChange={handleChange}
-                    />
-                    <div className={ValidationHelper.getFeedbackClass("companyState", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("companyState", touchedFields, formErrors)}
+                  {/* Company State */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Company State</label>
+                      <div className="flex-grow-1">
+                        <input
+                          type="text"
+                          className={`form-control ${ValidationHelper.getValidationClass("companyState", touchedFields, formErrors)}`}
+                          name="companyState"
+                          value={formData.companyState || ""}
+                          onChange={handleChange}
+                        />
+                        <div className={ValidationHelper.getFeedbackClass("companyState", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("companyState", touchedFields, formErrors)}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              {/* Company Zip */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Company Zip</label>
-                  <div className="flex-grow-1">
-                    <input
-                      type="text"
-                      className={`form-control ${ValidationHelper.getValidationClass("companyZip", touchedFields, formErrors)}`}
-                      name="companyZip"
-                      value={formData.companyZip || ""}
-                      onChange={handleChange}
-                    />
-                    <div className={ValidationHelper.getFeedbackClass("companyZip", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("companyZip", touchedFields, formErrors)}
+                  {/* Company Zip */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Company Zip</label>
+                      <div className="flex-grow-1">
+                        <input
+                          type="text"
+                          className={`form-control ${ValidationHelper.getValidationClass("companyZip", touchedFields, formErrors)}`}
+                          name="companyZip"
+                          value={formData.companyZip || ""}
+                          onChange={handleChange}
+                        />
+                        <div className={ValidationHelper.getFeedbackClass("companyZip", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("companyZip", touchedFields, formErrors)}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              {/* Company Name */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Company Name</label>
-                  <div className="flex-grow-1">
-                    <input
-                      type="text"
-                      className={`form-control ${ValidationHelper.getValidationClass("companyName", touchedFields, formErrors)}`}
-                      name="companyName"
-                      value={formData.companyName || ""}
-                      onChange={handleChange}
-                    />
-                    <div className={ValidationHelper.getFeedbackClass("companyName", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("companyName", touchedFields, formErrors)}
+                  {/* Company Name */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Company Name</label>
+                      <div className="flex-grow-1">
+                        <input
+                          type="text"
+                          className={`form-control ${ValidationHelper.getValidationClass("companyName", touchedFields, formErrors)}`}
+                          name="companyName"
+                          value={formData.companyName || ""}
+                          onChange={handleChange}
+                        />
+                        <div className={ValidationHelper.getFeedbackClass("companyName", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("companyName", touchedFields, formErrors)}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              {/* Candidate Name */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Candidate Name</label>
-                  <div className="flex-grow-1">
-                    {/* <input
+                  {/* Candidate Name */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Candidate Name</label>
+                      <div className="flex-grow-1">
+                        {/* <input
                       type="text"
                       className="form-control fixed-width-input"
                       name="candidateName"
                       value={formData.candidateName || ""}
                       onChange={handleChange}
                     /> */}
-                    <select
-                      className={`form-select ${ValidationHelper.getValidationClass("candidateName", touchedFields, formErrors)}`}
-                      name="candidateName"
-                      value={formData.candidateName}
-                      onChange={handleChange}
-                    >
-                      <option value=""> Select Candidate</option>
+                        <select
+                          className={`form-select ${ValidationHelper.getValidationClass("candidateName", touchedFields, formErrors)}`}
+                          name="candidateName"
+                          value={formData.candidateName}
+                          onChange={handleChange}
+                        >
+                          <option value=""> Select Candidate</option>
 
-                      {candidateNames.map((candidate) => (
-                        <option key={candidate.id} value={candidate.name}>
-                          {candidate.name}
-                        </option>
-                      ))}
-                    </select>
+                          {candidateNames.map((candidate) => (
+                            <option key={candidate.id} value={candidate.name}>
+                              {candidate.name}
+                            </option>
+                          ))}
+                        </select>
 
-                  </div>
-                </div>
-              </div>
-              {/* Candidate Address */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Candidate Address</label>
-                  <div className="flex-grow-1">
-                    <input
-                      type="text"
-                      className="form-control fixed-width-input"
-                      name="candidateAddress"
-                      value={formData.candidateAddress || ""}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-              </div>
-              {/* Candidate City */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Candidate City</label>
-                  <div className="flex-grow-1">
-                    <input
-                      type="text"
-                      className={`form-control ${ValidationHelper.getValidationClass("candidateCity", touchedFields, formErrors)}`}
-                      name="candidateCity"
-                      value={formData.candidateCity || ""}
-                      onChange={handleChange}
-                    />
-                    <div className={ValidationHelper.getFeedbackClass("candidateCity", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("candidateCity", touchedFields, formErrors)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              {/* Candidate State */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Candidate State</label>
-                  <div className="flex-grow-1">
-                    <input
-                      type="text"
-                      className={`form-control ${ValidationHelper.getValidationClass("candidateState", touchedFields, formErrors)}`}
-                      name="candidateState"
-                      value={formData.candidateState || ""}
-                      onChange={handleChange}
-                    />
-                    <div className={ValidationHelper.getFeedbackClass("candidateState", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("candidateState", touchedFields, formErrors)}
-                    </div>
-
-                  </div>
-                </div>
-              </div>
-              {/* Candidate Zip */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Candidate Zip</label>
-                  <div className="flex-grow-1">
-                    <input
-                      type="text"
-                      className={`form-control ${ValidationHelper.getValidationClass("candidateZip", touchedFields, formErrors)}`}
-                      name="candidateZip"
-                      value={formData.candidateZip || ""}
-                      onChange={handleChange}
-                    />
-                    <div className={ValidationHelper.getFeedbackClass("candidateZip", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("candidateZip", touchedFields, formErrors)}
+                  {/* Candidate Address */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Candidate Address</label>
+                      <div className="flex-grow-1">
+                        <input
+                          type="text"
+                          className="form-control fixed-width-input"
+                          name="candidateAddress"
+                          value={formData.candidateAddress || ""}
+                          onChange={handleChange}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              {/* Job Title */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Job Title</label>
-                  <div className="flex-grow-1">
-
-                    <select
-                      className={`form-select ${ValidationHelper.getValidationClass("jobTitle", touchedFields, formErrors)}`}
-                      name="jobTitle"
-                      value={formData.jobTitle}
-                      onChange={handleChange}
-                    >
-                      <option value=""> Job Title </option>
-
-                      {jobTitles.map((jobTitle) => (
-                        <option key={jobTitle.id} value={jobTitle.postingTitle}>
-                          {jobTitle.postingTitle}
-                        </option>
-                      ))}
-                    </select>
-                    <div className={ValidationHelper.getFeedbackClass("jobTitle", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("jobTitle", touchedFields, formErrors)}
+                  {/* Candidate City */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Candidate City</label>
+                      <div className="flex-grow-1">
+                        <input
+                          type="text"
+                          className={`form-control ${ValidationHelper.getValidationClass("candidateCity", touchedFields, formErrors)}`}
+                          name="candidateCity"
+                          value={formData.candidateCity || ""}
+                          onChange={handleChange}
+                        />
+                        <div className={ValidationHelper.getFeedbackClass("candidateCity", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("candidateCity", touchedFields, formErrors)}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              {/* Start Date */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Start Date</label>
-                  <div className="flex-grow-1">
-                    <input
-                      type="date"
-                      className={`form-control ${ValidationHelper.getValidationClass("startDate", touchedFields, formErrors)}`}
-                      name="startDate"
-                      value={formData.startDate || ""}
-                      onChange={handleChange}
-                    />
-                    <div className={ValidationHelper.getFeedbackClass("startDate", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("startDate", touchedFields, formErrors)}
+                  {/* Candidate State */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Candidate State</label>
+                      <div className="flex-grow-1">
+                        <input
+                          type="text"
+                          className={`form-control ${ValidationHelper.getValidationClass("candidateState", touchedFields, formErrors)}`}
+                          name="candidateState"
+                          value={formData.candidateState || ""}
+                          onChange={handleChange}
+                        />
+                        <div className={ValidationHelper.getFeedbackClass("candidateState", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("candidateState", touchedFields, formErrors)}
+                        </div>
+
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              {/* Employment Type */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Employment Type</label>
-                  <div className="flex-grow-1">
-                    <select
-                      className={`form-select ${ValidationHelper.getValidationClass("employmentType", touchedFields, formErrors)}`}
-                      name="employmentType"
-                      value={formData.employmentType}
-                      onChange={handleChange}
-                    >
-                      <option value="">Select Employment Type</option>
-
-                      {employmentTypes.map((employmentType) => (
-                        <option key={employmentType} value={employmentType}>
-                          {formatJobType(employmentType)}
-
-                        </option>
-                      ))}
-                    </select>
-
-                  </div>
-                  <div className={ValidationHelper.getFeedbackClass("employmentType", touchedFields, formErrors)}>
-                    {ValidationHelper.getFeedbackMessage("employmentType", touchedFields, formErrors)}
-                  </div>
-                </div>
-              </div>
-              {/* Salary */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Salary</label>
-                  <div className="flex-grow-1">
-                    <input
-                      type="number"
-                      className={`form-control ${ValidationHelper.getValidationClass("salary", touchedFields, formErrors)}`}
-                      name="salary"
-                      value={formData.salary || ""}
-                      onChange={handleChange}
-                    />
-                    <div className={ValidationHelper.getFeedbackClass("salary", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("salary", touchedFields, formErrors)}
+                  {/* Candidate Zip */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Candidate Zip</label>
+                      <div className="flex-grow-1">
+                        <input
+                          type="text"
+                          className={`form-control ${ValidationHelper.getValidationClass("candidateZip", touchedFields, formErrors)}`}
+                          name="candidateZip"
+                          value={formData.candidateZip || ""}
+                          onChange={handleChange}
+                        />
+                        <div className={ValidationHelper.getFeedbackClass("candidateZip", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("candidateZip", touchedFields, formErrors)}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              {/* Salary Type */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Salary Type</label>
-                  <div className="flex-grow-1">
-                    <select
-                      // className="form-select"
-                      className={`form-control ${ValidationHelper.getValidationClass("salaryType", touchedFields, formErrors)}`}
+                  {/* Job Title */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Job Title</label>
+                      <div className="flex-grow-1">
 
-                      name="salaryType"
-                      value={formData.salaryType}
-                      onChange={handleChange}
-                    >
-                      <option value="">Select Salary Type</option>
-                      <option value="Yearly">Yearly</option>
-                      <option value="Monthly">Monthly</option>
-                      <option value="Weekly">Weekly</option>
-                      <option value="Hourly">Hourly</option>
-                    </select>
-                    <div className={ValidationHelper.getFeedbackClass("salaryType", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("salaryType", touchedFields, formErrors)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* Equity */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Equity</label>
-                  <div className="flex-grow-1">
-                    <input
-                      type="text"
-                      className={`form-control ${ValidationHelper.getValidationClass("equity", touchedFields, formErrors)}`}
-                      name="equity"
-                      value={formData.equity || ""}
-                      onChange={handleChange}
-                    />
-                    <div className={ValidationHelper.getFeedbackClass("equity", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("equity", touchedFields, formErrors)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* perksAndbenefits */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Benefits</label>
-                  <div className="flex-grow-1">
-                    <textarea
-                      className={`form-control ${ValidationHelper.getValidationClass("perksAndbenefits", touchedFields, formErrors)}`}
+                        <select
+                          className={`form-select ${ValidationHelper.getValidationClass("jobTitle", touchedFields, formErrors)}`}
+                          name="jobTitle"
+                          value={formData.jobTitle}
+                          onChange={handleChange}
+                        >
+                          <option value=""> Job Title </option>
 
-                      name="perksAndbenefits"
-                      value={formData.perksAndbenefits}
-                      onChange={handleChange}
-                    ></textarea>
-                    <div className={ValidationHelper.getFeedbackClass("perksAndbenefits", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("perksAndbenefits", touchedFields, formErrors)}
+                          {jobTitles.map((jobTitle) => (
+                            <option key={jobTitle.id} value={jobTitle.postingTitle}>
+                              {jobTitle.postingTitle}
+                            </option>
+                          ))}
+                        </select>
+                        <div className={ValidationHelper.getFeedbackClass("jobTitle", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("jobTitle", touchedFields, formErrors)}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              {/* Deadline Date */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Deadline Date</label>
-                  <div className="flex-grow-1">
-                    <input
-                      type="date"
-                      className={`form-control ${ValidationHelper.getValidationClass("deadlineDate", touchedFields, formErrors)}`}
-                      name="deadlineDate"
-                      value={formData.deadlineDate || ""}
-                      onChange={handleChange}
-                    />
-                    <div className={ValidationHelper.getFeedbackClass("deadlineDate", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("deadlineDate", touchedFields, formErrors)}
+                  {/* Start Date */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Start Date</label>
+                      <div className="flex-grow-1">
+                        <input
+                          type="date"
+                          className={`form-control ${ValidationHelper.getValidationClass("startDate", touchedFields, formErrors)}`}
+                          name="startDate"
+                          value={formData.startDate || ""}
+                          onChange={handleChange}
+                        />
+                        <div className={ValidationHelper.getFeedbackClass("startDate", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("startDate", touchedFields, formErrors)}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              {/* Hiring Manager Name */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Hiring Manager Name</label>
-                  <div className="flex-grow-1">
-                    <select
+                  {/* Employment Type */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Employment Type</label>
+                      <div className="flex-grow-1">
+                        <select
+                          className={`form-select ${ValidationHelper.getValidationClass("employmentType", touchedFields, formErrors)}`}
+                          name="employmentType"
+                          value={formData.employmentType}
+                          onChange={handleChange}
+                        >
+                          <option value="">Select Employment Type</option>
 
-                      className={`form-select ${ValidationHelper.getValidationClass("hiringManagerName", touchedFields, formErrors)}`}
-                      name="hiringManagerName"
-                      value={formData.hiringManagerName}
-                      onChange={handleChange}
-                    >
-                      <option value=""> Hiring Manager Name </option>
-                      {hiringManagers.map((hiringManager) => (
-                        <option key={hiringManager.id} value={hiringManager.name}>
-                          {hiringManager.name}
-                        </option>
-                      ))}
-                    </select>
-                    <div className={ValidationHelper.getFeedbackClass("hiringManagerName", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("hiringManagerName", touchedFields, formErrors)}
+                          {employmentTypes.map((employmentType) => (
+                            <option key={employmentType} value={employmentType}>
+                              {formatJobType(employmentType)}
+
+                            </option>
+                          ))}
+                        </select>
+
+                      </div>
+                      <div className={ValidationHelper.getFeedbackClass("employmentType", touchedFields, formErrors)}>
+                        {ValidationHelper.getFeedbackMessage("employmentType", touchedFields, formErrors)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Hiring Manager Position */}
-              <div className="col-md-6">
-                <div className="d-flex align-items-center">
-                  <label className="form-label fixed-width-label">Hiring Manager Position</label>
-                  <div className="flex-grow-1">
-                    <input
-                      type="text"
-                      className={`form-control ${ValidationHelper.getValidationClass("hiringManagerPosition", touchedFields, formErrors)}`}
-                      name="hiringManagerPosition"
-                      value={formData.hiringManagerPosition || ""}
-                      onChange={handleChange}
-                    />
-                    <div className={ValidationHelper.getFeedbackClass("hiringManagerPosition", touchedFields, formErrors)}>
-                      {ValidationHelper.getFeedbackMessage("hiringManagerPosition", touchedFields, formErrors)}
+                  {/* Salary */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Salary</label>
+                      <div className="flex-grow-1">
+                        <input
+                          type="number"
+                          className={`form-control ${ValidationHelper.getValidationClass("salary", touchedFields, formErrors)}`}
+                          name="salary"
+                          value={formData.salary || ""}
+                          onChange={handleChange}
+                        />
+                        <div className={ValidationHelper.getFeedbackClass("salary", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("salary", touchedFields, formErrors)}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                  {/* Salary Type */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Salary Type</label>
+                      <div className="flex-grow-1">
+                        <select
+                          // className="form-select"
+                          className={`form-select ${ValidationHelper.getValidationClass("salaryType", touchedFields, formErrors)}`}
 
+                          name="salaryType"
+                          value={formData.salaryType}
+                          onChange={handleChange}
+                        >
+                          <option value="">Select Salary Type</option>
+                          <option value="Yearly">Yearly</option>
+                          <option value="Monthly">Monthly</option>
+                          <option value="Weekly">Weekly</option>
+                          <option value="Hourly">Hourly</option>
+                        </select>
+                        <div className={ValidationHelper.getFeedbackClass("salaryType", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("salaryType", touchedFields, formErrors)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Equity */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Equity</label>
+                      <div className="flex-grow-1">
+                        <input
+                          type="text"
+                          className={`form-control ${ValidationHelper.getValidationClass("equity", touchedFields, formErrors)}`}
+                          name="equity"
+                          value={formData.equity || ""}
+                          onChange={handleChange}
+                        />
+                        <div className={ValidationHelper.getFeedbackClass("equity", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("equity", touchedFields, formErrors)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* perksAndbenefits */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Benefits</label>
+                      <div className="flex-grow-1">
+                        <textarea
+                          className={`form-control ${ValidationHelper.getValidationClass("perksAndbenefits", touchedFields, formErrors)}`}
+
+                          name="perksAndbenefits"
+                          value={formData.perksAndbenefits}
+                          onChange={handleChange}
+                        ></textarea>
+                        <div className={ValidationHelper.getFeedbackClass("perksAndbenefits", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("perksAndbenefits", touchedFields, formErrors)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Deadline Date */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Deadline Date</label>
+                      <div className="flex-grow-1">
+                        <input
+                          type="date"
+                          className={`form-control ${ValidationHelper.getValidationClass("deadlineDate", touchedFields, formErrors)}`}
+                          name="deadlineDate"
+                          value={formData.deadlineDate || ""}
+                          onChange={handleChange}
+                        />
+                        <div className={ValidationHelper.getFeedbackClass("deadlineDate", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("deadlineDate", touchedFields, formErrors)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Hiring Manager Name */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Hiring Manager Name</label>
+                      <div className="flex-grow-1">
+                        <select
+
+                          className={`form-select ${ValidationHelper.getValidationClass("hiringManagerName", touchedFields, formErrors)}`}
+                          name="hiringManagerName"
+                          value={formData.hiringManagerName}
+                          onChange={handleChange}
+                        >
+                          <option value=""> Hiring Manager Name </option>
+                          {hiringManagers.map((hiringManager) => (
+                            <option key={hiringManager.id} value={hiringManager.name}>
+                              {hiringManager.name}
+                            </option>
+                          ))}
+                        </select>
+                        <div className={ValidationHelper.getFeedbackClass("hiringManagerName", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("hiringManagerName", touchedFields, formErrors)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Hiring Manager Position */}
+                  <div className="col-md-6">
+                    <div className="d-flex align-items-center">
+                      <label className="form-label fixed-width-label">Hiring Manager Position</label>
+                      <div className="flex-grow-1">
+                        <input
+                          type="text"
+                          className={`form-control ${ValidationHelper.getValidationClass("hiringManagerPosition", touchedFields, formErrors)}`}
+                          name="hiringManagerPosition"
+                          value={formData.hiringManagerPosition || ""}
+                          onChange={handleChange}
+                        />
+                        <div className={ValidationHelper.getFeedbackClass("hiringManagerPosition", touchedFields, formErrors)}>
+                          {ValidationHelper.getFeedbackMessage("hiringManagerPosition", touchedFields, formErrors)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </form>
             </div>
-          </form>
+          </div>
+        </div>
+        <div className='col-md-5'>
+          {pdfUrl ? (
+            <iframe
+              src={pdfUrl}  // Use the blob URL as the source for the iframe
+              width="100%"
+              height="600px"
+              title="PDF Viewer"
+            />
+          ) : (
+            <p>Loading PDF...</p>
+          )}
         </div>
       </div>
     </div>
