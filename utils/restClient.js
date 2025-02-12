@@ -474,4 +474,36 @@ export const getAllInterviews = async () => {
   }
 };
 
+
+export const GetAllJobOpenings = async () => {
+  try {
+    const response = await restClient.get('/api/job-openings');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all job-types :', error);
+    throw error;
+  }
+};
+
+export const GetAllUsers = async () => {
+  try {
+    const response = await restClient.get('/api/users');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all job-types :', error);
+    throw error;
+  }
+};
+
+// Function to generate an offer letter
+export const generateOfferLetter = async (offerPayload) => {
+  try {
+    const response = await restClient.post('/api/offer-letter/generate', offerPayload);
+    return response.data; // Return the response data if the request is successful
+  } catch (error) {
+    console.error('Error generating offer letter:', error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
+};
+
 export default restClient;

@@ -23,6 +23,10 @@ export const ValidationHelper = {
       "interviewName", "from", "assessmentName",
       , "interviewers", "to", "scheduleComments", "reminder",
 
+      //Offer Letter Generation
+      "companyAddress", "companyState", "companyName", "candidateAddress", "candidateState", "jobTitle", "employmentType", "salaryType", "perksAndbenefits", "hiringManagerName",
+      "companyCity", "companyZip", "candidateName", "candidateCity","candidateZip", "startDate", "salary", "equity", "deadlineDate", "hiringManagerPosition",
+
     ];
 
     const requiredNumericFields = ["experience", "expectedSalary", "noOfPositions", "salary", "experienceInYears"
