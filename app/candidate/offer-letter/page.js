@@ -113,27 +113,28 @@ const OfferLetterForm = () => {
       // Constructing the payload with the required structure
       const payload =
       {
-        "companyAddress": formData.companyAddress,
-        "companyCity": "Bangalore",
-        "companyState": "Karnataka",
-        "companyZip": "560001",
-        "companyName": "Google",
-        "candidateName": "Ravi Kumar",
-        "candidateAddress": "456 Candidate Road",
-        "candidateCity": "Chennai",
-        "candidateState": "Tamil Nadu",
-        "candidateZip": "600001",
-        "jobTitle": "Software Engineer",
-        "startDate": "2025-02-01",
-        "employmentType": "Full-Time",
-        "salary": "750000",
-        "salaryType": "Yearly",
-        "equity": "2%",
-        "benefits": "Health Insurance, 401(k)",
-        "deadlineDate": "2025-02-15",
-        "hiringManagerName": "Alice Johnson",
-        "hiringManagerPosition": "Hiring Manager"
-      };
+        "companyAddress": formData. companyAddress,
+        "companyCity": formData.companyCity,
+        "companyState":formData.companyState,
+        "companyZip": formData.companyZip,
+        "companyName": formData.companyName,
+        "candidateName": formData.candidateName,
+        "candidateAddress": formData.candidateAddress,
+        "candidateCity": formData.candidateCity,
+        "candidateState": formData.candidateState,
+        "candidateZip": formData.candidateZip,
+        "jobTitle": formData.jobTitle,
+        "startDate": formData.startDate,
+        "employmentType": formData.employmentType,
+        "salary": formData.salary,
+        "salaryType": formData.salaryType,
+        "equity": formData.equity,
+        "benefits": formData.perksAndbenefits,
+        "deadlineDate": formData.deadlineDate,
+        "hiringManagerName": formData.hiringManagerName,
+        "hiringManagerPosition": formData.hiringManagerPosition
+      }
+
       generateOfferLetterDocument(payload);
       alert("✅ Form is valid and ready to submit!");
       console.log("Form Payload for submission:", payload);
