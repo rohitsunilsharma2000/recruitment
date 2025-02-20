@@ -48,8 +48,6 @@ export default function SignInPage() {
           localStorage.removeItem("rememberedUsername");
         }
 
-        {/* SessionExpiryHandler is invoked with a 5-second delay */ }
-        // <SessionExpiryHandler delay={5000} />
 
         // Clear localStorage and cookie after 5 seconds  
         setTimeout(() => {
@@ -58,9 +56,6 @@ export default function SignInPage() {
           setCookie("token", "", { maxAge: -1, path: "/" });
           // Deletes the "token" cookie   
           console.log("localStorage and cookie cleared after 5 minutes");
-          // alert("Session Expired !! SignIn again");
-          // router.push("/authentication/card/sign-in");
-          // }, 5000); // 5 seconds delay 
         }, 300000); // 300000 milliseconds = 5 minutes
 
 

@@ -5,8 +5,12 @@ import "./evaluation.css";
 import {
   fetchAllQuestion,
   fetchJobApplicationsStatus,
+  evaluateCandidate,
 } from "@/utils/restClient";
 import { ValidationHelper } from "@/components/form-validator/ValidationHelper";
+import { useSearchParams } from "next/navigation";
+import StatusMessage from "@/components/status-message/StatusMessage";
+import CandidateDetailsApp from "./CandidateDetailsApp";
 
 const Tabs = () => {
   const [formData, setFormData] = useState({
@@ -22,7 +26,7 @@ const Tabs = () => {
     overallStatus: "active",
     overallCommentsForGeneralReview: "",
     overallCommentsForScreening: "",
-    generalRating:0
+    generalRating: 0
   });
 
   const [allQuestions, setAllQuestion] = useState([]);
@@ -32,6 +36,8 @@ const Tabs = () => {
   const [hoveredRating, setHoveredRating] = useState({});
   const [formErrors, setFormErrors] = useState({}); // Store validation errors
   const [touchedFields, setTouchedFields] = useState({}); // Track touched fields
+  const [status, setStatus] = useState(''); // State to track status (loading, success, error)
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleMouseEnter = (questionId, value) => {
     setHoveredRating((prev) => ({
@@ -81,7 +87,7 @@ const Tabs = () => {
         ...prevData,
         generalRating: value, // Update the generalRating in formData
       }));
-  
+
       // Validate the generalRating
       const error = ValidationHelper.validateField("rating", value, "number");
       setFormErrors((prev) => ({ ...prev, generalRating: error }));
@@ -95,7 +101,7 @@ const Tabs = () => {
           rating: value,
         },
       }));
-  
+
       // Validate rating for specific question
       const error = ValidationHelper.validateField("rating", value, "number");
       setFormErrors((prev) => ({ ...prev, [questionId]: error }));
@@ -179,41 +185,41 @@ const Tabs = () => {
     // Final validation check before submission
     if (valid) {
       console.log("✅ All ratings and comments are filled. Submitting form...");
-// Constructing the questionReviews array for each question
-const questionReviews = Object.keys(choosedQuestionResponses).map(
-  (questionBankTemplateId) => ({
-    questionBankTemplateId: parseInt(questionBankTemplateId, 10), // Convert to integer
-    rating: parseInt(choosedQuestionResponses[questionBankTemplateId]?.rating || 0, 10), // Convert to integer
-    comments: choosedQuestionResponses[questionBankTemplateId]?.comments || "",
-  })
-);
+      // Constructing the questionReviews array for each question
+      const questionReviews = Object.keys(choosedQuestionResponses).map(
+        (questionBankTemplateId) => ({
+          questionBankTemplateId: parseInt(questionBankTemplateId, 10), // Convert to integer
+          rating: parseInt(choosedQuestionResponses[questionBankTemplateId]?.rating || 0, 10), // Convert to integer
+          comments: choosedQuestionResponses[questionBankTemplateId]?.comments || "",
+        })
+      );
 
-// Constructing the payload with the required structure
-const payload = {
-  generalReview: {
-    rating: parseInt(formData.generalRating, 10), // Convert to integer
-    candidateStatus: formData.candidateStatus,
-    overallComments: formData.overallCommentsForGeneralReview,
-  },
-  screeningReviews: 
-    {
-      overallRating: parseInt(formData.overallRating, 10), // Convert to integer
-      status: formData.overallStatus,
-      overallComments:formData.overallCommentsForScreening,
-      CandidateGeneralAssessment: [
-        {
-          competencyType: formData.chosenAssessment, // Assuming this is the competencyType for the review
-          questionReviews: questionReviews,
+      // Constructing the payload with the required structure
+      const payload = {
+        generalReview: {
+          rating: parseInt(formData.generalRating, 10), // Convert to integer
+          candidateStatus: formData.candidateStatus,
+          overallComments: formData.overallCommentsForGeneralReview,
         },
-      ],
-    },
-  
-};
+        screeningReviews:
+        {
+          overallRating: parseInt(formData.overallRating, 10), // Convert to integer
+          status: formData.overallStatus,
+          overallComments: formData.overallCommentsForScreening,
+          CandidateGeneralAssessment: [
+            {
+              competencyType: formData.chosenAssessment, // Assuming this is the competencyType for the review
+              questionReviews: questionReviews,
+            },
+          ],
+        },
+
+      };
 
 
-
-      console.log("Form Data for submission:", payload);
+      evaluateCandidateData(candidateId, payload);
       alert("✅ Form is valid and ready to submit!");
+      console.log("Form Data for submission:", payload);
     } else {
       console.log(
         "❌ Form has missing ratings or comments. Fix errors before submitting."
@@ -245,9 +251,8 @@ const payload = {
         {[0, 1, 2, 3, 4, 5].map((star) => (
           <i
             key={star}
-            className={`bi ${
-              star <= (hoveredRating[id] || rating || 0) ? "bi-star-fill" : "bi-star"
-            }`}
+            className={`bi ${star <= (hoveredRating[id] || rating || 0) ? "bi-star-fill" : "bi-star"
+              }`}
             style={{
               color: "#f39c12",
               cursor: "pointer",
@@ -319,30 +324,67 @@ const payload = {
     AllQuestionData(); // Trigger the API call when the component mounts
   }, []);
 
-  // const generalQuestions = filterByKeyValue(allQuestions, "competencyType", "General");
-  // const leadershipQuestions = filterByKeyValue(allQuestions, "question", "How do you handle conflict?");
 
-  // console.log("General Questions:", generalQuestions);
-  // console.log("Leadership Questions:", leadershipQuestions);
+
+
+  const searchParams = useSearchParams();
+  const candidateId = searchParams.get("id"); // Get `id` from query params
+
+
+
+  async function evaluateCandidateData(candidateId, payload) {
+    setStatus('loading');
+    try {
+      const evaluateCandidateResponse = await evaluateCandidate(candidateId, payload);
+      setStatus('success -  Job opening created successfully!');
+      console.log("evaluateCandidateWithId ", evaluateCandidateResponse);
+      setFormData('');
+    } catch (error) {
+
+      const errorMessage =
+
+        error.response && error.response.data && error.response.data.message
+
+          ? error.response.data.message
+
+          : 'An unexpected error occurred';
+
+      console.error("Failed to evalute Candidate:", errorMessage);
+
+      setStatus('error');
+
+      setErrorMessage(errorMessage);
+
+    } finally {
+
+      // setTimeout(() => {
+
+      //   setStatus('');
+
+      //   setErrorMessage('');
+
+      // }, 10000);
+
+    }
+
+  }
+
+
   return (
     <div className="container">
+
+      {/* Use the StatusMessage component */}
+      <StatusMessage status={status} errorMessage={errorMessage} />
       <form onSubmit={handleSubmit}>
         <div className="row mt-2">
           {/* Left Column: Application Details */}
           <div className="col-md-6">
-            <h6>Application Details</h6>
             <div className="card">
               <div className="card-body">
-                <h5 className="card-title">Form</h5>
+                <h5 className="card-title">Application Details
+                </h5>
                 <div className="row">
-                  <div className="col-md-6">
-                    <label className="form-label">Email</label>
-                    <p>text</p>
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label">Password</label>
-                    <p>text</p>
-                  </div>
+                  <CandidateDetailsApp />
                 </div>
               </div>
             </div>
@@ -350,9 +392,10 @@ const payload = {
 
           {/* Right Column: Evaluation */}
           <div className="col-md-6">
-            <h6>Evaluation</h6>
             <div className="card">
               <div className="card-body">
+                <h5 className="card-title">Evaluation
+                </h5>
                 {/* Tab Navigation with radio inputs */}
                 <ul className="nav nav-pills">
                   <li className="nav-item">
@@ -377,6 +420,7 @@ const payload = {
                       <span className="ms-2">Screening Review</span>
                     </label>
                   </li>
+
                   {/* We'll navigate to tab3 programmatically in tab2's "Proceed" button */}
                 </ul>
 
@@ -392,12 +436,12 @@ const payload = {
                       <div className="mb-4">
                         <label className="form-label">Rating</label>
                         <StarRating
-                      id="generalRating" // Pass the unique id for generalRating
-                      rating={formData.generalRating} // Use formData.generalRating as the value
-                      hoveredRating={hoveredRating}
-                      onRatingChange={(id, value) => handleRatingChange(id, value)} // Update the generalRating on rating change
-                      onHoverChange={(id, value) => setHoveredRating((prev) => ({ ...prev, [id]: value }))}
-                    />
+                          id="generalRating" // Pass the unique id for generalRating
+                          rating={formData.generalRating} // Use formData.generalRating as the value
+                          hoveredRating={hoveredRating}
+                          onRatingChange={(id, value) => handleRatingChange(id, value)} // Update the generalRating on rating change
+                          onHoverChange={(id, value) => setHoveredRating((prev) => ({ ...prev, [id]: value }))}
+                        />
                       </div>
 
                       <div className="mb-4">
@@ -412,7 +456,7 @@ const payload = {
                           onChange={handleChange}
                           required
                         >
-                          <option value="" disabled>
+                          <option value="" >
                             Select status
                           </option>
                           <option value="Active">Active</option>
@@ -441,15 +485,11 @@ const payload = {
                       </div>
 
                       <div className="text-center">
-                        <button
-                          type="button"
-                          className="btn btn-secondary me-2"
-                          onClick={() => alert("Cancel clicked")}
+
+                        <button type="button" className="btn btn-primary"
+                          onClick={() => handleTabChange("tab2")}
                         >
-                          Cancel
-                        </button>
-                        <button type="submit" className="btn btn-primary">
-                          Submit
+                          Proceed
                         </button>
                       </div>
                     </div>
@@ -474,7 +514,7 @@ const payload = {
                           onChange={handleChange}
                           required
                         >
-                          <option value="">Select Type</option>
+                          <option value="" >Choose Screening Review</option>
                           <option value="Technical">Technical</option>
                           <option value="HR">HR</option>
                           <option value="Managerial">Managerial</option>
@@ -496,9 +536,8 @@ const payload = {
                           onChange={handleChange}
                           required
                         >
-                          <option value="">Select Type</option>
 
-                          <option value="">Choose Assessment</option>
+                          <option value="" >Choose Assessment</option>
                           {questionTypes.map((option, index) => (
                             <option key={index} value={option.value}>
                               {option.label}
@@ -536,7 +575,31 @@ const payload = {
                       }`}
                     id="tab3"
                   >
+                    {/* Submit Button */}
+
+                    <div className="text-end">
+                      <button
+                        type="button"
+                        className="btn btn-secondary me-2"
+                        onClick={() => handleTabChange("tab2")}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                        onClick={handleSubmit}
+                        disabled={
+                          !formData.overallRating ||
+                          !formData.overallStatus ||
+                          !formData.overallCommentsForScreening
+                        }
+                      >
+                        Submit
+                      </button>
+                    </div>
                     <div className="mt-1">
+
                       <div
                         className="accordion accordion-flush mb-4 border"
                         id="accordionFlushExample"
@@ -575,15 +638,15 @@ const payload = {
 
                                   {/* Star Rating Input */}
                                   <div>
-                                  <StarRating
-      id={item.id}
-      rating={choosedQuestionResponses[item.id]?.rating || 0}
-      hoveredRating={hoveredRating}
-      onRatingChange={handleRatingChange}
-      onHoverChange={(id, value) =>
-        setHoveredRating((prev) => ({ ...prev, [id]: value }))
-      }
-    />
+                                    <StarRating
+                                      id={item.id}
+                                      rating={choosedQuestionResponses[item.id]?.rating || 0}
+                                      hoveredRating={hoveredRating}
+                                      onRatingChange={handleRatingChange}
+                                      onHoverChange={(id, value) =>
+                                        setHoveredRating((prev) => ({ ...prev, [id]: value }))
+                                      }
+                                    />
                                     <span className="ms-2">
                                       <a
                                         className="btn btn-link text-decoration-none fs-6"
@@ -673,6 +736,7 @@ const payload = {
                           onChange={handleChange}
                           required
                         >
+                          <option value="" >Choose Overall Screening Review</option>
                           <option value="1">1 - Poor</option>
                           <option value="2">2 - Fair</option>
                           <option value="3">3 - Good</option>
@@ -723,29 +787,7 @@ const payload = {
                         ></textarea>
                       </div>
 
-                      {/* Submit Button */}
 
-                      <div className="text-center">
-                        <button
-                          type="button"
-                          className="btn btn-secondary me-2"
-                          onClick={() => handleTabChange("tab2")}
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-                          className="btn btn-primary"
-                          onClick={handleSubmit}
-                          disabled={
-                            !formData.overallRating ||
-                            !formData.overallStatus ||
-                            !formData.overallCommentsForScreening
-                          }
-                        >
-                          Submit
-                        </button>
-                      </div>
                     </div>
                   </div>
                 </div>

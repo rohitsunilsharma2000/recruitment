@@ -357,10 +357,23 @@ export const fetchAllQuestion = async () => {
     const response = await restClient.get('/api/question-bank');
     return response.data; // Return the response data
   } catch (error) {
-    console.error('Error fetching job applications:', error);
+    console.error('Error fetching questions:', error);
     throw error; // Throw the error for further handling
   }
 };
+
+export const fetchQuestionsByCompetency = async (competencyType) => {
+  try {
+    const response = await restClient.get(`/api/question-bank/by-competency`, {
+      params: { competencyType }, // Pass competencyType as a query param
+    });
+    return response.data; // Return the response data
+  } catch (error) {
+    console.error('Error fetching questions:', error);
+    throw error; // Throw the error for further handling
+  }
+};
+
 
 export const evaluateCandidate = async (candidateId, payload) => {
   try {
@@ -376,7 +389,7 @@ export const evaluateCandidate = async (candidateId, payload) => {
 
 export const createBulkJobApplications = async (payload) => {
   try {
-    const response = await restClient.post('/api/job-applications/bulk', payload);
+    const response = await restClient.post('/api/job-applications', payload);
     return response.data; // Return the response data if the request is successful
   } catch (error) {
     console.error('Error creating bulk job applications:', error);
@@ -386,7 +399,7 @@ export const createBulkJobApplications = async (payload) => {
 
 
 
-export const createInterview = async (payload) => {
+export const scheduleInterview = async (payload) => {
   try {
     const response = await restClient.post('/api/interviews', payload);
     return response.data; // Return the response data if the request is successful
@@ -438,6 +451,80 @@ export const fetchJobOpeningById = async (jobId) => {
   } catch (error) {
     console.error(`Error in fetching job opening with ID ${jobId}:`, error);
     throw error;
+  }
+};
+
+export const fetchCandidateDetailsById = async (id) => {
+  try {
+    const response = await restClient.get(`/api/candidates/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error in fetching candidates with ID ${id}:`, error);
+    throw error;
+  }
+};
+
+export const getAllInterviews = async () => {
+  try {
+    const response = await restClient.get(`/api/interviews`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error in fetching all interviews:`, error);
+    throw error;
+  }
+};
+
+
+export const GetAllJobOpenings = async () => {
+  try {
+    const response = await restClient.get('/api/job-openings');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all job-types :', error);
+    throw error;
+  }
+};
+
+export const GetAllUsers = async () => {
+  try {
+    const response = await restClient.get('/api/users');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all job-types :', error);
+    throw error;
+  }
+};
+
+// Function to generate an offer letter
+// export const generateOfferLetter = async (offerPayload) => {
+//   try {
+//     const response = await restClient.post('/api/offer-letter/generate', offerPayload);
+//     return response.data; // Return the response data if the request is successful
+//   } catch (error) {
+//     console.error('Error generating offer letter:', error);
+//     throw error; // Re-throw the error to be handled by the caller
+//   }
+// };
+
+export const generateOfferLetter = async (offerPayload) => {
+  try {
+    const response = await restClient.post('/api/offer-letter/generate', offerPayload, {
+      responseType: 'arraybuffer',  // Ensure we treat the response as binary data for PDFs
+      headers: {
+        'Accept': 'application/pdf',  // Inform the backend that we expect a PDF response
+        'Content-Type': 'application/json'  // Ensure we're sending JSON data
+      }
+    });
+
+    // Convert the binary data into a Blob for frontend use
+    const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+
+    // Return the Blob to the caller for display or download
+    return pdfBlob;
+
+  } catch (error) {
+    console.error('Error generating offer letter:', error);
+    throw error;  // Re-throw to allow further handling by the caller
   }
 };
 

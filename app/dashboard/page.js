@@ -1,13 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { fetchUserData } from '../../utils/restClient';
+import { fetchUserData, getAllInterviews } from '../../utils/restClient';
 import { useRouter } from 'next/navigation';
 
 import "./dashboard.css"
 
 const Dashboard = () => {
   const [userData, setUserData] = useState(null);
+  const [interviews, setInterviews] = useState([]);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -17,18 +19,34 @@ const Dashboard = () => {
       router.push('/authentication/card/sign-in');
       return;
     }
+    //getAllInterviews
+    async function getAllInterviewsData() {
+      try {
+        console.log("Fetching postingTitles data...");
+        const interviewsResponse = await getAllInterviews();
+        console.log("get All Interviews  response:", interviewsResponse);
 
-    // const fetchData = async () => {
-    //   try {
-    //     const data = await fetchUserData();
-    //     setUserData(data);
-    //   } catch (error) {
-    //     // Handle error or redirect to login
-    //     router.push('/about');
-    //   }
-    // };
+        // Extract required fields
+        const formattedInterviews = interviewsResponse.map((interview) => ({
+          candidateName: `${interview.candidateOwner.firstName} ${interview.candidateOwner.lastName}`,
+          interviewStartTime: new Date(interview.fromDateTime).toLocaleString(),
+          interviewEndTime: new Date(interview.toDateTime).toLocaleString(),
+          candidateOwner: `${interview.candidateOwner.firstName} ${interview.candidateOwner.lastName}`,
+          interviewersOwners: interview.interviewers
+            .map((interviewer) => `${interviewer.firstName} ${interviewer.lastName}`)
+            .join(", "),
+        }));
 
-    // fetchData();
+        console.log("formattedInterviews have been set into state", formattedInterviews);
+
+        setInterviews(formattedInterviews);
+      } catch (error) {
+        console.error("Failed to get All InterviewsData:", error);
+      }
+    }
+
+    getAllInterviewsData(); // Call the function to fetch postingTitles
+
   }, [router]);
 
   // if (!userData) return <p>Loading...</p>;
@@ -371,7 +389,35 @@ const Dashboard = () => {
               <p className="mb-0 fw-700 ">Upcoming Interviews</p>
             </div>
             <div className="card-body">
-              <p className="text-muted">No interviews found</p>
+              <div className="table-responsive">
+                <table className="table table-sm align-middle">
+                  <thead className="">
+                    <tr>
+                      <th>Candidate Name</th>
+                      <th>Interview Start Time</th>
+                      <th>Interview End Time</th>
+                      <th>Candidate Owner</th>
+                      <th>Interview Owner</th>
+
+
+
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {interviews.map((interview, index) => (
+
+
+                      <tr key={index}>
+                        <td>{interview.candidateName}</td>
+                        <td>{interview.interviewStartTime}</td>
+                        <td>{interview.interviewEndTime}</td>
+                        <td>{interview.candidateOwner}</td>
+                        <td>{interview.interviewersOwners}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

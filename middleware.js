@@ -15,5 +15,7 @@ export function middleware(req) {
 
 // Configure the routes to apply middleware only on protected routes
 export const config = {
-  matcher: ['/', '/dashboard', '/interviews', '/job-openings'], // Protected routes, including the root page
+  matcher: ['/',
+    // '/dashboard',
+    '/interviews', '/job-openings'], // Protected routes, including the root page
 };
